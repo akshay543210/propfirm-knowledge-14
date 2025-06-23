@@ -1,11 +1,15 @@
 
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import SearchBar from "./SearchBar";
+import { PropFirm } from "@/types/supabase";
 
-const Hero = () => {
-  const location = useLocation();
-  const propFirms = location.state?.propFirms || [];
+interface HeroProps {
+  propFirms?: PropFirm[];
+  onSearchResults?: (results: PropFirm[]) => void;
+}
 
+const Hero = ({ propFirms = [], onSearchResults }: HeroProps) => {
   const navigateToAllFirms = () => {
     window.location.href = '/propfirms';
   };
@@ -20,6 +24,12 @@ const Hero = () => {
 
   const navigateToTopFirms = () => {
     window.location.href = '/top-firms';
+  };
+
+  const handleSearchResults = (results: PropFirm[]) => {
+    if (onSearchResults) {
+      onSearchResults(results);
+    }
   };
 
   return (
@@ -38,6 +48,15 @@ const Hero = () => {
             best funding opportunities. Make informed decisions with our comprehensive 
             prop firm directory.
           </p>
+
+          {/* Functional Search Bar */}
+          <div className="mb-8">
+            <SearchBar 
+              propFirms={propFirms}
+              onFilteredResults={handleSearchResults}
+              placeholder="Search prop firms by name, brand, or features..."
+            />
+          </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-center max-w-4xl mx-auto">
             <Button 

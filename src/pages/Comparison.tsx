@@ -41,10 +41,10 @@ const Comparison = () => {
 
   const ComparisonCard = ({ firm, index }: { firm: PropFirm | null; index: number }) => {
     return (
-      <Card className="bg-white border-gray-200 h-full">
+      <Card className="bg-slate-800/50 border-blue-500/20 h-full backdrop-blur-sm">
         <CardHeader className="pb-4">
           <div className="flex justify-between items-start">
-            <CardTitle className="text-lg font-semibold text-gray-900">
+            <CardTitle className="text-lg font-semibold text-white">
               Firm {index + 1}
             </CardTitle>
             {firm && (
@@ -52,7 +52,7 @@ const Comparison = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => clearSelection(index)}
-                className="text-gray-500 hover:text-gray-700 p-1"
+                className="text-gray-400 hover:text-white p-1"
               >
                 ×
               </Button>
@@ -60,12 +60,12 @@ const Comparison = () => {
           </div>
           
           <Select value={firm?.id || ""} onValueChange={(value) => handleFirmSelect(value, index)}>
-            <SelectTrigger className="w-full bg-gray-50 border-gray-300">
+            <SelectTrigger className="w-full bg-slate-700/50 border-blue-500/30 text-white">
               <SelectValue placeholder="Select a prop firm" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-slate-800 border-blue-500/20">
               {propFirms.map((f) => (
-                <SelectItem key={f.id} value={f.id}>
+                <SelectItem key={f.id} value={f.id} className="text-white hover:bg-slate-700">
                   {f.name}
                 </SelectItem>
               ))}
@@ -78,70 +78,70 @@ const Comparison = () => {
             <div className="space-y-4">
               {/* Firm Name & Rating */}
               <div className="text-center">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{firm.name}</h3>
+                <h3 className="text-xl font-bold text-white mb-2">{firm.name}</h3>
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <div className="flex">{renderStars(Math.round(firm.review_score))}</div>
-                  <span className="text-gray-600 text-sm">({firm.user_review_count})</span>
+                  <span className="text-gray-400 text-sm">({firm.user_review_count})</span>
                 </div>
                 {firm.brand && (
-                  <Badge className="bg-blue-100 text-blue-800">{firm.brand}</Badge>
+                  <Badge className="bg-blue-600/20 text-blue-400 border-blue-500/30">{firm.brand}</Badge>
                 )}
               </div>
 
               {/* Key Metrics */}
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+                <div className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-blue-500/10">
+                  <DollarSign className="h-5 w-5 text-green-400" />
                   <div>
-                    <div className="font-semibold text-gray-900">Max Funding</div>
-                    <div className="text-gray-600">{firm.max_funding || firm.funding_amount}</div>
+                    <div className="font-semibold text-white">Max Funding</div>
+                    <div className="text-gray-300">{firm.max_funding || firm.funding_amount}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                <div className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-blue-500/10">
+                  <TrendingUp className="h-5 w-5 text-blue-400" />
                   <div>
-                    <div className="font-semibold text-gray-900">Profit Split</div>
-                    <div className="text-gray-600">{firm.profit_split}%</div>
+                    <div className="font-semibold text-white">Profit Split</div>
+                    <div className="text-gray-300">{firm.profit_split}%</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Settings className="h-5 w-5 text-purple-600" />
+                <div className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-blue-500/10">
+                  <Settings className="h-5 w-5 text-purple-400" />
                   <div>
-                    <div className="font-semibold text-gray-900">Evaluation Model</div>
-                    <div className="text-gray-600">{firm.evaluation_model || 'Standard'}</div>
+                    <div className="font-semibold text-white">Evaluation Model</div>
+                    <div className="text-gray-300">{firm.evaluation_model || 'Standard'}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-orange-600" />
+                <div className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-blue-500/10">
+                  <DollarSign className="h-5 w-5 text-orange-400" />
                   <div>
-                    <div className="font-semibold text-gray-900">Starting Fee</div>
-                    <div className="text-gray-600">${firm.price}</div>
+                    <div className="font-semibold text-white">Starting Fee</div>
+                    <div className="text-gray-300">${firm.price}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Shield className="h-5 w-5 text-red-600" />
+                <div className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg border border-blue-500/10">
+                  <Shield className="h-5 w-5 text-red-400" />
                   <div>
-                    <div className="font-semibold text-gray-900">Regulation</div>
-                    <div className="text-gray-600">{firm.regulation || 'N/A'}</div>
+                    <div className="font-semibold text-white">Regulation</div>
+                    <div className="text-gray-300">{firm.regulation || 'N/A'}</div>
                   </div>
                 </div>
               </div>
 
               {/* Features */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Features</h4>
+                <h4 className="font-semibold text-white mb-2">Features</h4>
                 <div className="flex flex-wrap gap-1">
                   {firm.features.slice(0, 4).map((feature, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-xs">
+                    <Badge key={idx} variant="outline" className="text-xs bg-blue-600/10 text-blue-400 border-blue-500/30">
                       {feature}
                     </Badge>
                   ))}
                   {firm.features.length > 4 && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-gray-600/10 text-gray-400 border-gray-500/30">
                       +{firm.features.length - 4} more
                     </Badge>
                   )}
@@ -157,7 +157,7 @@ const Comparison = () => {
               </Button>
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-400">
               Select a prop firm to compare
             </div>
           )}
@@ -168,10 +168,10 @@ const Comparison = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center">Loading comparison tool...</div>
+          <div className="text-center text-white">Loading comparison tool...</div>
         </div>
         <Footer />
       </div>
@@ -179,15 +179,15 @@ const Comparison = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
       
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4">
             Compare PropFirms
           </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
             Compare up to 3 prop firms side by side to find the perfect match for your trading needs
           </p>
         </div>
@@ -203,7 +203,7 @@ const Comparison = () => {
             <Button
               variant="outline"
               onClick={() => setSelectedFirms([null, null, null])}
-              className="border-gray-400 text-gray-600 hover:bg-gray-100"
+              className="border-gray-400 text-gray-400 hover:bg-gray-700 hover:text-white"
             >
               Clear All Selections
             </Button>

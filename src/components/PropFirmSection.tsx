@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PropFirmCard from "./PropFirmCard";
@@ -10,28 +10,53 @@ interface PropFirmSectionProps {
   sortBy: 'price' | 'review' | 'trust';
   setSortBy: (sort: 'price' | 'review' | 'trust') => void;
   loading?: boolean;
+  searchResults?: PropFirm[];
 }
 
-const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading }: PropFirmSectionProps) => {
+const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults }: PropFirmSectionProps) => {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'beginner' | 'intermediate' | 'pro'>('all');
+  const [displayFirms, setDisplayFirms] = useState<PropFirm[]>([]);
 
-  // For now, we'll filter by category name matching - later we can join with categories table
-  const filteredFirms = selectedCategory === 'all' 
-    ? propFirms 
-    : propFirms; // TODO: Add category filtering once we have category joins
+  // Use search results if available, otherwise use all prop firms
+  const baseFirms = searchResults || propFirms;
 
-  const sortedFirms = [...filteredFirms].sort((a, b) => {
-    switch (sortBy) {
-      case 'price':
-        return a.price - b.price;
-      case 'review':
-        return b.review_score - a.review_score;
-      case 'trust':
-        return b.trust_rating - a.trust_rating;
-      default:
-        return 0;
+  useEffect(() => {
+    let filteredFirms = [...baseFirms];
+
+    // Apply category filtering based on price ranges for now (since we don't have category data yet)
+    if (selectedCategory !== 'all') {
+      switch (selectedCategory) {
+        case 'beginner':
+          // Beginner: Lower priced firms (under $200)
+          filteredFirms = filteredFirms.filter(firm => firm.price < 200);
+          break;
+        case 'intermediate':
+          // Intermediate: Mid-range priced firms ($200-$500)
+          filteredFirms = filteredFirms.filter(firm => firm.price >= 200 && firm.price <= 500);
+          break;
+        case 'pro':
+          // Pro: Higher priced firms (over $500)
+          filteredFirms = filteredFirms.filter(firm => firm.price > 500);
+          break;
+      }
     }
-  });
+
+    // Apply sorting
+    filteredFirms.sort((a, b) => {
+      switch (sortBy) {
+        case 'price':
+          return a.price - b.price;
+        case 'review':
+          return b.review_score - a.review_score;
+        case 'trust':
+          return b.trust_rating - a.trust_rating;
+        default:
+          return 0;
+      }
+    });
+
+    setDisplayFirms(filteredFirms);
+  }, [baseFirms, selectedCategory, sortBy]);
 
   if (loading) {
     return (
@@ -55,23 +80,39 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading }: PropFirmSect
           </p>
         </div>
 
-        {/* Category Filters */}
+        {/* Category Filters - Now Functional */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
-          {['all', 'beginner', 'intermediate', 'pro'].map((category) => (
+          {[
+            { key: 'all', label: 'All Levels' },
+            { key: 'beginner', label: 'Beginner Traders' },
+            { key: 'intermediate', label: 'Intermediate Traders' },
+            { key: 'pro', label: 'Pro Traders' }
+          ].map((category) => (
             <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category as any)}
+              key={category.key}
+              variant={selectedCategory === category.key ? "default" : "outline"}
+              onClick={() => setSelectedCategory(category.key as any)}
               className={`px-6 py-2 capitalize transition-all ${
-                selectedCategory === category
+                selectedCategory === category.key
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : 'border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900'
               }`}
             >
-              {category === 'all' ? 'All Levels' : `${category} Traders`}
+              {category.label}
             </Button>
           ))}
         </div>
+
+        {/* Category Info */}
+        {selectedCategory !== 'all' && (
+          <div className="text-center mb-6">
+            <p className="text-gray-400 text-sm">
+              {selectedCategory === 'beginner' && 'Showing firms under $200 - Perfect for new traders'}
+              {selectedCategory === 'intermediate' && 'Showing firms $200-$500 - Great for experienced traders'}
+              {selectedCategory === 'pro' && 'Showing firms over $500 - Advanced trading opportunities'}
+            </p>
+          </div>
+        )}
 
         {/* Sort Controls */}
         <div className="flex justify-center mb-8">
@@ -90,9 +131,17 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading }: PropFirmSect
           </div>
         </div>
 
+        {/* Results Count */}
+        <div className="text-center mb-6">
+          <p className="text-gray-400">
+            Showing {displayFirms.length} of {baseFirms.length} prop firms
+            {searchResults && ` (filtered by search)`}
+          </p>
+        </div>
+
         {/* Prop Firm Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {sortedFirms.map((firm, index) => (
+          {displayFirms.map((firm, index) => (
             <PropFirmCard 
               key={firm.id} 
               firm={firm} 
@@ -101,7 +150,7 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading }: PropFirmSect
           ))}
         </div>
 
-        {sortedFirms.length === 0 && (
+        {displayFirms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">
               No prop firms found for the selected category.
