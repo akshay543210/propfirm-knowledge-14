@@ -2,13 +2,15 @@
 import { useState, useEffect } from "react";
 import AdminFormPanel from "./AdminFormPanel";
 import AdminFirmsList from "./AdminFirmsList";
+import AdminSectionManager from "./AdminSectionManager";
 import { PropFirm } from "../types/supabase";
 import { useAdminOperations } from "../hooks/useAdminOperations";
 import { usePropFirms } from "../hooks/useSupabaseData";
 import { useCategories } from "../hooks/useCategories";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, CheckCircle, RefreshCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertCircle, CheckCircle, RefreshCw, Settings, List, Users } from "lucide-react";
 
 const AdminPanel = () => {
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
@@ -44,7 +46,6 @@ const AdminPanel = () => {
           type: 'success', 
           message: `Successfully added "${firmData.name}"` 
         });
-        // Force refresh to see new data
         setTimeout(async () => {
           await refetch();
         }, 500);
@@ -77,7 +78,6 @@ const AdminPanel = () => {
           type: 'success', 
           message: `Successfully updated "${updates.name || 'prop firm'}"` 
         });
-        // Force refresh to see updated data
         setTimeout(async () => {
           await refetch();
         }, 500);
@@ -109,7 +109,6 @@ const AdminPanel = () => {
           type: 'success', 
           message: 'Successfully deleted prop firm' 
         });
-        // Force refresh to see deleted data
         setTimeout(async () => {
           await refetch();
         }, 500);
@@ -159,7 +158,7 @@ const AdminPanel = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-4">Admin Dashboard</h1>
           <p className="text-gray-300">
-            Manage prop firms, add new ones, and update existing information
+            Manage prop firms, sections, and website content
           </p>
           <div className="text-sm text-gray-400 mt-2 flex items-center justify-center gap-4">
             <span>Categories loaded: {categories.length}</span>
@@ -201,22 +200,69 @@ const AdminPanel = () => {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <AdminFormPanel 
-            onAdd={handleAdd}
-            onUpdate={handleUpdate}
-            editingFirm={editingFirm}
-            setEditingFirm={setEditingFirm}
-            loading={operationLoading}
-          />
-          
-          <AdminFirmsList 
-            propFirms={propFirms}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            loading={dataLoading || operationLoading}
-          />
-        </div>
+        <Tabs defaultValue="sections" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8 bg-slate-800/50">
+            <TabsTrigger 
+              value="sections" 
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Section Management
+            </TabsTrigger>
+            <TabsTrigger 
+              value="firms" 
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              <List className="h-4 w-4 mr-2" />
+              PropFirm Management
+            </TabsTrigger>
+            <TabsTrigger 
+              value="users" 
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              User Management
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="sections">
+            <AdminSectionManager />
+          </TabsContent>
+
+          <TabsContent value="firms">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <AdminFormPanel 
+                onAdd={handleAdd}
+                onUpdate={handleUpdate}
+                editingFirm={editingFirm}
+                setEditingFirm={setEditingFirm}
+                loading={operationLoading}
+              />
+              
+              <AdminFirmsList 
+                propFirms={propFirms}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                loading={dataLoading || operationLoading}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="users">
+            <Card className="bg-slate-800/50 border-blue-500/20">
+              <CardContent className="p-8 text-center">
+                <Users className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">User Management</h3>
+                <p className="text-gray-400 mb-4">
+                  User management features will be available in future updates
+                </p>
+                <div className="text-sm text-gray-500">
+                  Features coming soon: User roles, permissions, activity logs
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
