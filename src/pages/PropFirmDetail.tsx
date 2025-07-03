@@ -10,6 +10,8 @@ import { PropFirm } from "@/types/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WriteReviewForm from "@/components/WriteReviewForm";
+import AccountSizesTable from "@/components/AccountSizesTable";
+import { dummyAccountSizes } from "@/data/accountSizes";
 
 const PropFirmDetail = () => {
   const { id } = useParams();
@@ -230,6 +232,12 @@ const PropFirmDetail = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Account Sizes & Pricing Table */}
+        <AccountSizesTable 
+          accountSizes={dummyAccountSizes.filter(size => size.firm_id === firm.id || size.firm_id === 'ftmo-id')}
+          firmName={firm.name}
+        />
 
         {/* User Reviews Section */}
         <Card className="bg-slate-800/50 border-blue-500/20">

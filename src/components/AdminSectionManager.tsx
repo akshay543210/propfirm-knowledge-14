@@ -15,8 +15,10 @@ import {
   Award,
   Plus,
   Edit,
-  Trash2
+  Trash2,
+  Table
 } from "lucide-react";
+import AccountSizesManager from "./admin/AccountSizesManager";
 
 interface SectionData {
   id: string;
@@ -74,6 +76,12 @@ const AdminSectionManager = () => {
       name: "Pro Traders",
       type: "category",
       items: []
+    },
+    {
+      id: "account-sizes",
+      name: "Account Sizes",
+      type: "account-sizes",
+      items: []
     }
   ]);
 
@@ -95,6 +103,8 @@ const AdminSectionManager = () => {
         return <Users className="h-5 w-5" />;
       case "pro-traders":
         return <Award className="h-5 w-5" />;
+      case "account-sizes":
+        return <Table className="h-5 w-5" />;
       default:
         return <Building2 className="h-5 w-5" />;
     }
@@ -118,6 +128,8 @@ const AdminSectionManager = () => {
         return "Manage firms for intermediate-level traders";
       case "pro-traders":
         return "Manage firms for professional traders";
+      case "account-sizes":
+        return "Manage account sizes and pricing for prop firms";
       default:
         return "Manage section content";
     }
@@ -150,7 +162,10 @@ const AdminSectionManager = () => {
 
         {sections.map((section) => (
           <TabsContent key={section.id} value={section.id}>
-            <Card className="bg-slate-800/50 border-blue-500/20">
+            {section.id === 'account-sizes' ? (
+              <AccountSizesManager />
+            ) : (
+              <Card className="bg-slate-800/50 border-blue-500/20">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -205,6 +220,7 @@ const AdminSectionManager = () => {
                 )}
               </CardContent>
             </Card>
+            )}
           </TabsContent>
         ))}
       </Tabs>
