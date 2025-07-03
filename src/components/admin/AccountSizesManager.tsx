@@ -8,14 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePropFirms } from "../../hooks/useSupabaseData";
-import { AccountSize } from "../../types/accountSizes";
-import { dummyAccountSizes } from "../../data/accountSizes";
+import { useAccountSizes } from "../../hooks/useAccountSizes";
+import { AccountSize } from "../../types/supabaseTypes";
 
 const AccountSizesManager = () => {
-  const [accountSizes, setAccountSizes] = useState<AccountSize[]>(dummyAccountSizes);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { propFirms } = usePropFirms();
+  const { accountSizes, loading, addAccountSize, updateAccountSize, deleteAccountSize } = useAccountSizes();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -40,7 +40,7 @@ const AccountSizesManager = () => {
     setIsAdding(false);
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.firm_id || !formData.size || formData.discounted_price <= 0 || formData.original_price <= 0) {
       toast({
         title: "Error",
@@ -50,24 +50,18 @@ const AccountSizesManager = () => {
       return;
     }
 
-    const newAccountSize: AccountSize = {
-      id: Date.now().toString(),
+    const result = await addAccountSize({
       firm_id: formData.firm_id,
       size: formData.size,
       discounted_price: formData.discounted_price,
       original_price: formData.original_price,
       promo_code: formData.promo_code || undefined,
-      buying_link: formData.buying_link || undefined,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    setAccountSizes([...accountSizes, newAccountSize]);
-    resetForm();
-    toast({
-      title: "Success",
-      description: "Account size added successfully!"
+      buying_link: formData.buying_link || undefined
     });
+
+    if (result.success) {
+      resetForm();
+    }
   };
 
   const handleEdit = (accountSize: AccountSize) => {
@@ -83,8 +77,8 @@ const AccountSizesManager = () => {
     setIsAdding(false);
   };
 
-  const handleUpdate = () => {
-    if (!formData.firm_id || !formData.size || formData.discounted_price <= 0 || formData.original_price <= 0) {
+  const handleUpdate = async () => {
+    if (!formData.firm_id || !formData.size || formData.discounted_price <= 0 || formData.original_price <= 0 || !editingId) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -93,34 +87,23 @@ const AccountSizesManager = () => {
       return;
     }
 
-    setAccountSizes(accountSizes.map(size => 
-      size.id === editingId 
-        ? {
-            ...size,
-            firm_id: formData.firm_id,
-            size: formData.size,
-            discounted_price: formData.discounted_price,
-            original_price: formData.original_price,
-            promo_code: formData.promo_code || undefined,
-            buying_link: formData.buying_link || undefined,
-            updated_at: new Date().toISOString()
-          }
-        : size
-    ));
-    resetForm();
-    toast({
-      title: "Success",
-      description: "Account size updated successfully!"
+    const result = await updateAccountSize(editingId, {
+      firm_id: formData.firm_id,
+      size: formData.size,
+      discounted_price: formData.discounted_price,
+      original_price: formData.original_price,
+      promo_code: formData.promo_code || undefined,
+      buying_link: formData.buying_link || undefined
     });
+
+    if (result.success) {
+      resetForm();
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this account size?")) {
-      setAccountSizes(accountSizes.filter(size => size.id !== id));
-      toast({
-        title: "Success",
-        description: "Account size deleted successfully!"
-      });
+      await deleteAccountSize(id);
     }
   };
 

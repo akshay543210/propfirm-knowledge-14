@@ -235,7 +235,7 @@ const PropFirmDetail = () => {
 
         {/* Account Sizes & Pricing Table */}
         <AccountSizesTable 
-          accountSizes={dummyAccountSizes.filter(size => size.firm_id === firm.id || size.firm_id === 'ftmo-id')}
+          firmId={firm.id}
           firmName={firm.name}
         />
 

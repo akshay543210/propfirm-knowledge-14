@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Star, Search } from "lucide-react";
 import { useReviews } from "@/hooks/useSupabaseData";
+import WriteReviewForm from "@/components/WriteReviewForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -58,6 +59,8 @@ const Reviews = () => {
   const [displayCount, setDisplayCount] = useState(10);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showWriteReview, setShowWriteReview] = useState(false);
+  const [selectedFirm, setSelectedFirm] = useState<any>(null);
 
   const filteredFirms = dummyPropFirmsForReviews.filter(firm =>
     firm.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -121,6 +124,12 @@ const Reviews = () => {
           <p className="text-gray-300 text-lg mb-8">
             In-depth reviews of prop trading firms written by our trading experts
           </p>
+          <Button 
+            onClick={() => setShowWriteReview(true)}
+            className="mb-8 bg-green-600 hover:bg-green-700 text-white"
+          >
+            Write Review
+          </Button>
           
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-8">
@@ -136,6 +145,20 @@ const Reviews = () => {
             </div>
           </div>
         </div>
+
+        {/* Write Review Form */}
+        {showWriteReview && (
+          <div className="mb-8">
+            <WriteReviewForm
+              firmId={selectedFirm?.id || dummyPropFirmsForReviews[0]?.id || ''}
+              firmName={selectedFirm?.name || dummyPropFirmsForReviews[0]?.name || 'PropFirm'}
+              onClose={() => {
+                setShowWriteReview(false);
+                setSelectedFirm(null);
+              }}
+            />
+          </div>
+        )}
 
         {/* PropFirm Cards for Reviews */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -182,11 +205,22 @@ const Reviews = () => {
                   </div>
                 </div>
                 
-                <Link to={`/reviews/${firm.slug}`}>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    Read Full Review
+                <div className="flex gap-2">
+                  <Link to={`/reviews/${firm.slug}`} className="flex-1">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      Read Full Review
+                    </Button>
+                  </Link>
+                  <Button 
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      setSelectedFirm(firm);
+                      setShowWriteReview(true);
+                    }}
+                  >
+                    Write Review
                   </Button>
-                </Link>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -195,7 +229,15 @@ const Reviews = () => {
         {/* User Reviews Section */}
         <Card className="bg-slate-800/50 border-blue-500/20">
           <CardHeader>
-            <h2 className="text-white text-2xl font-bold">User Reviews</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-white text-2xl font-bold">User Reviews</h2>
+              <Button 
+                onClick={() => setShowWriteReview(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Write Review
+              </Button>
+            </div>
           </CardHeader>
           
           <CardContent>

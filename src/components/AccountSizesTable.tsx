@@ -3,14 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ExternalLink } from "lucide-react";
-import { AccountSize } from "../types/accountSizes";
+import { AccountSize } from "../types/supabaseTypes";
+import { useAccountSizes } from "../hooks/useAccountSizes";
 
 interface AccountSizesTableProps {
-  accountSizes: AccountSize[];
+  firmId: string;
   firmName: string;
 }
 
-const AccountSizesTable = ({ accountSizes, firmName }: AccountSizesTableProps) => {
+const AccountSizesTable = ({ firmId, firmName }: AccountSizesTableProps) => {
+  const { accountSizes } = useAccountSizes();
+  
+  // Filter account sizes for this specific firm
+  const firmAccountSizes = accountSizes.filter(size => size.firm_id === firmId);
   const handleBuyNow = (buyingLink?: string) => {
     if (buyingLink) {
       window.open(buyingLink, '_blank');
@@ -37,7 +42,7 @@ const AccountSizesTable = ({ accountSizes, firmName }: AccountSizesTableProps) =
               </TableRow>
             </TableHeader>
             <TableBody>
-              {accountSizes.map((account) => {
+              {firmAccountSizes.map((account) => {
                 const discountPercentage = Math.round(((account.original_price - account.discounted_price) / account.original_price) * 100);
                 
                 return (
@@ -80,6 +85,12 @@ const AccountSizesTable = ({ accountSizes, firmName }: AccountSizesTableProps) =
               })}
             </TableBody>
           </Table>
+          
+          {firmAccountSizes.length === 0 && (
+            <div className="text-center py-8 text-gray-400">
+              No account sizes available for this firm yet.
+            </div>
+          )}
         </div>
         
         <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">

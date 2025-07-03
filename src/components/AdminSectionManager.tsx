@@ -183,7 +183,10 @@ const AdminSectionManager = () => {
               
               <CardContent className="space-y-4">
                 <div className="flex gap-2 mb-4">
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => window.location.href = '/admin-dashboard'}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
                   </Button>
@@ -205,7 +208,10 @@ const AdminSectionManager = () => {
                     <p className="text-gray-400 mb-4">
                       Start by adding your first {section.type === 'reviews' ? 'review' : 'prop firm'} to this section.
                     </p>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => window.location.href = '/admin-dashboard'}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
                     </Button>
