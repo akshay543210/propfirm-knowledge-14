@@ -6,65 +6,23 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Star, Search } from "lucide-react";
-import { useReviews } from "@/hooks/useSupabaseData";
+import { useReviews, usePropFirms } from "@/hooks/useSupabaseData";
 import WriteReviewForm from "@/components/WriteReviewForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Dummy PropFirm data for reviews section
-const dummyPropFirmsForReviews = [
-  {
-    id: "1",
-    name: "FTMO",
-    slug: "ftmo",
-    rating: 4.8,
-    expertRating: "Expert Rating",
-    description: "FTMO stands as the gold standard in proprietary trading firms. With over 8 years in the market, they've built an impressive reputation through consistent payouts, fair evaluation processes, and excellent customer support.",
-    category: "Big",
-    trustScore: "9.2/10",
-    profitSplit: "90%",
-    payoutSpeed: "1-3 days",
-    badge: "Most Popular"
-  },
-  {
-    id: "2",
-    name: "The Funded Trader",
-    slug: "the-funded-trader",
-    rating: 4.6,
-    expertRating: "Expert Rating",
-    description: "The Funded Trader brings innovation to the prop trading space with their flexible evaluation models and trader-friendly policies. Their one-step evaluation process is refreshing, and the ability to trade without traditional restrictions makes them stand out.",
-    category: "Big",
-    trustScore: "8.8/10",
-    profitSplit: "85%",
-    payoutSpeed: "2-5 days",
-    badge: "Editor's Choice"
-  },
-  {
-    id: "3",
-    name: "MyForexFunds",
-    slug: "myforexfunds",
-    rating: 4.5,
-    expertRating: "Expert Rating",
-    description: "MyForexFunds has quickly established itself as a major player in the prop trading industry. Their instant funding model is attractive for traders who want to skip traditional evaluations, though this comes with its own set of challenges.",
-    category: "Big",
-    trustScore: "8.5/10",
-    profitSplit: "85%",
-    payoutSpeed: "1-2 days",
-    badge: "Fast Growing"
-  }
-];
-
 const Reviews = () => {
   const { reviews, loading, error } = useReviews();
+  const { propFirms, loading: propFirmsLoading } = usePropFirms();
   const [displayCount, setDisplayCount] = useState(10);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showWriteReview, setShowWriteReview] = useState(false);
   const [selectedFirm, setSelectedFirm] = useState<any>(null);
 
-  const filteredFirms = dummyPropFirmsForReviews.filter(firm =>
+  const filteredFirms = propFirms.filter(firm =>
     firm.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ).slice(0, 6); // Show first 6 firms for review section
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -77,20 +35,33 @@ const Reviews = () => {
     ));
   };
 
-  const getBadgeColor = (badge: string) => {
-    switch (badge) {
-      case "Most Popular":
+  const getBadgeText = (index: number) => {
+    switch (index) {
+      case 0:
+        return "Most Popular";
+      case 1:
+        return "Editor's Choice";
+      case 2:
+        return "Fast Growing";
+      default:
+        return "Featured";
+    }
+  };
+
+  const getBadgeColor = (index: number) => {
+    switch (index) {
+      case 0:
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "Editor's Choice":
+      case 1:
         return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-      case "Fast Growing":
+      case 2:
         return "bg-green-500/20 text-green-400 border-green-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
-  if (loading) {
+  if (loading || propFirmsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
@@ -149,46 +120,46 @@ const Reviews = () => {
 
         {/* PropFirm Cards for Reviews */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredFirms.map((firm) => (
+          {filteredFirms.map((firm, index) => (
             <Card key={firm.id} className="bg-slate-800/50 border-blue-500/20 hover:border-blue-400/40 transition-all duration-300">
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
-                  <Badge className={`${getBadgeColor(firm.badge)} border text-xs`}>
-                    {firm.badge}
+                  <Badge className={`${getBadgeColor(index)} border text-xs`}>
+                    {getBadgeText(index)}
                   </Badge>
                 </div>
                 
                 <h3 className="text-xl font-bold text-white mb-2">{firm.name}</h3>
                 
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="flex">{renderStars(firm.rating)}</div>
-                  <span className="text-white font-semibold">{firm.rating}</span>
-                  <span className="text-gray-400 text-sm">{firm.expertRating}</span>
+                  <div className="flex">{renderStars(firm.review_score || 4.5)}</div>
+                  <span className="text-white font-semibold">{firm.review_score || 4.5}</span>
+                  <span className="text-gray-400 text-sm">Expert Rating</span>
                 </div>
               </CardHeader>
               
               <CardContent>
                 <p className="text-gray-300 text-sm mb-6 line-clamp-4">
-                  {firm.description}
+                  {firm.description || "Professional trading firm offering funding opportunities for traders."}
                 </p>
                 
                 <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
                   <div>
-                    <span className="text-gray-400">Category:</span>
-                    <div className="text-blue-400 font-semibold">{firm.category}</div>
+                    <span className="text-gray-400">Funding:</span>
+                    <div className="text-blue-400 font-semibold">{firm.funding_amount}</div>
                   </div>
                   <div>
-                    <span className="text-gray-400">Trust Score:</span>
-                    <div className="text-green-400 font-semibold">{firm.trustScore}</div>
+                    <span className="text-gray-400">Trust Rating:</span>
+                    <div className="text-green-400 font-semibold">{firm.trust_rating || 8}/10</div>
                   </div>
                   <div>
                     <span className="text-gray-400">Profit Split:</span>
-                    <div className="text-white font-semibold">{firm.profitSplit}</div>
+                    <div className="text-white font-semibold">{firm.profit_split}%</div>
                   </div>
                   <div>
-                    <span className="text-gray-400">Payout Speed:</span>
-                    <div className="text-white font-semibold">{firm.payoutSpeed}</div>
+                    <span className="text-gray-400">Payout Rate:</span>
+                    <div className="text-white font-semibold">{firm.payout_rate}%</div>
                   </div>
                 </div>
                 
@@ -254,8 +225,8 @@ const Reviews = () => {
                 {showWriteReview && (
                   <div className="border-t border-slate-700 pt-6">
                     <WriteReviewForm
-                      firmId={selectedFirm?.id || dummyPropFirmsForReviews[0]?.id || ''}
-                      firmName={selectedFirm?.name || dummyPropFirmsForReviews[0]?.name || 'PropFirm'}
+                      firmId={selectedFirm?.id || propFirms[0]?.id || ''}
+                      firmName={selectedFirm?.name || propFirms[0]?.name || 'PropFirm'}
                       onClose={() => {
                         setShowWriteReview(false);
                         setSelectedFirm(null);
@@ -271,8 +242,8 @@ const Reviews = () => {
                 {showWriteReview && (
                   <div className="mt-6">
                     <WriteReviewForm
-                      firmId={selectedFirm?.id || dummyPropFirmsForReviews[0]?.id || ''}
-                      firmName={selectedFirm?.name || dummyPropFirmsForReviews[0]?.name || 'PropFirm'}
+                      firmId={selectedFirm?.id || propFirms[0]?.id || ''}
+                      firmName={selectedFirm?.name || propFirms[0]?.name || 'PropFirm'}
                       onClose={() => {
                         setShowWriteReview(false);
                         setSelectedFirm(null);
