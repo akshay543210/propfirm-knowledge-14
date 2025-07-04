@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      account_sizes: {
+        Row: {
+          buying_link: string | null
+          created_at: string
+          discounted_price: number
+          firm_id: string
+          id: string
+          original_price: number
+          promo_code: string | null
+          size: string
+          updated_at: string
+        }
+        Insert: {
+          buying_link?: string | null
+          created_at?: string
+          discounted_price: number
+          firm_id: string
+          id?: string
+          original_price: number
+          promo_code?: string | null
+          size: string
+          updated_at?: string
+        }
+        Update: {
+          buying_link?: string | null
+          created_at?: string
+          discounted_price?: number
+          firm_id?: string
+          id?: string
+          original_price?: number
+          promo_code?: string | null
+          size?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_sizes_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string | null

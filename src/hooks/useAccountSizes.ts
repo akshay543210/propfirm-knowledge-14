@@ -1,33 +1,52 @@
 import { useState, useEffect } from 'react';
 import { AccountSize } from '../types/supabaseTypes';
 import { useToast } from '@/hooks/use-toast';
-import { dummyAccountSizes } from '../data/accountSizes';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useAccountSizes = () => {
-  const [accountSizes, setAccountSizes] = useState<AccountSize[]>(dummyAccountSizes);
+  const [accountSizes, setAccountSizes] = useState<AccountSize[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const fetchAccountSizes = async () => {
-    // For now, using dummy data since Supabase table doesn't exist yet
-    setAccountSizes(dummyAccountSizes);
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('account_sizes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAccountSizes(data || []);
+    } catch (error) {
+      console.error('Error fetching account sizes:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch account sizes",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const addAccountSize = async (accountSize: Omit<AccountSize, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      const newAccountSize: AccountSize = {
-        id: Date.now().toString(),
-        ...accountSize,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('account_sizes')
+        .insert([accountSize])
+        .select()
+        .single();
 
-      setAccountSizes(prev => [newAccountSize, ...prev]);
+      if (error) throw error;
+      
+      setAccountSizes(prev => [data, ...prev]);
       toast({
         title: "Success",
         description: "Account size added successfully!"
       });
-      return { success: true, data: newAccountSize };
+      return { success: true, data };
     } catch (error) {
       console.error('Error adding account size:', error);
       toast({
@@ -36,24 +55,31 @@ export const useAccountSizes = () => {
         variant: "destructive"
       });
       return { success: false, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateAccountSize = async (id: string, updates: Partial<AccountSize>) => {
     try {
-      const updatedAccountSize = {
-        ...updates,
-        updated_at: new Date().toISOString()
-      };
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('account_sizes')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
 
       setAccountSizes(prev => prev.map(size => 
-        size.id === id ? { ...size, ...updatedAccountSize } : size
+        size.id === id ? data : size
       ));
       toast({
         title: "Success",
         description: "Account size updated successfully!"
       });
-      return { success: true, data: updatedAccountSize };
+      return { success: true, data };
     } catch (error) {
       console.error('Error updating account size:', error);
       toast({
@@ -62,11 +88,21 @@ export const useAccountSizes = () => {
         variant: "destructive"
       });
       return { success: false, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteAccountSize = async (id: string) => {
     try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('account_sizes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
       setAccountSizes(prev => prev.filter(size => size.id !== id));
       toast({
         title: "Success",
@@ -81,6 +117,8 @@ export const useAccountSizes = () => {
         variant: "destructive"
       });
       return { success: false, error };
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -146,19 +146,6 @@ const Reviews = () => {
           </div>
         </div>
 
-        {/* Write Review Form */}
-        {showWriteReview && (
-          <div className="mb-8">
-            <WriteReviewForm
-              firmId={selectedFirm?.id || dummyPropFirmsForReviews[0]?.id || ''}
-              firmName={selectedFirm?.name || dummyPropFirmsForReviews[0]?.name || 'PropFirm'}
-              onClose={() => {
-                setShowWriteReview(false);
-                setSelectedFirm(null);
-              }}
-            />
-          </div>
-        )}
 
         {/* PropFirm Cards for Reviews */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -262,10 +249,37 @@ const Reviews = () => {
                     <p className="text-gray-300">{review.content}</p>
                   </div>
                 ))}
+                
+                {/* Write Review Form - moved below the reviews */}
+                {showWriteReview && (
+                  <div className="border-t border-slate-700 pt-6">
+                    <WriteReviewForm
+                      firmId={selectedFirm?.id || dummyPropFirmsForReviews[0]?.id || ''}
+                      firmName={selectedFirm?.name || dummyPropFirmsForReviews[0]?.name || 'PropFirm'}
+                      onClose={() => {
+                        setShowWriteReview(false);
+                        setSelectedFirm(null);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-400">
                 No user reviews yet.
+                {/* Write Review Form for empty state */}
+                {showWriteReview && (
+                  <div className="mt-6">
+                    <WriteReviewForm
+                      firmId={selectedFirm?.id || dummyPropFirmsForReviews[0]?.id || ''}
+                      firmName={selectedFirm?.name || dummyPropFirmsForReviews[0]?.name || 'PropFirm'}
+                      onClose={() => {
+                        setShowWriteReview(false);
+                        setSelectedFirm(null);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
