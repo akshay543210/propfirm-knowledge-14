@@ -1,34 +1,41 @@
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LogOut, Shield } from "lucide-react";
 import AdminPanel from "../components/AdminPanel";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminDashboard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
+  const { user, isAdmin, loading, signOut } = useAuth();
 
   useEffect(() => {
-    // Check if user is admin
-    const adminStatus = localStorage.getItem("isAdmin");
-    if (adminStatus === "true") {
-      setIsAuthenticated(true);
-    } else {
-      navigate("/admin-login");
+    if (!loading) {
+      if (!user || !isAdmin) {
+        navigate("/admin-login");
+      }
     }
-  }, [navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
   };
 
-  if (!isAuthenticated) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white">Access Denied</div>
       </div>
     );
   }

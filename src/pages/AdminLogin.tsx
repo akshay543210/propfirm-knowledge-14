@@ -1,52 +1,65 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, User, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, user, isAdmin, loading } = useAuth();
 
-  // Simple admin credentials (in a real app, this would be handled by a backend)
-  const ADMIN_USERNAME = "admin";
-  const ADMIN_PASSWORD = "propfirm2024";
+  // Redirect if already logged in as admin
+  useEffect(() => {
+    if (!loading && user && isAdmin) {
+      navigate("/admin-dashboard-2024");
+    }
+  }, [user, isAdmin, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
     
-    // Simulate loading for better UX
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { data, error } = await signIn(email, password);
     
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      // Set admin flag in localStorage
-      localStorage.setItem("isAdmin", "true");
-      localStorage.setItem("adminMode", "false"); // Default to user view
-      
-      toast({
-        title: "Login Successful",
-        description: "Welcome to the admin panel!",
-      });
-      
-      navigate("/");
-    } else {
-      setError("Invalid credentials. Please check your username and password.");
+    if (error) {
+      setError(error.message);
       toast({
         title: "Login Failed",
-        description: "Invalid credentials provided",
+        description: error.message,
         variant: "destructive",
       });
+    } else if (data.user) {
+      // Check if user is admin after successful login
+      // The useAuth hook will automatically check admin status
+      toast({
+        title: "Login Successful",
+        description: "Checking admin privileges...",
+      });
+      
+      // Give time for admin check to complete
+      setTimeout(() => {
+        // The useEffect above will handle navigation if user is admin
+        if (!isAdmin) {
+          setError("Access denied. Admin privileges required.");
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges.",
+            variant: "destructive",
+          });
+        }
+      }, 1000);
     }
     
     setIsLoading(false);
@@ -67,16 +80,16 @@ const AdminLogin = () => {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="username" className="text-gray-300">Username</Label>
+              <Label htmlFor="email" className="text-gray-300">Email</Label>
               <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 bg-slate-700 border-slate-600 text-white"
-                  placeholder="Enter admin username"
+                  placeholder="Enter admin email"
                   required
                   disabled={isLoading}
                 />
@@ -126,9 +139,9 @@ const AdminLogin = () => {
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-400 bg-slate-700/30 rounded p-3">
-            <p className="font-medium text-gray-300 mb-1">Demo Credentials:</p>
-            <p>Username: <span className="text-blue-400">admin</span></p>
-            <p>Password: <span className="text-blue-400">propfirm2024</span></p>
+            <p className="font-medium text-gray-300 mb-1">Admin Access Required</p>
+            <p>Only registered admin users can access the dashboard.</p>
+            <p>Contact your administrator for access.</p>
           </div>
           
           <div className="mt-4 text-center">

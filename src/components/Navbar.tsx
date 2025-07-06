@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavbarProps {
   isAdminMode: boolean;
@@ -11,17 +12,11 @@ interface NavbarProps {
 
 const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+  const { isAdmin } = useAuth();
 
   // Get prop firms from location state or empty array
   const propFirms = location.state?.propFirms || [];
-
-  // Check admin status from localStorage
-  useEffect(() => {
-    const adminStatus = localStorage.getItem("isAdmin");
-    setIsAdmin(adminStatus === "true");
-  }, []);
 
   const handleAdminToggle = () => {
     setIsAdminMode(!isAdminMode);
