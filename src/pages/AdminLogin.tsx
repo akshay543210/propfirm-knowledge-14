@@ -40,29 +40,14 @@ const AdminLogin = () => {
         description: error.message,
         variant: "destructive",
       });
+      setIsLoading(false);
     } else if (data.user) {
-      // Check if user is admin after successful login
-      // The useAuth hook will automatically check admin status
       toast({
         title: "Login Successful",
-        description: "Checking admin privileges...",
+        description: "Welcome to admin panel!",
       });
-      
-      // Give time for admin check to complete
-      setTimeout(() => {
-        // The useEffect above will handle navigation if user is admin
-        if (!isAdmin) {
-          setError("Access denied. Admin privileges required.");
-          toast({
-            title: "Access Denied",
-            description: "You don't have admin privileges.",
-            variant: "destructive",
-          });
-        }
-      }, 1000);
+      // The useEffect will handle navigation when isAdmin updates
     }
-    
-    setIsLoading(false);
   };
 
   return (
