@@ -365,6 +365,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ensure_admin_access: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
