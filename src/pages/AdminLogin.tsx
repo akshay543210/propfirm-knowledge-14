@@ -42,11 +42,13 @@ const AdminLogin = () => {
       });
       setIsLoading(false);
     } else if (data.user) {
+      console.log('AdminLogin: Login successful, user:', data.user.email);
       toast({
         title: "Login Successful",
         description: "Welcome to admin panel!",
       });
-      // The useEffect will handle navigation when isAdmin updates
+      setIsLoading(false);
+      // Navigation will be handled by useEffect when isAdmin updates
     }
   };
 
