@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Building2, 
   DollarSign, 
@@ -19,6 +20,9 @@ import {
   Table
 } from "lucide-react";
 import AccountSizesManager from "./admin/AccountSizesManager";
+import AdminFormPanel from "./AdminFormPanel";
+import { useAdminOperations } from "../hooks/useAdminOperations";
+import { PropFirm } from "../types/supabase";
 
 interface SectionData {
   id: string;
@@ -28,6 +32,9 @@ interface SectionData {
 }
 
 const AdminSectionManager = () => {
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
+  const { addFirm, updateFirm, deleteFirm, loading } = useAdminOperations();
   const [sections] = useState<SectionData[]>([
     {
       id: "all-firms",
@@ -135,6 +142,16 @@ const AdminSectionManager = () => {
     }
   };
 
+  const handleAddPropFirm = () => {
+    setEditingFirm(null);
+    setIsAddFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsAddFormOpen(false);
+    setEditingFirm(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -185,7 +202,7 @@ const AdminSectionManager = () => {
                 <div className="flex gap-2 mb-4">
                   <Button 
                     className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => window.location.href = '/admin-dashboard'}
+                    onClick={handleAddPropFirm}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
@@ -210,7 +227,7 @@ const AdminSectionManager = () => {
                     </p>
                     <Button 
                       className="bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={() => window.location.href = '/admin-dashboard'}
+                      onClick={handleAddPropFirm}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
@@ -230,6 +247,30 @@ const AdminSectionManager = () => {
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Add PropFirm Dialog */}
+      <Dialog open={isAddFormOpen} onOpenChange={setIsAddFormOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-blue-500/20">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl">
+              Add New PropFirm
+            </DialogTitle>
+          </DialogHeader>
+          <AdminFormPanel
+            onAdd={async (firmData) => {
+              const result = await addFirm(firmData);
+              if (result.success) {
+                handleFormSuccess();
+              }
+              return result;
+            }}
+            onUpdate={updateFirm}
+            editingFirm={editingFirm}
+            setEditingFirm={setEditingFirm}
+            loading={loading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
