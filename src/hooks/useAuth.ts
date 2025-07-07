@@ -18,7 +18,7 @@ export const useAuth = () => {
         setIsAdmin(false);
       } else {
         console.log('useAuth: Admin status result:', data);
-        setIsAdmin(data || false);
+        setIsAdmin(Boolean(data));
       }
     } catch (error) {
       console.error('useAuth: Exception checking admin status:', error);

@@ -9,16 +9,22 @@ export const usePropFirms = () => {
 
   const fetchPropFirms = useCallback(async () => {
     try {
+      console.log('usePropFirms: Starting to fetch prop firms...');
       setLoading(true);
       const { data, error } = await supabase
         .from('prop_firms')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('usePropFirms: Database error:', error);
+        throw error;
+      }
+      console.log('usePropFirms: Successfully fetched', data?.length || 0, 'prop firms');
       setPropFirms(data || []);
       setError(null);
     } catch (err) {
+      console.error('usePropFirms: Fetch error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
