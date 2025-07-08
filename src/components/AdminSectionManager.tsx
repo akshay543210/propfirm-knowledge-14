@@ -4,6 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<<<<<<< HEAD
+=======
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import WriteReviewForm from "@/components/WriteReviewForm";
+>>>>>>> 0b83ad0 (Your commit message)
 import { 
   Building2, 
   DollarSign, 
@@ -15,8 +21,19 @@ import {
   Award,
   Plus,
   Edit,
+<<<<<<< HEAD
   Trash2
 } from "lucide-react";
+=======
+  Trash2,
+  Table
+} from "lucide-react";
+import AccountSizesManager from "./admin/AccountSizesManager";
+import AdminFormPanel from "./AdminFormPanel";
+import { useAdminOperations } from "../hooks/useAdminOperations";
+import { usePropFirms } from "../hooks/useSupabaseData";
+import { PropFirm } from "../types/supabase";
+>>>>>>> 0b83ad0 (Your commit message)
 
 interface SectionData {
   id: string;
@@ -26,6 +43,18 @@ interface SectionData {
 }
 
 const AdminSectionManager = () => {
+<<<<<<< HEAD
+=======
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
+  const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
+  const [selectedReviewFirmId, setSelectedReviewFirmId] = useState<string>("");
+  const [selectedReviewFirmName, setSelectedReviewFirmName] = useState<string>("");
+  const [selectedFirmId, setSelectedFirmId] = useState<string>("");
+  const [currentSection, setCurrentSection] = useState<string>("");
+  const { addFirm, updateFirm, deleteFirm, loading } = useAdminOperations();
+  const { propFirms } = usePropFirms();
+>>>>>>> 0b83ad0 (Your commit message)
   const [sections] = useState<SectionData[]>([
     {
       id: "all-firms",
@@ -74,6 +103,15 @@ const AdminSectionManager = () => {
       name: "Pro Traders",
       type: "category",
       items: []
+<<<<<<< HEAD
+=======
+    },
+    {
+      id: "account-sizes",
+      name: "Account Sizes",
+      type: "account-sizes",
+      items: []
+>>>>>>> 0b83ad0 (Your commit message)
     }
   ]);
 
@@ -95,6 +133,11 @@ const AdminSectionManager = () => {
         return <Users className="h-5 w-5" />;
       case "pro-traders":
         return <Award className="h-5 w-5" />;
+<<<<<<< HEAD
+=======
+      case "account-sizes":
+        return <Table className="h-5 w-5" />;
+>>>>>>> 0b83ad0 (Your commit message)
       default:
         return <Building2 className="h-5 w-5" />;
     }
@@ -118,11 +161,29 @@ const AdminSectionManager = () => {
         return "Manage firms for intermediate-level traders";
       case "pro-traders":
         return "Manage firms for professional traders";
+<<<<<<< HEAD
+=======
+      case "account-sizes":
+        return "Manage account sizes and pricing for prop firms";
+>>>>>>> 0b83ad0 (Your commit message)
       default:
         return "Manage section content";
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleAddPropFirm = () => {
+    setEditingFirm(null);
+    setIsAddFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsAddFormOpen(false);
+    setEditingFirm(null);
+  };
+
+>>>>>>> 0b83ad0 (Your commit message)
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -150,7 +211,14 @@ const AdminSectionManager = () => {
 
         {sections.map((section) => (
           <TabsContent key={section.id} value={section.id}>
+<<<<<<< HEAD
             <Card className="bg-slate-800/50 border-blue-500/20">
+=======
+            {section.id === 'account-sizes' ? (
+              <AccountSizesManager />
+            ) : (
+              <Card className="bg-slate-800/50 border-blue-500/20">
+>>>>>>> 0b83ad0 (Your commit message)
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -167,6 +235,7 @@ const AdminSectionManager = () => {
               </CardHeader>
               
               <CardContent className="space-y-4">
+<<<<<<< HEAD
                 <div className="flex gap-2 mb-4">
                   <Button className="bg-green-600 hover:bg-green-700 text-white">
                     <Plus className="h-4 w-4 mr-2" />
@@ -180,11 +249,160 @@ const AdminSectionManager = () => {
 
                 {/* Section-specific content */}
                 {section.items.length === 0 ? (
+=======
+                {/* Add Firm Selection for Cheap/Top Firms */}
+                {(section.id === 'cheap-firms' || section.id === 'top-firms') ? (
+                  <div className="bg-slate-700/50 p-6 rounded-lg">
+                    <h3 className="text-white text-lg font-semibold mb-4">
+                      Add Firm to {section.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-4">
+                      Select a firm and set its rank in the {section.name.toLowerCase()} section
+                    </p>
+                    <div className="flex gap-4 items-end">
+                      <div className="flex-1">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Select a firm to add
+                        </label>
+                        <Select value={selectedFirmId} onValueChange={setSelectedFirmId}>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name} - ${firm.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="w-24">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Rank
+                        </label>
+                        <Select>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="1" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {[1,2,3,4,5].map((rank) => (
+                              <SelectItem key={rank} value={rank.toString()} className="text-white hover:bg-slate-600">
+                                {rank}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button className="bg-green-600 hover:bg-green-700 text-white">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to {section.name}
+                      </Button>
+                    </div>
+                    
+                    {/* Current firms in this category */}
+                    <div className="mt-6">
+                      <div className="text-gray-300 text-sm mb-3">No firms in {section.name.toLowerCase()} category yet.</div>
+                    </div>
+                  </div>
+                ) : section.id === 'all-firms' ? (
+                  <div className="space-y-4">
+                    <div className="flex gap-2 mb-4">
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleAddPropFirm}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New PropFirm
+                      </Button>
+                      <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Bulk Edit
+                      </Button>
+                    </div>
+                    <div className="text-gray-400 text-center py-8">
+                      Create new prop firms that will be available in all sections
+                    </div>
+                  </div>
+                ) : section.id === 'reviews' ? (
+                  <div className="bg-slate-700/50 p-6 rounded-lg">
+                    <h3 className="text-white text-lg font-semibold mb-4">Add New Review</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Prop Firm *
+                        </label>
+                        <Select
+                          value={selectedReviewFirmId}
+                          onValueChange={(val) => {
+                            setSelectedReviewFirmId(val);
+                            const firm = propFirms.find(f => f.id === val);
+                            setSelectedReviewFirmName(firm ? firm.name : "");
+                          }}
+                        >
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Category
+                        </label>
+                        <Select disabled>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="e.g. Big, Medium, Small" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            <SelectItem value="big" className="text-white hover:bg-slate-600">Big</SelectItem>
+                            <SelectItem value="medium" className="text-white hover:bg-slate-600">Medium</SelectItem>
+                            <SelectItem value="small" className="text-white hover:bg-slate-600">Small</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white mt-4"
+                      disabled={!selectedReviewFirmId}
+                      onClick={() => setIsAddReviewOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New Review
+                    </Button>
+
+                    {/* Add Review Dialog */}
+                    <Dialog open={isAddReviewOpen} onOpenChange={setIsAddReviewOpen}>
+                      <DialogContent className="max-w-lg bg-slate-800 border-blue-500/20">
+                        <DialogHeader>
+                          <DialogTitle className="text-white text-xl">
+                            Add New User Review
+                          </DialogTitle>
+                        </DialogHeader>
+                        {selectedReviewFirmId && (
+                          <WriteReviewForm
+                            firmId={selectedReviewFirmId}
+                            firmName={selectedReviewFirmName}
+                            onClose={() => setIsAddReviewOpen(false)}
+                          />
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                ) : (
+>>>>>>> 0b83ad0 (Your commit message)
                   <div className="text-center py-12 border-2 border-dashed border-gray-600 rounded-lg">
                     <div className="text-gray-400 mb-4">
                       {getSectionIcon(section.id)}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-300 mb-2">
+<<<<<<< HEAD
                       No {section.type === 'reviews' ? 'reviews' : 'prop firms'} in this section
                     </h3>
                     <p className="text-gray-400 mb-4">
@@ -201,13 +419,51 @@ const AdminSectionManager = () => {
                     <div className="text-gray-400 text-center py-8">
                       Items will appear here when added
                     </div>
+=======
+                      {section.name} Management
+                    </h3>
+                    <p className="text-gray-400 mb-4">
+                      Configure {section.name.toLowerCase()} settings and content.
+                    </p>
+>>>>>>> 0b83ad0 (Your commit message)
                   </div>
                 )}
               </CardContent>
             </Card>
+<<<<<<< HEAD
           </TabsContent>
         ))}
       </Tabs>
+=======
+            )}
+          </TabsContent>
+        ))}
+      </Tabs>
+
+      {/* Add PropFirm Dialog */}
+      <Dialog open={isAddFormOpen} onOpenChange={setIsAddFormOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-blue-500/20">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl">
+              Add New PropFirm
+            </DialogTitle>
+          </DialogHeader>
+          <AdminFormPanel
+            onAdd={async (firmData) => {
+              const result = await addFirm(firmData);
+              if (result.success) {
+                handleFormSuccess();
+              }
+              return result;
+            }}
+            onUpdate={updateFirm}
+            editingFirm={editingFirm}
+            setEditingFirm={setEditingFirm}
+            loading={loading}
+          />
+        </DialogContent>
+      </Dialog>
+>>>>>>> 0b83ad0 (Your commit message)
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Star, Search } from "lucide-react";
+<<<<<<< HEAD
 import { useReviews } from "@/hooks/useSupabaseData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -62,6 +63,25 @@ const Reviews = () => {
   const filteredFirms = dummyPropFirmsForReviews.filter(firm =>
     firm.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+=======
+import { useReviews, usePropFirms } from "@/hooks/useSupabaseData";
+import WriteReviewForm from "@/components/WriteReviewForm";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+const Reviews = () => {
+  const { reviews, loading, error } = useReviews();
+  const { propFirms, loading: propFirmsLoading } = usePropFirms();
+  const [displayCount, setDisplayCount] = useState(10);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showWriteReview, setShowWriteReview] = useState(false);
+  const [selectedFirm, setSelectedFirm] = useState<any>(null);
+
+  const filteredFirms = propFirms.filter(firm =>
+    firm.name.toLowerCase().includes(searchTerm.toLowerCase())
+  ).slice(0, 6); // Show first 6 firms for review section
+>>>>>>> 0b83ad0 (Your commit message)
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -74,6 +94,7 @@ const Reviews = () => {
     ));
   };
 
+<<<<<<< HEAD
   const getBadgeColor = (badge: string) => {
     switch (badge) {
       case "Most Popular":
@@ -81,13 +102,39 @@ const Reviews = () => {
       case "Editor's Choice":
         return "bg-purple-500/20 text-purple-400 border-purple-500/30";
       case "Fast Growing":
+=======
+  const getBadgeText = (index: number) => {
+    switch (index) {
+      case 0:
+        return "Most Popular";
+      case 1:
+        return "Editor's Choice";
+      case 2:
+        return "Fast Growing";
+      default:
+        return "Featured";
+    }
+  };
+
+  const getBadgeColor = (index: number) => {
+    switch (index) {
+      case 0:
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+      case 1:
+        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+      case 2:
+>>>>>>> 0b83ad0 (Your commit message)
         return "bg-green-500/20 text-green-400 border-green-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
+<<<<<<< HEAD
   if (loading) {
+=======
+  if (loading || propFirmsLoading) {
+>>>>>>> 0b83ad0 (Your commit message)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
@@ -121,6 +168,15 @@ const Reviews = () => {
           <p className="text-gray-300 text-lg mb-8">
             In-depth reviews of prop trading firms written by our trading experts
           </p>
+<<<<<<< HEAD
+=======
+          <Button 
+            onClick={() => setShowWriteReview(true)}
+            className="mb-8 bg-green-600 hover:bg-green-700 text-white"
+          >
+            Write Review
+          </Button>
+>>>>>>> 0b83ad0 (Your commit message)
           
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-8">
@@ -137,34 +193,57 @@ const Reviews = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* PropFirm Cards for Reviews */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {filteredFirms.map((firm) => (
+=======
+
+        {/* PropFirm Cards for Reviews */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {filteredFirms.map((firm, index) => (
+>>>>>>> 0b83ad0 (Your commit message)
             <Card key={firm.id} className="bg-slate-800/50 border-blue-500/20 hover:border-blue-400/40 transition-all duration-300">
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
+<<<<<<< HEAD
                   <Badge className={`${getBadgeColor(firm.badge)} border text-xs`}>
                     {firm.badge}
+=======
+                  <Badge className={`${getBadgeColor(index)} border text-xs`}>
+                    {getBadgeText(index)}
+>>>>>>> 0b83ad0 (Your commit message)
                   </Badge>
                 </div>
                 
                 <h3 className="text-xl font-bold text-white mb-2">{firm.name}</h3>
                 
                 <div className="flex items-center gap-2 mb-3">
+<<<<<<< HEAD
                   <div className="flex">{renderStars(firm.rating)}</div>
                   <span className="text-white font-semibold">{firm.rating}</span>
                   <span className="text-gray-400 text-sm">{firm.expertRating}</span>
+=======
+                  <div className="flex">{renderStars(firm.review_score || 4.5)}</div>
+                  <span className="text-white font-semibold">{firm.review_score || 4.5}</span>
+                  <span className="text-gray-400 text-sm">Expert Rating</span>
+>>>>>>> 0b83ad0 (Your commit message)
                 </div>
               </CardHeader>
               
               <CardContent>
                 <p className="text-gray-300 text-sm mb-6 line-clamp-4">
+<<<<<<< HEAD
                   {firm.description}
+=======
+                  {firm.description || "Professional trading firm offering funding opportunities for traders."}
+>>>>>>> 0b83ad0 (Your commit message)
                 </p>
                 
                 <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
                   <div>
+<<<<<<< HEAD
                     <span className="text-gray-400">Category:</span>
                     <div className="text-blue-400 font-semibold">{firm.category}</div>
                   </div>
@@ -187,6 +266,41 @@ const Reviews = () => {
                     Read Full Review
                   </Button>
                 </Link>
+=======
+                    <span className="text-gray-400">Funding:</span>
+                    <div className="text-blue-400 font-semibold">{firm.funding_amount}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Trust Rating:</span>
+                    <div className="text-green-400 font-semibold">{firm.trust_rating || 8}/10</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Profit Split:</span>
+                    <div className="text-white font-semibold">{firm.profit_split}%</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Payout Rate:</span>
+                    <div className="text-white font-semibold">{firm.payout_rate}%</div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Link to={`/firms/${firm.slug}`} className="flex-1">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      Read Full Review
+                    </Button>
+                  </Link>
+                  <Button 
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => {
+                      setSelectedFirm(firm);
+                      setShowWriteReview(true);
+                    }}
+                  >
+                    Write Review
+                  </Button>
+                </div>
+>>>>>>> 0b83ad0 (Your commit message)
               </CardContent>
             </Card>
           ))}
@@ -195,7 +309,19 @@ const Reviews = () => {
         {/* User Reviews Section */}
         <Card className="bg-slate-800/50 border-blue-500/20">
           <CardHeader>
+<<<<<<< HEAD
             <h2 className="text-white text-2xl font-bold">User Reviews</h2>
+=======
+            <div className="flex justify-between items-center">
+              <h2 className="text-white text-2xl font-bold">User Reviews</h2>
+              <Button 
+                onClick={() => setShowWriteReview(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Write Review
+              </Button>
+            </div>
+>>>>>>> 0b83ad0 (Your commit message)
           </CardHeader>
           
           <CardContent>
@@ -220,10 +346,43 @@ const Reviews = () => {
                     <p className="text-gray-300">{review.content}</p>
                   </div>
                 ))}
+<<<<<<< HEAD
+=======
+                
+                {/* Write Review Form - moved below the reviews */}
+                {showWriteReview && (
+                  <div className="border-t border-slate-700 pt-6">
+                    <WriteReviewForm
+                      firmId={selectedFirm?.id || propFirms[0]?.id || ''}
+                      firmName={selectedFirm?.name || propFirms[0]?.name || 'PropFirm'}
+                      onClose={() => {
+                        setShowWriteReview(false);
+                        setSelectedFirm(null);
+                      }}
+                    />
+                  </div>
+                )}
+>>>>>>> 0b83ad0 (Your commit message)
               </div>
             ) : (
               <div className="text-center py-8 text-gray-400">
                 No user reviews yet.
+<<<<<<< HEAD
+=======
+                {/* Write Review Form for empty state */}
+                {showWriteReview && (
+                  <div className="mt-6">
+                    <WriteReviewForm
+                      firmId={selectedFirm?.id || propFirms[0]?.id || ''}
+                      firmName={selectedFirm?.name || propFirms[0]?.name || 'PropFirm'}
+                      onClose={() => {
+                        setShowWriteReview(false);
+                        setSelectedFirm(null);
+                      }}
+                    />
+                  </div>
+                )}
+>>>>>>> 0b83ad0 (Your commit message)
               </div>
             )}
 

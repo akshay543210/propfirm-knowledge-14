@@ -1,16 +1,26 @@
 
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
 import AdminFormPanel from "./AdminFormPanel";
 import AdminFirmsList from "./AdminFirmsList";
 import AdminSectionManager from "./AdminSectionManager";
+=======
+>>>>>>> 0b83ad0 (Your commit message)
 import { PropFirm } from "../types/supabase";
 import { useAdminOperations } from "../hooks/useAdminOperations";
 import { usePropFirms } from "../hooks/useSupabaseData";
 import { useCategories } from "../hooks/useCategories";
+<<<<<<< HEAD
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, CheckCircle, RefreshCw, Settings, List, Users } from "lucide-react";
+=======
+import { RefreshCw } from "lucide-react";
+import OperationStatus from "./admin/OperationStatus";
+import AdminHeader from "./admin/AdminHeader";
+import AdminTabs from "./admin/AdminTabs";
+>>>>>>> 0b83ad0 (Your commit message)
 
 const AdminPanel = () => {
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
@@ -155,6 +165,7 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+<<<<<<< HEAD
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-4">Admin Dashboard</h1>
           <p className="text-gray-300">
@@ -263,6 +274,28 @@ const AdminPanel = () => {
             </Card>
           </TabsContent>
         </Tabs>
+=======
+        <AdminHeader 
+          categoriesCount={categories.length}
+          propFirmsCount={propFirms.length}
+          onRefresh={handleRefresh}
+          loading={dataLoading}
+        />
+
+        <OperationStatus status={operationStatus} />
+
+        <AdminTabs
+          propFirms={propFirms}
+          editingFirm={editingFirm}
+          setEditingFirm={setEditingFirm}
+          onAdd={handleAdd}
+          onUpdate={handleUpdate}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          dataLoading={dataLoading}
+          operationLoading={operationLoading}
+        />
+>>>>>>> 0b83ad0 (Your commit message)
       </div>
     </div>
   );

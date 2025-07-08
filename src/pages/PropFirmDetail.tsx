@@ -10,6 +10,11 @@ import { PropFirm } from "@/types/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WriteReviewForm from "@/components/WriteReviewForm";
+<<<<<<< HEAD
+=======
+import AccountSizesTable from "@/components/AccountSizesTable";
+import { dummyAccountSizes } from "@/data/accountSizes";
+>>>>>>> 0b83ad0 (Your commit message)
 
 const PropFirmDetail = () => {
   const { id } = useParams();
@@ -231,6 +236,15 @@ const PropFirmDetail = () => {
           </CardContent>
         </Card>
 
+<<<<<<< HEAD
+=======
+        {/* Account Sizes & Pricing Table */}
+        <AccountSizesTable 
+          firmId={firm.id}
+          firmName={firm.name}
+        />
+
+>>>>>>> 0b83ad0 (Your commit message)
         {/* User Reviews Section */}
         <Card className="bg-slate-800/50 border-blue-500/20">
           <CardHeader>

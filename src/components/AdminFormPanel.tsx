@@ -192,7 +192,11 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
         </CardTitle>
       </CardHeader>
       <CardContent>
+<<<<<<< HEAD
         <form onSubmit={handleSubmit} className="space-y-4 max-h-96 overflow-y-auto">
+=======
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[600px] overflow-y-auto">
+>>>>>>> 0b83ad0 (Your commit message)
           <BasicInfoFields
             formData={formData}
             setFormData={setFormData}

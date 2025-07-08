@@ -1,12 +1,22 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+<<<<<<< HEAD
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+=======
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+>>>>>>> 0b83ad0 (Your commit message)
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, ArrowLeft, Check, X, TrendingUp, Users, Clock, Shield } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+<<<<<<< HEAD
+=======
+import { useReviews } from "@/hooks/useSupabaseData";
+import WriteReviewForm from "@/components/WriteReviewForm";
+import { propFirmsData } from "@/data/propFirms";
+>>>>>>> 0b83ad0 (Your commit message)
 
 // Dummy detailed review data
 const dummyReviewDetails = {
@@ -138,6 +148,7 @@ const dummyReviewDetails = {
   }
 };
 
+<<<<<<< HEAD
 const ReviewDetail = () => {
   const { slug } = useParams();
   const [isAdminMode, setIsAdminMode] = useState(false);
@@ -149,6 +160,66 @@ const ReviewDetail = () => {
     }
   }, [slug]);
 
+=======
+
+const ReviewDetail = () => {
+  const { slug } = useParams();
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [reviewData, setReviewData] = useState<any>(null);
+  const [firm, setFirm] = useState<any>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  // Find firm by slug (prefer Supabase, fallback to static)
+  useEffect(() => {
+    if (!slug) return;
+    // Try to find in static data
+    const staticFirm = propFirmsData.find(f => f.slug === slug);
+    setFirm(staticFirm || null);
+    // Set expert review data (dummy)
+    if (dummyReviewDetails[slug]) {
+      setReviewData(dummyReviewDetails[slug]);
+    } else if (staticFirm) {
+      // Fallback: use static firm data as a basic review
+      setReviewData({
+        name: staticFirm.name,
+        rating: staticFirm.review_score,
+        trustScore: staticFirm.trust_rating ? `${staticFirm.trust_rating}/10` : undefined,
+        category: undefined,
+        badge: undefined,
+        description: staticFirm.description,
+        pros: staticFirm.pros || [],
+        cons: staticFirm.cons || [],
+        statistics: {
+          fundingAmount: staticFirm.funding_amount,
+          successRate: undefined,
+          avgPayout: undefined,
+          avgTime: undefined,
+        },
+        companyInfo: {
+          founded: undefined,
+          headquarters: undefined,
+          regulation: staticFirm.regulation,
+          categories: staticFirm.features || [],
+        },
+        tradingConditions: {
+          evaluationType: staticFirm.evaluation_model,
+          maxDrawdown: undefined,
+          profitTarget: undefined,
+          leverage: undefined,
+          dailyLoss: undefined,
+          refundPolicy: undefined,
+          newsTrading: undefined,
+          weekendHolding: undefined,
+        },
+      });
+    } else {
+      setReviewData(null);
+    }
+  }, [slug]);
+
+  // Fetch user reviews for this firm
+  const { reviews, loading: reviewsLoading } = useReviews(firm?.id);
+
+>>>>>>> 0b83ad0 (Your commit message)
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -160,7 +231,12 @@ const ReviewDetail = () => {
     ));
   };
 
+<<<<<<< HEAD
   if (!reviewData) {
+=======
+  // If neither reviewData nor firm, show not found
+  if (!reviewData && !firm) {
+>>>>>>> 0b83ad0 (Your commit message)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
@@ -214,28 +290,44 @@ const ReviewDetail = () => {
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <TrendingUp className="h-8 w-8 text-green-400 mx-auto mb-2" />
+<<<<<<< HEAD
               <div className="text-2xl font-bold text-white">{reviewData.statistics.fundingAmount}</div>
+=======
+              <div className="text-2xl font-bold text-white">{reviewData.statistics.fundingAmount || firm?.funding_amount || '-'}</div>
+>>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Max Funding</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <Users className="h-8 w-8 text-blue-400 mx-auto mb-2" />
+<<<<<<< HEAD
               <div className="text-2xl font-bold text-white">{reviewData.statistics.successRate}</div>
+=======
+              <div className="text-2xl font-bold text-white">{reviewData.statistics.successRate || '-'}</div>
+>>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Success Rate</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <Shield className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+<<<<<<< HEAD
               <div className="text-2xl font-bold text-white">{reviewData.statistics.avgPayout}</div>
+=======
+              <div className="text-2xl font-bold text-white">{reviewData.statistics.avgPayout || '-'}</div>
+>>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Avg Payout</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <Clock className="h-8 w-8 text-orange-400 mx-auto mb-2" />
+<<<<<<< HEAD
               <div className="text-2xl font-bold text-white">{reviewData.statistics.avgTime}</div>
+=======
+              <div className="text-2xl font-bold text-white">{reviewData.statistics.avgTime || '-'}</div>
+>>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Payout Time</div>
             </CardContent>
           </Card>
@@ -359,6 +451,66 @@ const ReviewDetail = () => {
             </Button>
           </CardContent>
         </Card>
+<<<<<<< HEAD
+=======
+
+        {/* User Reviews Section */}
+        <Card className="bg-slate-800/50 border-blue-500/20 mt-8">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-white text-2xl">User Reviews</CardTitle>
+              {firm && (
+                <Button
+                  onClick={() => setShowReviewForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Write Review
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {showReviewForm && firm && (
+              <div className="mb-8">
+                <WriteReviewForm
+                  firmId={firm.id}
+                  firmName={firm.name}
+                  onClose={() => setShowReviewForm(false)}
+                />
+              </div>
+            )}
+            {reviewsLoading ? (
+              <div className="text-center py-8 text-gray-400">Loading reviews...</div>
+            ) : reviews && reviews.length > 0 ? (
+              <div className="space-y-6">
+                {reviews.map((review) => (
+                  <div key={review.id} className="border-b border-slate-700 pb-6 last:border-b-0">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="flex">{renderStars(review.rating)}</div>
+                          <span className="text-gray-400 text-sm">by {review.reviewer_name}</span>
+                        </div>
+                        {review.title && (
+                          <h4 className="text-white font-semibold">{review.title}</h4>
+                        )}
+                      </div>
+                      <span className="text-gray-400 text-sm">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-gray-300">{review.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-400">
+                No reviews yet. Be the first to review this firm!
+              </div>
+            )}
+          </CardContent>
+        </Card>
+>>>>>>> 0b83ad0 (Your commit message)
       </div>
 
       <Footer />
