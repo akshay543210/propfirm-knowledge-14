@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface RatingFieldsProps {
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: Record<string, unknown>;
+  setFormData: (data: Record<string, unknown>) => void;
   errors: Record<string, string>;
   loading?: boolean;
 }

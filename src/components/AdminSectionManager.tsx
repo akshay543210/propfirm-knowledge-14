@@ -4,12 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-<<<<<<< HEAD
-=======
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import WriteReviewForm from "@/components/WriteReviewForm";
->>>>>>> 0b83ad0 (Your commit message)
 import { 
   Building2, 
   DollarSign, 
@@ -21,10 +18,6 @@ import {
   Award,
   Plus,
   Edit,
-<<<<<<< HEAD
-  Trash2
-} from "lucide-react";
-=======
   Trash2,
   Table
 } from "lucide-react";
@@ -33,18 +26,15 @@ import AdminFormPanel from "./AdminFormPanel";
 import { useAdminOperations } from "../hooks/useAdminOperations";
 import { usePropFirms } from "../hooks/useSupabaseData";
 import { PropFirm } from "../types/supabase";
->>>>>>> 0b83ad0 (Your commit message)
 
 interface SectionData {
   id: string;
   name: string;
   type: string;
-  items: any[];
+  items: unknown[];
 }
 
 const AdminSectionManager = () => {
-<<<<<<< HEAD
-=======
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
   const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
@@ -54,7 +44,6 @@ const AdminSectionManager = () => {
   const [currentSection, setCurrentSection] = useState<string>("");
   const { addFirm, updateFirm, deleteFirm, loading } = useAdminOperations();
   const { propFirms } = usePropFirms();
->>>>>>> 0b83ad0 (Your commit message)
   const [sections] = useState<SectionData[]>([
     {
       id: "all-firms",
@@ -103,15 +92,12 @@ const AdminSectionManager = () => {
       name: "Pro Traders",
       type: "category",
       items: []
-<<<<<<< HEAD
-=======
     },
     {
       id: "account-sizes",
       name: "Account Sizes",
       type: "account-sizes",
       items: []
->>>>>>> 0b83ad0 (Your commit message)
     }
   ]);
 
@@ -133,11 +119,8 @@ const AdminSectionManager = () => {
         return <Users className="h-5 w-5" />;
       case "pro-traders":
         return <Award className="h-5 w-5" />;
-<<<<<<< HEAD
-=======
       case "account-sizes":
         return <Table className="h-5 w-5" />;
->>>>>>> 0b83ad0 (Your commit message)
       default:
         return <Building2 className="h-5 w-5" />;
     }
@@ -161,18 +144,13 @@ const AdminSectionManager = () => {
         return "Manage firms for intermediate-level traders";
       case "pro-traders":
         return "Manage firms for professional traders";
-<<<<<<< HEAD
-=======
       case "account-sizes":
         return "Manage account sizes and pricing for prop firms";
->>>>>>> 0b83ad0 (Your commit message)
       default:
         return "Manage section content";
     }
   };
 
-<<<<<<< HEAD
-=======
   const handleAddPropFirm = () => {
     setEditingFirm(null);
     setIsAddFormOpen(true);
@@ -183,7 +161,6 @@ const AdminSectionManager = () => {
     setEditingFirm(null);
   };
 
->>>>>>> 0b83ad0 (Your commit message)
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -211,14 +188,10 @@ const AdminSectionManager = () => {
 
         {sections.map((section) => (
           <TabsContent key={section.id} value={section.id}>
-<<<<<<< HEAD
-            <Card className="bg-slate-800/50 border-blue-500/20">
-=======
             {section.id === 'account-sizes' ? (
               <AccountSizesManager />
             ) : (
               <Card className="bg-slate-800/50 border-blue-500/20">
->>>>>>> 0b83ad0 (Your commit message)
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -235,21 +208,6 @@ const AdminSectionManager = () => {
               </CardHeader>
               
               <CardContent className="space-y-4">
-<<<<<<< HEAD
-                <div className="flex gap-2 mb-4">
-                  <Button className="bg-green-600 hover:bg-green-700 text-white">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
-                  </Button>
-                  <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Bulk Edit
-                  </Button>
-                </div>
-
-                {/* Section-specific content */}
-                {section.items.length === 0 ? (
-=======
                 {/* Add Firm Selection for Cheap/Top Firms */}
                 {(section.id === 'cheap-firms' || section.id === 'top-firms') ? (
                   <div className="bg-slate-700/50 p-6 rounded-lg">
@@ -396,45 +354,20 @@ const AdminSectionManager = () => {
                     </Dialog>
                   </div>
                 ) : (
->>>>>>> 0b83ad0 (Your commit message)
                   <div className="text-center py-12 border-2 border-dashed border-gray-600 rounded-lg">
                     <div className="text-gray-400 mb-4">
                       {getSectionIcon(section.id)}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-300 mb-2">
-<<<<<<< HEAD
-                      No {section.type === 'reviews' ? 'reviews' : 'prop firms'} in this section
-                    </h3>
-                    <p className="text-gray-400 mb-4">
-                      Start by adding your first {section.type === 'reviews' ? 'review' : 'prop firm'} to this section.
-                    </p>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {/* This would be populated with actual items */}
-                    <div className="text-gray-400 text-center py-8">
-                      Items will appear here when added
-                    </div>
-=======
                       {section.name} Management
                     </h3>
                     <p className="text-gray-400 mb-4">
                       Configure {section.name.toLowerCase()} settings and content.
                     </p>
->>>>>>> 0b83ad0 (Your commit message)
                   </div>
                 )}
               </CardContent>
             </Card>
-<<<<<<< HEAD
-          </TabsContent>
-        ))}
-      </Tabs>
-=======
             )}
           </TabsContent>
         ))}
@@ -463,7 +396,6 @@ const AdminSectionManager = () => {
           />
         </DialogContent>
       </Dialog>
->>>>>>> 0b83ad0 (Your commit message)
     </div>
   );
 };

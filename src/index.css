@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 /* Loader spinner for Suspense fallback */
 .loader {
   border: 4px solid #3b82f6;
@@ -16,7 +14,6 @@
 html {
   scroll-behavior: smooth;
 }
->>>>>>> 0b83ad0 (Your commit message)
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

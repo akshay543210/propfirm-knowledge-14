@@ -10,10 +10,10 @@ interface AdminTabsProps {
   propFirms: PropFirm[];
   editingFirm: PropFirm | null;
   setEditingFirm: (firm: PropFirm | null) => void;
-  onAdd: (firmData: Partial<PropFirm>) => Promise<any>;
-  onUpdate: (id: string, updates: Partial<PropFirm>) => Promise<any>;
+  onAdd: (firmData: Partial<PropFirm>) => Promise<unknown>;
+  onUpdate: (id: string, updates: Partial<PropFirm>) => Promise<unknown>;
   onEdit: (firm: PropFirm) => void;
-  onDelete: (id: string) => Promise<any>;
+  onDelete: (id: string) => Promise<unknown>;
   dataLoading: boolean;
   operationLoading: boolean;
 }

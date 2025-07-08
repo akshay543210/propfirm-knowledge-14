@@ -3,38 +3,43 @@ export interface ValidationErrors {
   [key: string]: string;
 }
 
-export const validateAdminForm = (formData: any): ValidationErrors => {
+export const validateAdminForm = (formData: Record<string, unknown>): ValidationErrors => {
   const errors: ValidationErrors = {};
 
-  // Required fields validation
-  if (!formData.name || !formData.name.trim()) {
-    errors.name = 'Firm name is required';
+  // Safely access string fields
+  const getString = (key: string) => {
+    const value = formData[key];
+    return typeof value === 'string' ? value : '';
+  };
+  // Safely access number fields
+  const getNumber = (key: string) => {
+    const value = formData[key];
+    return typeof value === 'number' ? value : 0;
+  };
+
+  if (!getString('name').trim()) {
+    errors.name = 'Name is required';
   }
-  if (!formData.funding_amount || !formData.funding_amount.trim()) {
+  if (!getString('funding_amount').trim()) {
     errors.funding_amount = 'Funding amount is required';
   }
-
-  // Numeric validations
-  if (formData.price < 0) {
-    errors.price = 'Price must be 0 or greater';
+  if (getNumber('price') < 0) {
+    errors.price = 'Price cannot be negative';
   }
-  if (formData.original_price < 0) {
-    errors.original_price = 'Original price must be 0 or greater';
+  if (getNumber('original_price') < 0) {
+    errors.original_price = 'Original price cannot be negative';
   }
-  if (formData.profit_split < 0 || formData.profit_split > 100) {
-    errors.profit_split = 'Profit split must be between 0 and 100';
-  }
-  if (formData.payout_rate < 0 || formData.payout_rate > 100) {
-    errors.payout_rate = 'Payout rate must be between 0 and 100';
-  }
-  if (formData.review_score < 0 || formData.review_score > 5) {
+  if (getNumber('review_score') < 0 || getNumber('review_score') > 5) {
     errors.review_score = 'Review score must be between 0 and 5';
   }
-  if (formData.trust_rating < 0 || formData.trust_rating > 10) {
+  if (getNumber('trust_rating') < 0 || getNumber('trust_rating') > 10) {
     errors.trust_rating = 'Trust rating must be between 0 and 10';
   }
-  if (formData.starting_fee && formData.starting_fee < 0) {
-    errors.starting_fee = 'Starting fee must be 0 or greater';
+  if (getNumber('profit_split') < 0 || getNumber('profit_split') > 100) {
+    errors.profit_split = 'Profit split must be between 0 and 100';
+  }
+  if (getNumber('payout_rate') < 0 || getNumber('payout_rate') > 100) {
+    errors.payout_rate = 'Payout rate must be between 0 and 100';
   }
 
   // URL validations

@@ -1,22 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-<<<<<<< HEAD
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-=======
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
->>>>>>> 0b83ad0 (Your commit message)
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, ArrowLeft, Check, X, TrendingUp, Users, Clock, Shield } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-<<<<<<< HEAD
-=======
 import { useReviews } from "@/hooks/useSupabaseData";
 import WriteReviewForm from "@/components/WriteReviewForm";
 import { propFirmsData } from "@/data/propFirms";
->>>>>>> 0b83ad0 (Your commit message)
 
 // Dummy detailed review data
 const dummyReviewDetails = {
@@ -148,25 +141,12 @@ const dummyReviewDetails = {
   }
 };
 
-<<<<<<< HEAD
-const ReviewDetail = () => {
-  const { slug } = useParams();
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [reviewData, setReviewData] = useState(null);
-
-  useEffect(() => {
-    if (slug && dummyReviewDetails[slug]) {
-      setReviewData(dummyReviewDetails[slug]);
-    }
-  }, [slug]);
-
-=======
 
 const ReviewDetail = () => {
   const { slug } = useParams();
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [reviewData, setReviewData] = useState<any>(null);
-  const [firm, setFirm] = useState<any>(null);
+  const [reviewData, setReviewData] = useState<Review | null>(null);
+  const [firm, setFirm] = useState<PropFirm | null>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   // Find firm by slug (prefer Supabase, fallback to static)
   useEffect(() => {
@@ -219,7 +199,6 @@ const ReviewDetail = () => {
   // Fetch user reviews for this firm
   const { reviews, loading: reviewsLoading } = useReviews(firm?.id);
 
->>>>>>> 0b83ad0 (Your commit message)
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -231,12 +210,8 @@ const ReviewDetail = () => {
     ));
   };
 
-<<<<<<< HEAD
-  if (!reviewData) {
-=======
   // If neither reviewData nor firm, show not found
   if (!reviewData && !firm) {
->>>>>>> 0b83ad0 (Your commit message)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
@@ -290,44 +265,28 @@ const ReviewDetail = () => {
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <TrendingUp className="h-8 w-8 text-green-400 mx-auto mb-2" />
-<<<<<<< HEAD
-              <div className="text-2xl font-bold text-white">{reviewData.statistics.fundingAmount}</div>
-=======
               <div className="text-2xl font-bold text-white">{reviewData.statistics.fundingAmount || firm?.funding_amount || '-'}</div>
->>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Max Funding</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <Users className="h-8 w-8 text-blue-400 mx-auto mb-2" />
-<<<<<<< HEAD
-              <div className="text-2xl font-bold text-white">{reviewData.statistics.successRate}</div>
-=======
               <div className="text-2xl font-bold text-white">{reviewData.statistics.successRate || '-'}</div>
->>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Success Rate</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <Shield className="h-8 w-8 text-purple-400 mx-auto mb-2" />
-<<<<<<< HEAD
-              <div className="text-2xl font-bold text-white">{reviewData.statistics.avgPayout}</div>
-=======
               <div className="text-2xl font-bold text-white">{reviewData.statistics.avgPayout || '-'}</div>
->>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Avg Payout</div>
             </CardContent>
           </Card>
           <Card className="bg-slate-800/50 border-blue-500/20 text-center">
             <CardContent className="p-6">
               <Clock className="h-8 w-8 text-orange-400 mx-auto mb-2" />
-<<<<<<< HEAD
-              <div className="text-2xl font-bold text-white">{reviewData.statistics.avgTime}</div>
-=======
               <div className="text-2xl font-bold text-white">{reviewData.statistics.avgTime || '-'}</div>
->>>>>>> 0b83ad0 (Your commit message)
               <div className="text-gray-400 text-sm">Payout Time</div>
             </CardContent>
           </Card>
@@ -451,8 +410,6 @@ const ReviewDetail = () => {
             </Button>
           </CardContent>
         </Card>
-<<<<<<< HEAD
-=======
 
         {/* User Reviews Section */}
         <Card className="bg-slate-800/50 border-blue-500/20 mt-8">
@@ -510,7 +467,6 @@ const ReviewDetail = () => {
             )}
           </CardContent>
         </Card>
->>>>>>> 0b83ad0 (Your commit message)
       </div>
 
       <Footer />

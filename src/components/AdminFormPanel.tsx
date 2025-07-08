@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropFirm } from "../types/supabase";
@@ -14,8 +14,8 @@ import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
 
 interface AdminFormPanelProps {
-  onAdd: (firm: Partial<PropFirm>) => Promise<any>;
-  onUpdate: (id: string, firm: Partial<PropFirm>) => Promise<any>;
+  onAdd: (firm: Partial<PropFirm>) => Promise<unknown>;
+  onUpdate: (id: string, firm: Partial<PropFirm>) => Promise<unknown>;
   editingFirm: PropFirm | null;
   setEditingFirm: (firm: PropFirm | null) => void;
   loading?: boolean;
@@ -135,7 +135,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     }
   };
 
-  const handleEdit = (firm: PropFirm) => {
+  const handleEdit = useCallback((firm: PropFirm) => {
     setFormData({
       name: firm.name,
       category_id: firm.category_id,
@@ -164,13 +164,13 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     });
     setEditingFirm(firm);
     setErrors({});
-  };
+  }, [setFormData, setEditingFirm, setErrors]);
 
   useEffect(() => {
     if (editingFirm) {
       handleEdit(editingFirm);
     }
-  }, [editingFirm]);
+  }, [editingFirm, handleEdit]);
 
   const isFormValid = formData.name.trim() && formData.funding_amount.trim();
 
@@ -192,11 +192,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
         </CardTitle>
       </CardHeader>
       <CardContent>
-<<<<<<< HEAD
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-96 overflow-y-auto">
-=======
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[600px] overflow-y-auto">
->>>>>>> 0b83ad0 (Your commit message)
           <BasicInfoFields
             formData={formData}
             setFormData={setFormData}

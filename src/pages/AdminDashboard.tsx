@@ -1,40 +1,10 @@
 
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-=======
 import { useEffect } from "react";
->>>>>>> 0b83ad0 (Your commit message)
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LogOut, Shield } from "lucide-react";
 import AdminPanel from "../components/AdminPanel";
-<<<<<<< HEAD
-
-const AdminDashboard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is admin
-    const adminStatus = localStorage.getItem("isAdmin");
-    if (adminStatus === "true") {
-      setIsAuthenticated(true);
-    } else {
-      navigate("/admin-login");
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isAdmin");
-    navigate("/");
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-=======
 import { useAuth } from "@/hooks/useAuth";
 
 const AdminDashboard = () => {
@@ -42,27 +12,21 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
 
   useEffect(() => {
-    console.log('AdminDashboard: Auth state changed', { user: !!user, isAdmin, loading });
-    
     if (!loading) {
       if (!user) {
-        console.log('AdminDashboard: No user, redirecting to login');
         navigate("/admin-login");
       } else if (!isAdmin) {
-        console.log('AdminDashboard: User is not admin, redirecting to login');
         navigate("/admin-login");
       }
     }
   }, [user, isAdmin, loading, navigate]);
 
   const handleLogout = async () => {
-    console.log('AdminDashboard: Logging out');
     await signOut();
     navigate("/");
   };
 
   if (loading) {
-    console.log('AdminDashboard: Still loading auth state');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -70,15 +34,11 @@ const AdminDashboard = () => {
           <div className="text-white text-lg">Loading admin panel...</div>
           <div className="text-gray-400 text-sm mt-2">Verifying permissions</div>
         </div>
->>>>>>> 0b83ad0 (Your commit message)
       </div>
     );
   }
 
-<<<<<<< HEAD
-=======
   if (!user || !isAdmin) {
-    console.log('AdminDashboard: Access denied, showing message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -92,8 +52,6 @@ const AdminDashboard = () => {
     );
   }
 
-  console.log('AdminDashboard: Rendering admin panel');
->>>>>>> 0b83ad0 (Your commit message)
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <div className="container mx-auto px-4 py-8">
@@ -120,7 +78,6 @@ const AdminDashboard = () => {
             </div>
           </CardHeader>
         </Card>
-
         <AdminPanel />
       </div>
     </div>

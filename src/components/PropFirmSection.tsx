@@ -91,7 +91,7 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
             <Button
               key={category.key}
               variant={selectedCategory === category.key ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category.key as any)}
+              onClick={() => setSelectedCategory(category.key as string)}
               className={`px-6 py-2 capitalize transition-all ${
                 selectedCategory === category.key
                   ? 'bg-blue-600 text-white hover:bg-blue-700'

@@ -1,16 +1,9 @@
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-=======
 
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
->>>>>>> 0b83ad0 (Your commit message)
 
 interface NavbarProps {
   isAdminMode: boolean;
@@ -19,26 +12,12 @@ interface NavbarProps {
 
 const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-<<<<<<< HEAD
-  const [isAdmin, setIsAdmin] = useState(false);
-  const location = useLocation();
-=======
   const location = useLocation();
   const { isAdmin } = useAuth();
->>>>>>> 0b83ad0 (Your commit message)
 
   // Get prop firms from location state or empty array
   const propFirms = location.state?.propFirms || [];
 
-<<<<<<< HEAD
-  // Check admin status from localStorage
-  useEffect(() => {
-    const adminStatus = localStorage.getItem("isAdmin");
-    setIsAdmin(adminStatus === "true");
-  }, []);
-
-=======
->>>>>>> 0b83ad0 (Your commit message)
   const handleAdminToggle = () => {
     setIsAdminMode(!isAdminMode);
   };
@@ -82,9 +61,6 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
           </div>
 
           <div className="hidden md:flex md:items-center md:space-x-4">
-<<<<<<< HEAD
-            {/* Removed Admin Login button */}
-=======
             {isAdmin && (
               <Button
                 variant="ghost"
@@ -108,7 +84,6 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               Write Review
             </Button>
->>>>>>> 0b83ad0 (Your commit message)
           </div>
 
           <div className="md:hidden flex items-center">
@@ -149,9 +124,6 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
             >
               Compare
             </Link>
-<<<<<<< HEAD
-            {/* Removed Admin Login button from mobile */}
-=======
             {isAdmin && (
               <div className="border-t border-gray-700 pt-2">
                 <Button
@@ -183,7 +155,6 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
                 </Link>
               </div>
             )}
->>>>>>> 0b83ad0 (Your commit message)
           </div>
         </div>
       )}
