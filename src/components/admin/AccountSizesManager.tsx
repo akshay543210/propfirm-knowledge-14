@@ -18,6 +18,7 @@ const AccountSizesManager = () => {
   const { accountSizes, loading, addAccountSize, updateAccountSize, deleteAccountSize } = useAccountSizes();
   const { toast } = useToast();
 
+  const [selectedAccountType, setSelectedAccountType] = useState<string>('1-step');
   const [formData, setFormData] = useState({
     firm_id: '',
     size: '',
@@ -26,6 +27,12 @@ const AccountSizesManager = () => {
     promo_code: '',
     buying_link: ''
   });
+
+  const accountTypes = [
+    { value: '1-step', label: '1 Step Account' },
+    { value: '2-step', label: '2 Step Account' },
+    { value: 'instant', label: 'Instant Funding Account' }
+  ];
 
   const resetForm = () => {
     setFormData({
@@ -114,6 +121,38 @@ const AccountSizesManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* Account Type Filter */}
+      <Card className="bg-slate-800/50 border-blue-500/20">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Table className="h-5 w-5" />
+            Account Type Filter
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <label className="text-gray-300 text-sm font-medium">
+              Filter by Account Type:
+            </label>
+            <Select value={selectedAccountType} onValueChange={setSelectedAccountType}>
+              <SelectTrigger className="w-64 bg-slate-600 border-slate-500 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-700 border-slate-600">
+                {accountTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value} className="text-white hover:bg-slate-600">
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+              {accountTypes.find(t => t.value === selectedAccountType)?.label}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Add/Edit Form */}
       <Card className="bg-slate-800/50 border-blue-500/20">
         <CardHeader>

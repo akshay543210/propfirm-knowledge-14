@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Building2, 
   DollarSign, 
@@ -22,6 +23,7 @@ import {
 import AccountSizesManager from "./admin/AccountSizesManager";
 import AdminFormPanel from "./AdminFormPanel";
 import { useAdminOperations } from "../hooks/useAdminOperations";
+import { usePropFirms } from "../hooks/useSupabaseData";
 import { PropFirm } from "../types/supabase";
 
 interface SectionData {
@@ -34,7 +36,10 @@ interface SectionData {
 const AdminSectionManager = () => {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
+  const [selectedFirmId, setSelectedFirmId] = useState<string>("");
+  const [currentSection, setCurrentSection] = useState<string>("");
   const { addFirm, updateFirm, deleteFirm, loading } = useAdminOperations();
+  const { propFirms } = usePropFirms();
   const [sections] = useState<SectionData[]>([
     {
       id: "all-firms",
@@ -199,46 +204,133 @@ const AdminSectionManager = () => {
               </CardHeader>
               
               <CardContent className="space-y-4">
-                <div className="flex gap-2 mb-4">
-                  <Button 
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleAddPropFirm}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
-                  </Button>
-                  <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Bulk Edit
-                  </Button>
-                </div>
-
-                {/* Section-specific content */}
-                {section.items.length === 0 ? (
+                {/* Add Firm Selection for Cheap/Top Firms */}
+                {(section.id === 'cheap-firms' || section.id === 'top-firms') ? (
+                  <div className="bg-slate-700/50 p-6 rounded-lg">
+                    <h3 className="text-white text-lg font-semibold mb-4">
+                      Add Firm to {section.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-4">
+                      Select a firm and set its rank in the {section.name.toLowerCase()} section
+                    </p>
+                    <div className="flex gap-4 items-end">
+                      <div className="flex-1">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Select a firm to add
+                        </label>
+                        <Select value={selectedFirmId} onValueChange={setSelectedFirmId}>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name} - ${firm.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="w-24">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Rank
+                        </label>
+                        <Select>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="1" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {[1,2,3,4,5].map((rank) => (
+                              <SelectItem key={rank} value={rank.toString()} className="text-white hover:bg-slate-600">
+                                {rank}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button className="bg-green-600 hover:bg-green-700 text-white">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to {section.name}
+                      </Button>
+                    </div>
+                    
+                    {/* Current firms in this category */}
+                    <div className="mt-6">
+                      <div className="text-gray-300 text-sm mb-3">No firms in {section.name.toLowerCase()} category yet.</div>
+                    </div>
+                  </div>
+                ) : section.id === 'all-firms' ? (
+                  <div className="space-y-4">
+                    <div className="flex gap-2 mb-4">
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleAddPropFirm}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New PropFirm
+                      </Button>
+                      <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Bulk Edit
+                      </Button>
+                    </div>
+                    <div className="text-gray-400 text-center py-8">
+                      Create new prop firms that will be available in all sections
+                    </div>
+                  </div>
+                ) : section.id === 'reviews' ? (
+                  <div className="bg-slate-700/50 p-6 rounded-lg">
+                    <h3 className="text-white text-lg font-semibold mb-4">Add New Review</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Prop Firm *
+                        </label>
+                        <Select>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Category
+                        </label>
+                        <Select>
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="e.g. Big, Medium, Small" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            <SelectItem value="big" className="text-white hover:bg-slate-600">Big</SelectItem>
+                            <SelectItem value="medium" className="text-white hover:bg-slate-600">Medium</SelectItem>
+                            <SelectItem value="small" className="text-white hover:bg-slate-600">Small</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white mt-4">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New Review
+                    </Button>
+                  </div>
+                ) : (
                   <div className="text-center py-12 border-2 border-dashed border-gray-600 rounded-lg">
                     <div className="text-gray-400 mb-4">
                       {getSectionIcon(section.id)}
                     </div>
                     <h3 className="text-lg font-semibold text-gray-300 mb-2">
-                      No {section.type === 'reviews' ? 'reviews' : 'prop firms'} in this section
+                      {section.name} Management
                     </h3>
                     <p className="text-gray-400 mb-4">
-                      Start by adding your first {section.type === 'reviews' ? 'review' : 'prop firm'} to this section.
+                      Configure {section.name.toLowerCase()} settings and content.
                     </p>
-                    <Button 
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={handleAddPropFirm}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add {section.type === 'reviews' ? 'Review' : 'PropFirm'}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {/* This would be populated with actual items */}
-                    <div className="text-gray-400 text-center py-8">
-                      Items will appear here when added
-                    </div>
                   </div>
                 )}
               </CardContent>
