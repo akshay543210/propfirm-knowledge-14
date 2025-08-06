@@ -18,12 +18,14 @@ import {
   Plus,
   Edit,
   Trash2,
-  Table
+  Table,
+  X
 } from "lucide-react";
 import AccountSizesManager from "./admin/AccountSizesManager";
 import AdminFormPanel from "./AdminFormPanel";
 import { useAdminOperations } from "../hooks/useAdminOperations";
 import { usePropFirms } from "../hooks/useSupabaseData";
+import { useSectionMemberships } from "../hooks/useSectionMemberships";
 import { PropFirm } from "../types/supabase";
 
 interface SectionData {
@@ -37,9 +39,17 @@ const AdminSectionManager = () => {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
   const [selectedFirmId, setSelectedFirmId] = useState<string>("");
+  const [selectedRank, setSelectedRank] = useState<string>("1");
   const [currentSection, setCurrentSection] = useState<string>("");
   const { addFirm, updateFirm, deleteFirm, loading } = useAdminOperations();
   const { propFirms } = usePropFirms();
+  const { 
+    memberships, 
+    loading: membershipsLoading, 
+    addFirmToSection, 
+    removeFirmFromSection, 
+    getMembershipsBySection 
+  } = useSectionMemberships();
   const [sections] = useState<SectionData[]>([
     {
       id: "all-firms",
@@ -157,6 +167,22 @@ const AdminSectionManager = () => {
     setEditingFirm(null);
   };
 
+  const handleAddToSection = async (sectionId: string) => {
+    if (!selectedFirmId) {
+      return;
+    }
+    
+    const result = await addFirmToSection(sectionId, selectedFirmId, parseInt(selectedRank));
+    if (result.success) {
+      setSelectedFirmId("");
+      setSelectedRank("1");
+    }
+  };
+
+  const handleRemoveFromSection = async (membershipId: string) => {
+    await removeFirmFromSection(membershipId);
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -198,7 +224,7 @@ const AdminSectionManager = () => {
                     </div>
                   </div>
                   <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    {section.items.length} items
+                    {getMembershipsBySection(section.id).length} items
                   </Badge>
                 </div>
               </CardHeader>
@@ -235,7 +261,7 @@ const AdminSectionManager = () => {
                         <label className="block text-gray-300 text-sm font-medium mb-2">
                           Rank
                         </label>
-                        <Select>
+                        <Select value={selectedRank} onValueChange={setSelectedRank}>
                           <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                             <SelectValue placeholder="1" />
                           </SelectTrigger>
@@ -248,7 +274,11 @@ const AdminSectionManager = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button className="bg-green-600 hover:bg-green-700 text-white">
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => handleAddToSection(section.id)}
+                        disabled={!selectedFirmId || loading || membershipsLoading}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Add to {section.name}
                       </Button>
@@ -256,7 +286,45 @@ const AdminSectionManager = () => {
                     
                     {/* Current firms in this category */}
                     <div className="mt-6">
-                      <div className="text-gray-300 text-sm mb-3">No firms in {section.name.toLowerCase()} category yet.</div>
+                      <h4 className="text-gray-300 text-sm font-medium mb-3">
+                        Current firms in {section.name.toLowerCase()}:
+                      </h4>
+                      {getMembershipsBySection(section.id).length === 0 ? (
+                        <div className="text-gray-400 text-sm">No firms in {section.name.toLowerCase()} category yet.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {getMembershipsBySection(section.id)
+                            .sort((a, b) => a.rank - b.rank)
+                            .map((membership) => (
+                              <div 
+                                key={membership.id} 
+                                className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                                    {membership.rank}
+                                  </Badge>
+                                  <div>
+                                    <div className="text-white font-medium">
+                                      {membership.prop_firms?.name || 'Unknown Firm'}
+                                    </div>
+                                    <div className="text-gray-400 text-sm">
+                                      ${membership.prop_firms?.price || 'N/A'}
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                                  onClick={() => handleRemoveFromSection(membership.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : section.id === 'all-firms' ? (

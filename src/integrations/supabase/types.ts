@@ -323,6 +323,41 @@ export type Database = {
           },
         ]
       }
+      section_memberships: {
+        Row: {
+          created_at: string
+          firm_id: string
+          id: string
+          rank: number | null
+          section_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          firm_id: string
+          id?: string
+          rank?: number | null
+          section_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          firm_id?: string
+          id?: string
+          rank?: number | null
+          section_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "section_memberships_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sections: {
         Row: {
           created_at: string | null
