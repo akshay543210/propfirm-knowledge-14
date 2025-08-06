@@ -164,20 +164,16 @@ const Reviews = () => {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Link to={`/reviews/${firm.slug}`} className="flex-1">
+                  <Link to={`/firm-reviews/${firm.id}`} className="flex-1">
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                       Read Full Review
                     </Button>
                   </Link>
-                  <Button 
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => {
-                      setSelectedFirm(firm);
-                      setShowWriteReview(true);
-                    }}
-                  >
-                    Write Review
-                  </Button>
+                  <Link to={`/write-review/${firm.id}`} className="flex-1">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                      Write Review
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

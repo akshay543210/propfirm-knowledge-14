@@ -22,7 +22,11 @@ const PropFirmCard = ({ firm, index = 0 }: PropFirmCardProps) => {
   };
 
   const handleViewReview = () => {
-    navigate(`/firms/${firm.slug}`);
+    navigate(`/firm-reviews/${firm.id}`);
+  };
+
+  const handleWriteReview = () => {
+    navigate(`/write-review/${firm.id}`);
   };
 
   return (
@@ -119,9 +123,15 @@ const PropFirmCard = ({ firm, index = 0 }: PropFirmCardProps) => {
             className="flex-1 border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900 transition-all"
             onClick={handleViewReview}
           >
-            View Review
+            Read Full Review
           </Button>
         </div>
+        <Button 
+          className="w-full bg-green-600 hover:bg-green-700 text-white transition-all"
+          onClick={handleWriteReview}
+        >
+          Write Review
+        </Button>
       </CardFooter>
     </Card>
   );
