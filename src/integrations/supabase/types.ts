@@ -79,6 +79,51 @@ export type Database = {
         }
         Relationships: []
       }
+      drama_reports: {
+        Row: {
+          admin_approved_by: string | null
+          created_at: string
+          date_reported: string
+          description: string
+          drama_type: Database["public"]["Enums"]["drama_type"]
+          firm_name: string
+          id: string
+          severity: Database["public"]["Enums"]["drama_severity"]
+          source_links: string[] | null
+          status: Database["public"]["Enums"]["drama_status"]
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_approved_by?: string | null
+          created_at?: string
+          date_reported?: string
+          description: string
+          drama_type: Database["public"]["Enums"]["drama_type"]
+          firm_name: string
+          id?: string
+          severity: Database["public"]["Enums"]["drama_severity"]
+          source_links?: string[] | null
+          status?: Database["public"]["Enums"]["drama_status"]
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_approved_by?: string | null
+          created_at?: string
+          date_reported?: string
+          description?: string
+          drama_type?: Database["public"]["Enums"]["drama_type"]
+          firm_name?: string
+          id?: string
+          severity?: Database["public"]["Enums"]["drama_severity"]
+          source_links?: string[] | null
+          status?: Database["public"]["Enums"]["drama_status"]
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -421,7 +466,15 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      drama_severity: "Low" | "Medium" | "High" | "Scam Alert"
+      drama_status: "Pending" | "Approved" | "Rejected"
+      drama_type:
+        | "Payout Delay"
+        | "Account Ban"
+        | "Rule Change"
+        | "Suspicious Activity"
+        | "Shutdown"
+        | "Other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -548,6 +601,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      drama_severity: ["Low", "Medium", "High", "Scam Alert"],
+      drama_status: ["Pending", "Approved", "Rejected"],
+      drama_type: [
+        "Payout Delay",
+        "Account Ban",
+        "Rule Change",
+        "Suspicious Activity",
+        "Shutdown",
+        "Other",
+      ],
+    },
   },
 } as const
