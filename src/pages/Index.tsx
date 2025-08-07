@@ -5,11 +5,11 @@ import Hero from "../components/Hero";
 import PropFirmSection from "../components/PropFirmSection";
 import Footer from "../components/Footer";
 import AdminPanel from "../components/AdminPanel";
-import { usePropFirms } from "../hooks/useSupabaseData";
+import { useHomepagePropFirms } from "../hooks/useSupabaseData";
 import { PropFirm } from "../types/supabase";
 
 const Index = () => {
-  const { propFirms, loading } = usePropFirms();
+  const { propFirms, loading } = useHomepagePropFirms();
   const [sortBy, setSortBy] = useState<'price' | 'review' | 'trust'>('review');
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);

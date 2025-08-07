@@ -127,6 +127,7 @@ export type Database = {
           pros: string[] | null
           regulation: string | null
           review_score: number | null
+          show_on_homepage: boolean
           slug: string
           starting_fee: number | null
           trust_rating: number | null
@@ -156,6 +157,7 @@ export type Database = {
           pros?: string[] | null
           regulation?: string | null
           review_score?: number | null
+          show_on_homepage?: boolean
           slug: string
           starting_fee?: number | null
           trust_rating?: number | null
@@ -185,6 +187,7 @@ export type Database = {
           pros?: string[] | null
           regulation?: string | null
           review_score?: number | null
+          show_on_homepage?: boolean
           slug?: string
           starting_fee?: number | null
           trust_rating?: number | null
@@ -241,6 +244,7 @@ export type Database = {
           firm_id: string | null
           helpful_count: number | null
           id: string
+          images: string[] | null
           is_verified: boolean | null
           rating: number
           reviewer_name: string | null
@@ -254,6 +258,7 @@ export type Database = {
           firm_id?: string | null
           helpful_count?: number | null
           id?: string
+          images?: string[] | null
           is_verified?: boolean | null
           rating: number
           reviewer_name?: string | null
@@ -267,6 +272,7 @@ export type Database = {
           firm_id?: string | null
           helpful_count?: number | null
           id?: string
+          images?: string[] | null
           is_verified?: boolean | null
           rating?: number
           reviewer_name?: string | null

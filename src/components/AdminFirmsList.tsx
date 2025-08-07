@@ -44,6 +44,11 @@ const AdminFirmsList = ({ propFirms, onEdit, onDelete, loading = false }: AdminF
                           {firm.brand}
                         </span>
                       )}
+                      {firm.show_on_homepage && (
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                          Homepage
+                        </span>
+                      )}
                     </div>
                     <p className="text-gray-400 text-sm mb-2 line-clamp-2">
                       {firm.description || 'No description available'}

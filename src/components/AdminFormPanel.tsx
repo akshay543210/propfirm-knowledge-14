@@ -12,6 +12,7 @@ import PricingFields from "./admin/PricingFields";
 import RatingFields from "./admin/RatingFields";
 import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
+import HomepageToggleField from "./admin/HomepageToggleField";
 
 interface AdminFormPanelProps {
   onAdd: (firm: Partial<PropFirm>) => Promise<any>;
@@ -49,7 +50,8 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     max_funding: '',
     evaluation_model: '',
     starting_fee: 0,
-    regulation: ''
+    regulation: '',
+    show_on_homepage: false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -79,7 +81,8 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       max_funding: '',
       evaluation_model: '',
       starting_fee: 0,
-      regulation: ''
+      regulation: '',
+      show_on_homepage: false
     });
     setEditingFirm(null);
     setErrors({});
@@ -160,7 +163,8 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       max_funding: firm.max_funding || '',
       evaluation_model: firm.evaluation_model || '',
       starting_fee: firm.starting_fee || 0,
-      regulation: firm.regulation || ''
+      regulation: firm.regulation || '',
+      show_on_homepage: firm.show_on_homepage ?? false
     });
     setEditingFirm(firm);
     setErrors({});
@@ -224,6 +228,12 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           />
           
           <ContentFields
+            formData={formData}
+            setFormData={setFormData}
+            loading={loading}
+          />
+
+          <HomepageToggleField
             formData={formData}
             setFormData={setFormData}
             loading={loading}

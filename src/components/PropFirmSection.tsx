@@ -153,7 +153,10 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         {displayFirms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">
-              No prop firms found for the selected category.
+              {baseFirms.length === 0 && !searchResults 
+                ? "No featured firms available." 
+                : "No prop firms found for the selected category."
+              }
             </p>
           </div>
         )}
