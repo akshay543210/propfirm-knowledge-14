@@ -179,9 +179,9 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
   const isFormValid = formData.name.trim() && formData.funding_amount.trim();
 
   return (
-    <Card className="bg-card border-border shadow-soft">
+    <Card className="bg-slate-800/50 border-blue-500/20">
       <CardHeader>
-        <CardTitle className="text-foreground flex items-center gap-2">
+        <CardTitle className="text-white flex items-center gap-2">
           {editingFirm ? (
             <>
               <Save className="h-5 w-5" />
@@ -242,7 +242,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           <div className="flex gap-4 pt-4">
             <Button 
               type="submit" 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               disabled={loading || !isFormValid}
             >
               {loading ? (
@@ -271,7 +271,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
                 type="button" 
                 variant="outline" 
                 onClick={resetForm} 
-                className="border-muted-foreground text-muted-foreground hover:bg-muted"
+                className="border-gray-400 text-gray-400 hover:bg-gray-700"
                 disabled={loading}
               >
                 Cancel
@@ -280,12 +280,12 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           </div>
 
           {Object.keys(errors).length > 0 && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-              <div className="flex items-center gap-2 text-destructive">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-red-400">
                 <AlertCircle className="h-4 w-4" />
                 <span className="font-medium">Please fix the following errors:</span>
               </div>
-              <ul className="list-disc list-inside text-destructive text-sm mt-2">
+              <ul className="list-disc list-inside text-red-400 text-sm mt-2">
                 {Object.entries(errors).map(([field, error]) => (
                   <li key={field}>{error}</li>
                 ))}

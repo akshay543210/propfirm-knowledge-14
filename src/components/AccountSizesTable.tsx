@@ -23,22 +23,22 @@ const AccountSizesTable = ({ firmId, firmName }: AccountSizesTableProps) => {
   };
 
   return (
-    <Card className="bg-card border-border shadow-soft">
+    <Card className="bg-slate-800/50 border-blue-500/20">
       <CardHeader>
-        <CardTitle className="text-foreground text-xl">Account Sizes & Pricing</CardTitle>
-        <p className="text-muted-foreground">Choose the account size that fits your trading needs</p>
+        <CardTitle className="text-white text-xl">Account Sizes & Pricing</CardTitle>
+        <p className="text-gray-400">Choose the account size that fits your trading needs</p>
       </CardHeader>
       
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-border">
-                <TableHead className="text-muted-foreground">Account Size</TableHead>
-                <TableHead className="text-muted-foreground">Discounted Price</TableHead>
-                <TableHead className="text-muted-foreground">Original Price</TableHead>
-                <TableHead className="text-muted-foreground">Promo Code</TableHead>
-                <TableHead className="text-muted-foreground">Action</TableHead>
+              <TableRow className="border-slate-700">
+                <TableHead className="text-gray-300">Account Size</TableHead>
+                <TableHead className="text-gray-300">Discounted Price</TableHead>
+                <TableHead className="text-gray-300">Original Price</TableHead>
+                <TableHead className="text-gray-300">Promo Code</TableHead>
+                <TableHead className="text-gray-300">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -46,34 +46,34 @@ const AccountSizesTable = ({ firmId, firmName }: AccountSizesTableProps) => {
                 const discountPercentage = Math.round(((account.original_price - account.discounted_price) / account.original_price) * 100);
                 
                 return (
-                  <TableRow key={account.id} className="border-border hover:bg-muted/50">
-                    <TableCell className="text-foreground font-semibold text-lg">
+                  <TableRow key={account.id} className="border-slate-700 hover:bg-slate-700/30">
+                    <TableCell className="text-white font-semibold text-lg">
                       ${account.size}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-600 font-bold text-lg">${account.discounted_price}</span>
-                        <Badge className="bg-destructive/20 text-destructive border-destructive/30 text-xs">
+                        <span className="text-green-400 font-bold text-lg">${account.discounted_price}</span>
+                        <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs">
                           -{discountPercentage}%
                         </Badge>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-muted-foreground line-through">${account.original_price}</span>
+                      <span className="text-gray-400 line-through">${account.original_price}</span>
                     </TableCell>
                     <TableCell>
                       {account.promo_code ? (
-                        <Badge className="bg-primary/20 text-primary border-primary/30">
+                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
                           {account.promo_code}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground">None</span>
+                        <span className="text-gray-500">None</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <Button
                         onClick={() => handleBuyNow(account.buying_link)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        className="bg-green-600 hover:bg-green-700 text-white"
                         size="sm"
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
@@ -87,14 +87,14 @@ const AccountSizesTable = ({ firmId, firmName }: AccountSizesTableProps) => {
           </Table>
           
           {firmAccountSizes.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-gray-400">
               No account sizes available for this firm yet.
             </div>
           )}
         </div>
         
-        <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-          <p className="text-primary text-sm">
+        <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+          <p className="text-blue-400 text-sm">
             💡 <strong>Pro Tip:</strong> Use the promo codes above to get the best discounts on {firmName} accounts!
           </p>
         </div>

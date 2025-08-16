@@ -134,12 +134,12 @@ const DramaSubmit = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-accent/30 to-background">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-3 text-foreground text-lg">Loading...</span>
+            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+            <span className="ml-3 text-white text-lg">Loading...</span>
           </div>
         </div>
         <Footer />
@@ -148,7 +148,7 @@ const DramaSubmit = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/30 to-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
       
       <div className="container mx-auto px-4 py-20">
@@ -158,25 +158,25 @@ const DramaSubmit = () => {
             <Button
               variant="ghost"
               onClick={() => navigate('/drama-tracker')}
-              className="mb-4 text-primary hover:text-primary/80"
+              className="mb-4 text-blue-400 hover:text-blue-300"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Drama Tracker
             </Button>
             
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Report Prop Firm Drama 📢
             </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-gray-300 max-w-xl mx-auto">
               Help the trading community stay informed about prop firm issues. 
               Your report will be reviewed before being published.
             </p>
           </div>
 
           {/* Form */}
-          <Card className="bg-card border-border shadow-soft">
+          <Card className="bg-slate-800/50 border-blue-500/20">
             <CardHeader>
-              <CardTitle className="text-foreground flex items-center gap-2">
+              <CardTitle className="text-white flex items-center gap-2">
                 <FileText className="h-5 w-5" />
                 Drama Report Form
               </CardTitle>
@@ -185,7 +185,7 @@ const DramaSubmit = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Firm Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="firm_name" className="text-foreground">
+                  <Label htmlFor="firm_name" className="text-white">
                     Prop Firm Name *
                   </Label>
                   <Input
@@ -193,14 +193,14 @@ const DramaSubmit = () => {
                     value={formData.firm_name}
                     onChange={(e) => setFormData({ ...formData, firm_name: e.target.value })}
                     placeholder="e.g., FTMO, MyForexFunds, etc."
-                    className="bg-muted border-border text-foreground"
+                    className="bg-slate-700 border-slate-600 text-white"
                     required
                   />
                 </div>
 
                 {/* Date */}
                 <div className="space-y-2">
-                  <Label htmlFor="date_reported" className="text-foreground">
+                  <Label htmlFor="date_reported" className="text-white">
                     Date of Incident *
                   </Label>
                   <Input
@@ -208,58 +208,58 @@ const DramaSubmit = () => {
                     type="date"
                     value={formData.date_reported}
                     onChange={(e) => setFormData({ ...formData, date_reported: e.target.value })}
-                    className="bg-muted border-border text-foreground"
+                    className="bg-slate-700 border-slate-600 text-white"
                     required
                   />
                 </div>
 
                 {/* Drama Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="drama_type" className="text-foreground">
+                  <Label htmlFor="drama_type" className="text-white">
                     Type of Issue *
                   </Label>
                   <Select 
                     value={formData.drama_type} 
                     onValueChange={(value) => setFormData({ ...formData, drama_type: value as DramaType })}
                   >
-                    <SelectTrigger className="bg-muted border-border text-foreground">
+                    <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
                       <SelectValue placeholder="Select type of drama" />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                      <SelectItem value="Payout Delay" className="text-foreground">💰 Payout Delay</SelectItem>
-                      <SelectItem value="Account Ban" className="text-foreground">🚫 Account Ban</SelectItem>
-                      <SelectItem value="Rule Change" className="text-foreground">📋 Rule Change</SelectItem>
-                      <SelectItem value="Suspicious Activity" className="text-foreground">🔍 Suspicious Activity</SelectItem>
-                      <SelectItem value="Shutdown" className="text-foreground">⚠️ Shutdown</SelectItem>
-                      <SelectItem value="Other" className="text-foreground">❓ Other</SelectItem>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="Payout Delay" className="text-white">💰 Payout Delay</SelectItem>
+                      <SelectItem value="Account Ban" className="text-white">🚫 Account Ban</SelectItem>
+                      <SelectItem value="Rule Change" className="text-white">📋 Rule Change</SelectItem>
+                      <SelectItem value="Suspicious Activity" className="text-white">🔍 Suspicious Activity</SelectItem>
+                      <SelectItem value="Shutdown" className="text-white">⚠️ Shutdown</SelectItem>
+                      <SelectItem value="Other" className="text-white">❓ Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Severity */}
                 <div className="space-y-2">
-                  <Label htmlFor="severity" className="text-foreground">
+                  <Label htmlFor="severity" className="text-white">
                     Severity Level *
                   </Label>
                   <Select 
                     value={formData.severity} 
                     onValueChange={(value) => setFormData({ ...formData, severity: value as DramaSeverity })}
                   >
-                    <SelectTrigger className="bg-muted border-border text-foreground">
+                    <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
                       <SelectValue placeholder="Select severity level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                      <SelectItem value="Low" className="text-foreground">🟢 Low - Minor issue</SelectItem>
-                      <SelectItem value="Medium" className="text-foreground">🟡 Medium - Concerning</SelectItem>
-                      <SelectItem value="High" className="text-foreground">🟠 High - Serious problem</SelectItem>
-                      <SelectItem value="Scam Alert" className="text-foreground">🔴 Scam Alert - Dangerous</SelectItem>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="Low" className="text-white">🟢 Low - Minor issue</SelectItem>
+                      <SelectItem value="Medium" className="text-white">🟡 Medium - Concerning</SelectItem>
+                      <SelectItem value="High" className="text-white">🟠 High - Serious problem</SelectItem>
+                      <SelectItem value="Scam Alert" className="text-white">🔴 Scam Alert - Dangerous</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Description */}
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-foreground">
+                  <Label htmlFor="description" className="text-white">
                     Detailed Description *
                   </Label>
                   <Textarea
@@ -267,20 +267,20 @@ const DramaSubmit = () => {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Provide detailed information about what happened, when it occurred, and any relevant context..."
-                    className="bg-muted border-border text-foreground min-h-[120px]"
+                    className="bg-slate-700 border-slate-600 text-white min-h-[120px]"
                     required
                   />
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-gray-400 text-sm">
                     Be specific and factual. Include dates, amounts, and any relevant details.
                   </p>
                 </div>
 
                 {/* Source Links */}
                 <div className="space-y-2">
-                  <Label className="text-foreground">
+                  <Label className="text-white">
                     Source Links (Optional)
                   </Label>
-                  <p className="text-muted-foreground text-sm mb-3">
+                  <p className="text-gray-400 text-sm mb-3">
                     Add links to Reddit posts, Discord screenshots, or other evidence
                   </p>
                   
@@ -290,7 +290,7 @@ const DramaSubmit = () => {
                         value={link}
                         onChange={(e) => handleSourceLinkChange(index, e.target.value)}
                         placeholder="https://reddit.com/r/..."
-                        className="bg-muted border-border text-foreground"
+                        className="bg-slate-700 border-slate-600 text-white"
                       />
                       {formData.source_links.length > 1 && (
                         <Button
@@ -298,7 +298,7 @@ const DramaSubmit = () => {
                           variant="outline"
                           size="icon"
                           onClick={() => removeSourceLink(index)}
-                          className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -310,7 +310,7 @@ const DramaSubmit = () => {
                     type="button"
                     variant="outline"
                     onClick={addSourceLink}
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Another Link
@@ -321,7 +321,7 @@ const DramaSubmit = () => {
                 <div className="pt-4">
                   <Button
                     type="submit"
-                    className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground py-3"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-3"
                     disabled={submitting}
                   >
                     {submitting ? (
@@ -337,7 +337,7 @@ const DramaSubmit = () => {
                     )}
                   </Button>
                   
-                  <p className="text-muted-foreground text-sm mt-3 text-center">
+                  <p className="text-gray-400 text-sm mt-3 text-center">
                     Your report will be reviewed by our team before being published. 
                     Please ensure all information is accurate and factual.
                   </p>
