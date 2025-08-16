@@ -20,11 +20,11 @@ const DramaTracker = () => {
 
   const getSeverityColor = (severity: DramaSeverity) => {
     switch (severity) {
-      case 'Low': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'Medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'High': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      case 'Scam Alert': return 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'Low': return 'bg-info/20 text-info border-info/30';
+      case 'Medium': return 'bg-warning/20 text-warning border-warning/30';
+      case 'High': return 'bg-amber-500/20 text-amber-600 border-amber-500/30';
+      case 'Scam Alert': return 'bg-destructive/20 text-destructive border-destructive/30 animate-pulse';
+      default: return 'bg-muted/20 text-muted-foreground border-muted/30';
     }
   };
 
@@ -61,12 +61,12 @@ const DramaTracker = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-background via-accent/30 to-background">
         <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
         <div className="container mx-auto px-4 py-20">
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
-            <span className="ml-3 text-white text-lg">Loading drama reports...</span>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-foreground text-lg">Loading drama reports...</span>
           </div>
         </div>
         <Footer />
@@ -76,13 +76,13 @@ const DramaTracker = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-background via-accent/30 to-background">
         <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
         <div className="container mx-auto px-4 py-20">
           <div className="text-center py-20">
-            <AlertTriangle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Error Loading Reports</h2>
-            <p className="text-gray-400">{error}</p>
+            <AlertTriangle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">Error Loading Reports</h2>
+            <p className="text-muted-foreground">{error}</p>
           </div>
         </div>
         <Footer />
@@ -91,22 +91,22 @@ const DramaTracker = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/30 to-background">
       <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
       
       <div className="container mx-auto px-4 py-20">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Prop Firm Drama Tracker 📢
           </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             Stay informed about issues, controversies, and problems with prop trading firms. 
             Community-driven transparency for safer trading.
           </p>
           
           <Link to="/drama-tracker/submit">
-            <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
+            <Button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8 py-3 text-lg">
               <FileText className="mr-2 h-5 w-5" />
               Know something shady? Report drama 📝
             </Button>
@@ -114,9 +114,9 @@ const DramaTracker = () => {
         </div>
 
         {/* Filters Section */}
-        <Card className="bg-slate-800/50 border-blue-500/20 mb-8">
+        <Card className="bg-card border-border shadow-soft mb-8">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <Filter className="h-5 w-5" />
               Filter Reports
             </CardTitle>
@@ -124,40 +124,40 @@ const DramaTracker = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by firm name or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-slate-700 border-slate-600 text-white"
+                  className="pl-10 bg-muted border-border text-foreground"
                 />
               </div>
               
               <Select value={filterType} onValueChange={(value) => setFilterType(value as DramaType | "all")}>
-                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-600">
-                  <SelectItem value="all" className="text-white">All Types</SelectItem>
-                  <SelectItem value="Payout Delay" className="text-white">Payout Delay</SelectItem>
-                  <SelectItem value="Account Ban" className="text-white">Account Ban</SelectItem>
-                  <SelectItem value="Rule Change" className="text-white">Rule Change</SelectItem>
-                  <SelectItem value="Suspicious Activity" className="text-white">Suspicious Activity</SelectItem>
-                  <SelectItem value="Shutdown" className="text-white">Shutdown</SelectItem>
-                  <SelectItem value="Other" className="text-white">Other</SelectItem>
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="all" className="text-foreground">All Types</SelectItem>
+                  <SelectItem value="Payout Delay" className="text-foreground">Payout Delay</SelectItem>
+                  <SelectItem value="Account Ban" className="text-foreground">Account Ban</SelectItem>
+                  <SelectItem value="Rule Change" className="text-foreground">Rule Change</SelectItem>
+                  <SelectItem value="Suspicious Activity" className="text-foreground">Suspicious Activity</SelectItem>
+                  <SelectItem value="Shutdown" className="text-foreground">Shutdown</SelectItem>
+                  <SelectItem value="Other" className="text-foreground">Other</SelectItem>
                 </SelectContent>
               </Select>
               
               <Select value={filterSeverity} onValueChange={(value) => setFilterSeverity(value as DramaSeverity | "all")}>
-                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue placeholder="Filter by severity" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-600">
-                  <SelectItem value="all" className="text-white">All Severities</SelectItem>
-                  <SelectItem value="Low" className="text-white">Low</SelectItem>
-                  <SelectItem value="Medium" className="text-white">Medium</SelectItem>
-                  <SelectItem value="High" className="text-white">High</SelectItem>
-                  <SelectItem value="Scam Alert" className="text-white">Scam Alert</SelectItem>
+                <SelectContent className="bg-card border-border">
+                  <SelectItem value="all" className="text-foreground">All Severities</SelectItem>
+                  <SelectItem value="Low" className="text-foreground">Low</SelectItem>
+                  <SelectItem value="Medium" className="text-foreground">Medium</SelectItem>
+                  <SelectItem value="High" className="text-foreground">High</SelectItem>
+                  <SelectItem value="Scam Alert" className="text-foreground">Scam Alert</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -166,7 +166,7 @@ const DramaTracker = () => {
 
         {/* Results Count */}
         <div className="text-center mb-6">
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Showing {filteredReports.length} of {dramaReports.length} drama reports
           </p>
         </div>
@@ -176,11 +176,11 @@ const DramaTracker = () => {
           {filteredReports.map((report) => (
             <Card 
               key={report.id} 
-              className="bg-slate-800/50 border-blue-500/20 hover:border-blue-400/40 transition-all duration-300 animate-fade-in"
+              className="bg-card border-border hover:border-primary/40 transition-all duration-300 animate-fade-in shadow-soft"
             >
               <CardHeader>
                 <div className="flex justify-between items-start mb-2">
-                  <CardTitle className="text-white text-lg">{report.firm_name}</CardTitle>
+                  <CardTitle className="text-foreground text-lg">{report.firm_name}</CardTitle>
                   <div className="flex flex-col gap-2">
                     <Badge className={getSeverityColor(report.severity)}>
                       {report.severity}
@@ -188,7 +188,7 @@ const DramaTracker = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span className="text-lg">{getTypeIcon(report.drama_type)}</span>
                   <span>{report.drama_type}</span>
                   <span>•</span>
@@ -198,7 +198,7 @@ const DramaTracker = () => {
               
               <CardContent>
                 <div className="mb-4">
-                  <p className="text-gray-300 text-sm leading-relaxed">
+                  <p className="text-foreground text-sm leading-relaxed">
                     {expandedCards.has(report.id) 
                       ? report.description 
                       : `${report.description.slice(0, 150)}${report.description.length > 150 ? '...' : ''}`
@@ -209,7 +209,7 @@ const DramaTracker = () => {
                     <Button
                       variant="link"
                       onClick={() => toggleExpanded(report.id)}
-                      className="text-blue-400 p-0 h-auto font-normal text-sm mt-2"
+                      className="text-primary p-0 h-auto font-normal text-sm mt-2"
                     >
                       {expandedCards.has(report.id) ? 'Show less' : 'Read more'}
                     </Button>
@@ -219,7 +219,7 @@ const DramaTracker = () => {
                 {/* Source Links */}
                 {report.source_links && report.source_links.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="text-white text-sm font-medium">Sources:</h4>
+                    <h4 className="text-foreground text-sm font-medium">Sources:</h4>
                     <div className="flex flex-wrap gap-2">
                       {report.source_links.map((link, index) => (
                         <a
@@ -227,7 +227,7 @@ const DramaTracker = () => {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 text-xs bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20 hover:border-blue-400/40 transition-colors"
+                          className="inline-flex items-center gap-1 text-primary hover:text-primary/80 text-xs bg-primary/10 px-2 py-1 rounded border border-primary/20 hover:border-primary/40 transition-colors"
                         >
                           <ExternalLink className="h-3 w-3" />
                           Source {index + 1}
@@ -244,16 +244,16 @@ const DramaTracker = () => {
         {/* No Results */}
         {filteredReports.length === 0 && (
           <div className="text-center py-20">
-            <AlertTriangle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">No Drama Reports Found</h3>
-            <p className="text-gray-400 mb-6">
+            <AlertTriangle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-foreground mb-2">No Drama Reports Found</h3>
+            <p className="text-muted-foreground mb-6">
               {dramaReports.length === 0 
                 ? "No drama reports have been approved yet." 
                 : "Try adjusting your search or filter criteria."
               }
             </p>
             <Link to="/drama-tracker/submit">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                 Submit First Report
               </Button>
             </Link>

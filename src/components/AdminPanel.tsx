@@ -176,13 +176,13 @@ const AdminPanel = () => {
     return <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <RefreshCw className="h-8 w-8 animate-spin text-blue-400 mx-auto mb-4" />
-            <p className="text-gray-300">Loading admin panel...</p>
+            <RefreshCw className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading admin panel...</p>
           </div>
         </div>
       </div>;
   }
-  return <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-[#253770]">
+  return <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         <AdminHeader categoriesCount={categories.length} propFirmsCount={propFirms.length} onRefresh={handleRefresh} loading={dataLoading} />
 
