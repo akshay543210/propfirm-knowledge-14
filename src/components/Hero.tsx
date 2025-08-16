@@ -1,39 +1,33 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import { PropFirm } from "@/types/supabase";
-
 interface HeroProps {
   propFirms?: PropFirm[];
   onSearchResults?: (results: PropFirm[]) => void;
 }
-
-const Hero = ({ propFirms = [], onSearchResults }: HeroProps) => {
+const Hero = ({
+  propFirms = [],
+  onSearchResults
+}: HeroProps) => {
   const navigateToAllFirms = () => {
     window.location.href = '/propfirms';
   };
-
   const navigateToCompare = () => {
     window.location.href = '/compare';
   };
-
   const navigateToCheapFirms = () => {
     window.location.href = '/cheap-firms';
   };
-
   const navigateToTopFirms = () => {
     window.location.href = '/top-firms';
   };
-
   const handleSearchResults = (results: PropFirm[]) => {
     if (onSearchResults) {
       onSearchResults(results);
     }
   };
-
-  return (
-    <section id="home" className="relative py-20 px-4 sm:px-6 lg:px-8">
+  return <section id="home" className="relative py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto text-center">
         <div className="animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
@@ -51,65 +45,44 @@ const Hero = ({ propFirms = [], onSearchResults }: HeroProps) => {
 
           {/* Functional Search Bar */}
           <div className="mb-8">
-            <SearchBar 
-              propFirms={propFirms}
-              onFilteredResults={handleSearchResults}
-              placeholder="Search prop firms by name, brand, or features..."
-            />
+            <SearchBar propFirms={propFirms} onFilteredResults={handleSearchResults} placeholder="Search prop firms by name, brand, or features..." />
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-center max-w-4xl mx-auto">
-            <Button 
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg transition-all hover:scale-105"
-              onClick={navigateToAllFirms}
-            >
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg transition-all hover:scale-105" onClick={navigateToAllFirms}>
               Explore All Firms
             </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900 px-6 py-3 text-lg transition-all hover:scale-105"
-              onClick={navigateToCompare}
-            >
+            <Button size="lg" variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900 px-6 py-3 text-lg transition-all hover:scale-105" onClick={navigateToCompare}>
               Compare Firms
             </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-green-400 text-green-400 hover:bg-green-400 hover:text-slate-900 px-6 py-3 text-lg transition-all hover:scale-105"
-              onClick={navigateToCheapFirms}
-            >
-              💰 Cheap Cost PropFirms
-            </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-slate-900 px-6 py-3 text-lg transition-all hover:scale-105"
-              onClick={navigateToTopFirms}
-            >
+            <Button size="lg" variant="outline" className="border-green-400 text-green-400 hover:bg-green-400 hover:text-slate-900 px-6 py-3 text-lg transition-all hover:scale-105" onClick={navigateToCheapFirms}>💰 Budget-Friendly</Button>
+            <Button size="lg" variant="outline" className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-slate-900 px-6 py-3 text-lg transition-all hover:scale-105" onClick={navigateToTopFirms}>
               🔥 Top 5 PropFirms
             </Button>
           </div>
         </div>
         
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="animate-fade-in" style={{
+          animationDelay: '0.2s'
+        }}>
             <div className="text-3xl font-bold text-blue-400 mb-2">50K+</div>
             <div className="text-gray-300">Active Traders</div>
           </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="animate-fade-in" style={{
+          animationDelay: '0.4s'
+        }}>
             <div className="text-3xl font-bold text-purple-400 mb-2">$2.5B+</div>
             <div className="text-gray-300">Funded Capital</div>
           </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="animate-fade-in" style={{
+          animationDelay: '0.6s'
+        }}>
             <div className="text-3xl font-bold text-green-400 mb-2">95%</div>
             <div className="text-gray-300">Success Rate</div>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
