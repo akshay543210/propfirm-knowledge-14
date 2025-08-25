@@ -140,7 +140,7 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         </div>
 
         {/* Prop Firm Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {displayFirms.map((firm, index) => (
             <PropFirmCard 
               key={firm.id} 
