@@ -1,9 +1,17 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavbarProps {
   isAdminMode: boolean;
@@ -13,13 +21,19 @@ interface NavbarProps {
 const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAdmin, signOut } = useAuth();
 
   // Get prop firms from location state or empty array
   const propFirms = location.state?.propFirms || [];
 
   const handleAdminToggle = () => {
     setIsAdminMode(!isAdminMode);
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
   };
 
   return (
@@ -51,6 +65,12 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
                 Reviews
               </Link>
               <Link 
+                to="/drama-tracker" 
+                className="text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Drama Tracker
+              </Link>
+              <Link 
                 to="/compare" 
                 state={{ propFirms }}
                 className="text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors"
@@ -80,10 +100,48 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
                 </Button>
               </Link>
             )}
-            {/* Admin Login button removed from UI, route still works */}
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Write Review
-            </Button>
+            {!user && (
+              <>
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    className="border-gray-400 text-gray-300 hover:bg-gray-700"
+                  >
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-gray-300">
+                    {user.email || 'Account'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-slate-800 text-gray-200 border-blue-500/20">
+                  <DropdownMenuLabel>Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin-dashboard-2024')}>
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => navigate('/reviews')}>
+                    My Reviews
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400">
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           <div className="md:hidden flex items-center">
@@ -118,6 +176,12 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               Reviews
             </Link>
             <Link 
+              to="/drama-tracker" 
+              className="block px-3 py-2 text-gray-300 hover:text-blue-400 transition-colors"
+            >
+              Drama Tracker
+            </Link>
+            <Link 
               to="/compare" 
               state={{ propFirms }}
               className="block px-3 py-2 text-gray-300 hover:text-blue-400 transition-colors"
@@ -143,16 +207,48 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
                 </Link>
               </div>
             )}
-            {!isAdmin && (
-              <div className="border-t border-gray-700 pt-2">
-                <Link to="/admin-login" className="block">
+            {!user && (
+              <div className="border-t border-gray-700 pt-2 grid grid-cols-2 gap-2">
+                <Link to="/login" className="block">
                   <Button
                     variant="ghost"
-                    className="w-full text-left text-gray-400 hover:text-gray-300 justify-start"
+                    className="w-full text-left text-gray-300 hover:text-gray-200 justify-start"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Admin Login
+                    Login
                   </Button>
                 </Link>
+                <Link to="/signup" className="block">
+                  <Button
+                    variant="ghost"
+                    className="w-full text-left text-blue-400 hover:text-blue-300 justify-start"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
+            {user && (
+              <div className="border-t border-gray-700 pt-2 space-y-1">
+                {isAdmin && (
+                  <Link to="/admin-dashboard-2024" className="block">
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left text-purple-400 hover:text-purple-300 justify-start"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Admin Dashboard
+                    </Button>
+                  </Link>
+                )}
+                <Button
+                  variant="ghost"
+                  className="w-full text-left text-red-400 hover:text-red-300 justify-start"
+                  onClick={async () => { await handleLogout(); setIsMobileMenuOpen(false); }}
+                >
+                  Logout
+                </Button>
               </div>
             )}
           </div>

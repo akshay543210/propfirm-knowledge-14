@@ -25,6 +25,7 @@ export interface PropFirm {
   evaluation_model: string | null;
   starting_fee: number | null;
   regulation: string | null;
+  show_on_homepage?: boolean;
   created_at: string;
   updated_at: string;
 }

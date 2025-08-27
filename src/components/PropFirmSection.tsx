@@ -91,7 +91,7 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
             <Button
               key={category.key}
               variant={selectedCategory === category.key ? "default" : "outline"}
-              onClick={() => setSelectedCategory(category.key as string)}
+              onClick={() => setSelectedCategory(category.key as any)}
               className={`px-6 py-2 capitalize transition-all ${
                 selectedCategory === category.key
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -140,7 +140,7 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         </div>
 
         {/* Prop Firm Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {displayFirms.map((firm, index) => (
             <PropFirmCard 
               key={firm.id} 
@@ -153,7 +153,10 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         {displayFirms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">
-              No prop firms found for the selected category.
+              {baseFirms.length === 0 && !searchResults 
+                ? "No featured firms available." 
+                : "No prop firms found for the selected category."
+              }
             </p>
           </div>
         )}

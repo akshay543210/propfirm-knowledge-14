@@ -4,46 +4,63 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
-import FloatingParticles from "@/components/FloatingParticles";
-const Index = lazy(() => import("./pages/Index"));
-const AllPropFirms = lazy(() => import("./pages/AllPropFirms"));
-const Comparison = lazy(() => import("./pages/Comparison"));
-const CheapFirms = lazy(() => import("./pages/CheapFirms"));
-const TopFirms = lazy(() => import("./pages/TopFirms"));
-const PropFirmDetail = lazy(() => import("./pages/PropFirmDetail"));
-const Reviews = lazy(() => import("./pages/Reviews"));
-const ReviewDetail = lazy(() => import("./pages/ReviewDetail"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+import Index from "./pages/Index";
+import AllPropFirms from "./pages/AllPropFirms";
+import Comparison from "./pages/Comparison";
+import CheapFirms from "./pages/CheapFirms";
+import DramaTracker from "./pages/DramaTracker";
+import DramaSubmit from "./pages/DramaSubmit";
+import TopFirms from "./pages/TopFirms";
+import PropFirmDetail from "./pages/PropFirmDetail";
+import Reviews from "./pages/Reviews";
+import ReviewDetail from "./pages/ReviewDetail";
+import FirmReviewDetail from "./pages/FirmReviewDetail";
+import WriteReview from "./pages/WriteReview";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 
 const queryClient = new QueryClient();
-
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <FloatingParticles />
       <BrowserRouter>
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-900"><span className="loader" /></div>}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/propfirms" element={<AllPropFirms />} />
-            <Route path="/compare" element={<Comparison />} />
-            <Route path="/cheap-firms" element={<CheapFirms />} />
-            <Route path="/top-firms" element={<TopFirms />} />
-            <Route path="/firms/:id" element={<PropFirmDetail />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/reviews/:slug" element={<ReviewDetail />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/propfirms" element={<AllPropFirms />} />
+          <Route path="/compare" element={<Comparison />} />
+          <Route path="/cheap-firms" element={<CheapFirms />} />
+          <Route path="/drama-tracker" element={<DramaTracker />} />
+          <Route path="/drama-tracker/submit" element={<DramaSubmit />} />
+          <Route path="/top-firms" element={<TopFirms />} />
+          <Route path="/firms/:id" element={<PropFirmDetail />} />
+          <Route path="/reviews" element={<Reviews />} />
+          <Route path="/reviews/:slug" element={<ReviewDetail />} />
+          <Route path="/firm-reviews/:firmId" element={<FirmReviewDetail />} />
+          <Route path="/write-review/:firmId" element={<WriteReview />} />
+
+          {/* Public auth routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Admin auth */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+
+          {/* Protected admin routes */}
+          <Route element={<AdminRoute />}>
             <Route path="/admin-dashboard-2024" element={<AdminDashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+          </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -78,6 +78,20 @@ export const useAuth = () => {
     return { data, error };
   };
 
+  const signUp = async (email: string, password: string) => {
+    console.log('useAuth: Attempting sign up for:', email);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
+    // Rely on DB trigger to create profile row; do not write to profiles from client here
+    return { data, error };
+  };
+
   const signOut = async () => {
     console.log('useAuth: Signing out');
     const { error } = await supabase.auth.signOut();
@@ -95,6 +109,7 @@ export const useAuth = () => {
     isAdmin,
     loading,
     signIn,
+    signUp,
     signOut,
   };
 };

@@ -4,8 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ContentFieldsProps {
-  formData: Record<string, unknown>;
-  setFormData: (data: Record<string, unknown>) => void;
+  formData: any;
+  setFormData: (data: any) => void;
   loading?: boolean;
 }
 

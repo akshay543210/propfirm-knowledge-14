@@ -1,19 +1,20 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, List, Users } from "lucide-react";
+import { Settings, List, Users, AlertTriangle } from "lucide-react";
 import AdminSectionManager from "../AdminSectionManager";
 import AdminFormPanel from "../AdminFormPanel";
 import AdminFirmsList from "../AdminFirmsList";
 import UserManagement from "./UserManagement";
+import DramaModerationPanel from "./DramaModerationPanel";
 import { PropFirm } from "../../types/supabase";
 
 interface AdminTabsProps {
   propFirms: PropFirm[];
   editingFirm: PropFirm | null;
   setEditingFirm: (firm: PropFirm | null) => void;
-  onAdd: (firmData: Partial<PropFirm>) => Promise<unknown>;
-  onUpdate: (id: string, updates: Partial<PropFirm>) => Promise<unknown>;
+  onAdd: (firmData: Partial<PropFirm>) => Promise<any>;
+  onUpdate: (id: string, updates: Partial<PropFirm>) => Promise<any>;
   onEdit: (firm: PropFirm) => void;
-  onDelete: (id: string) => Promise<unknown>;
+  onDelete: (id: string) => Promise<any>;
   dataLoading: boolean;
   operationLoading: boolean;
 }
@@ -31,13 +32,20 @@ const AdminTabs = ({
 }: AdminTabsProps) => {
   return (
     <Tabs defaultValue="sections" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 mb-8 bg-slate-800/50">
+      <TabsList className="grid w-full grid-cols-4 mb-8 bg-slate-800/50">
         <TabsTrigger 
           value="sections" 
           className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
         >
           <Settings className="h-4 w-4 mr-2" />
           Section Management
+        </TabsTrigger>
+        <TabsTrigger 
+          value="drama" 
+          className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+        >
+          <AlertTriangle className="h-4 w-4 mr-2" />
+          Drama Reports
         </TabsTrigger>
         <TabsTrigger 
           value="firms" 
@@ -57,6 +65,10 @@ const AdminTabs = ({
 
       <TabsContent value="sections">
         <AdminSectionManager />
+      </TabsContent>
+
+      <TabsContent value="drama">
+        <DramaModerationPanel />
       </TabsContent>
 
       <TabsContent value="firms">

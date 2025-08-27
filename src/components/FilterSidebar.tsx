@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Search } from "lucide-react";
 
 interface FilterSidebarProps {
-  onFilterChange: (filters: Record<string, unknown>) => void;
+  onFilterChange: (filters: any) => void;
   sortBy: 'price' | 'review' | 'trust' | 'payout';
   setSortBy: (sort: 'price' | 'review' | 'trust' | 'payout') => void;
 }
@@ -20,7 +20,7 @@ const FilterSidebar = ({ onFilterChange, sortBy, setSortBy }: FilterSidebarProps
     searchTerm: ''
   });
 
-  const updateFilters = (newFilters: Record<string, unknown>) => {
+  const updateFilters = (newFilters: any) => {
     const updatedFilters = { ...filters, ...newFilters };
     setFilters(updatedFilters);
     onFilterChange(updatedFilters);

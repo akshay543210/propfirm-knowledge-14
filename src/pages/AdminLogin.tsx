@@ -19,6 +19,7 @@ const AdminLogin = () => {
   const { toast } = useToast();
   const { signIn, user, isAdmin, loading } = useAuth();
 
+  // Redirect if already logged in as admin
   useEffect(() => {
     if (!loading && user && isAdmin) {
       navigate("/admin-dashboard-2024");
@@ -29,7 +30,9 @@ const AdminLogin = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    
     const { data, error } = await signIn(email, password);
+    
     if (error) {
       setError(error.message);
       toast({
@@ -39,11 +42,13 @@ const AdminLogin = () => {
       });
       setIsLoading(false);
     } else if (data.user) {
+      console.log('AdminLogin: Login successful, user:', data.user.email);
       toast({
         title: "Login Successful",
         description: "Welcome to admin panel!",
       });
       setIsLoading(false);
+      // Navigation will be handled by useEffect when isAdmin updates
     }
   };
 
@@ -77,6 +82,7 @@ const AdminLogin = () => {
                 />
               </div>
             </div>
+            
             <div>
               <Label htmlFor="password" className="text-gray-300">Password</Label>
               <div className="relative">
@@ -103,11 +109,13 @@ const AdminLogin = () => {
                 </Button>
               </div>
             </div>
+
             {error && (
               <div className="text-red-400 text-sm text-center bg-red-500/10 border border-red-500/20 rounded p-2">
                 {error}
               </div>
             )}
+
             <Button 
               type="submit" 
               className="w-full bg-blue-600 hover:bg-blue-700"
@@ -116,10 +124,21 @@ const AdminLogin = () => {
               {isLoading ? "Logging in..." : "Login to Admin Panel"}
             </Button>
           </form>
+
           <div className="mt-6 text-center text-sm text-gray-400 bg-slate-700/30 rounded p-3">
             <p className="font-medium text-gray-300 mb-1">Admin Access Required</p>
             <p>Only registered admin users can access the dashboard.</p>
             <p>Contact your administrator for access.</p>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="text-gray-400 hover:text-blue-400"
+            >
+              ← Back to Home
+            </Button>
           </div>
         </CardContent>
       </Card>

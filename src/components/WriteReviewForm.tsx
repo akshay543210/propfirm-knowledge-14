@@ -55,8 +55,14 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
         description: "Your review has been submitted successfully!"
       });
 
+      // Reset form
+      setRating(0);
+      setHoverRating(0);
+      setTitle('');
+      setContent('');
+      setReviewerName('');
+      
       onClose();
-      window.location.reload(); // Simple refresh to show new review
     } catch (error) {
       console.error('Error submitting review:', error);
       toast({

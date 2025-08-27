@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface TradingFieldsProps {
-  formData: Record<string, unknown>;
-  setFormData: (data: Record<string, unknown>) => void;
+  formData: any;
+  setFormData: (data: any) => void;
   errors: Record<string, string>;
   loading?: boolean;
 }

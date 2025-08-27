@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropFirm } from "../types/supabase";
@@ -12,10 +12,11 @@ import PricingFields from "./admin/PricingFields";
 import RatingFields from "./admin/RatingFields";
 import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
+import HomepageToggleField from "./admin/HomepageToggleField";
 
 interface AdminFormPanelProps {
-  onAdd: (firm: Partial<PropFirm>) => Promise<unknown>;
-  onUpdate: (id: string, firm: Partial<PropFirm>) => Promise<unknown>;
+  onAdd: (firm: Partial<PropFirm>) => Promise<any>;
+  onUpdate: (id: string, firm: Partial<PropFirm>) => Promise<any>;
   editingFirm: PropFirm | null;
   setEditingFirm: (firm: PropFirm | null) => void;
   loading?: boolean;
@@ -49,7 +50,8 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     max_funding: '',
     evaluation_model: '',
     starting_fee: 0,
-    regulation: ''
+    regulation: '',
+    show_on_homepage: false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -79,7 +81,8 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       max_funding: '',
       evaluation_model: '',
       starting_fee: 0,
-      regulation: ''
+      regulation: '',
+      show_on_homepage: false
     });
     setEditingFirm(null);
     setErrors({});
@@ -135,7 +138,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     }
   };
 
-  const handleEdit = useCallback((firm: PropFirm) => {
+  const handleEdit = (firm: PropFirm) => {
     setFormData({
       name: firm.name,
       category_id: firm.category_id,
@@ -160,17 +163,18 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       max_funding: firm.max_funding || '',
       evaluation_model: firm.evaluation_model || '',
       starting_fee: firm.starting_fee || 0,
-      regulation: firm.regulation || ''
+      regulation: firm.regulation || '',
+      show_on_homepage: firm.show_on_homepage ?? false
     });
     setEditingFirm(firm);
     setErrors({});
-  }, [setFormData, setEditingFirm, setErrors]);
+  };
 
   useEffect(() => {
     if (editingFirm) {
       handleEdit(editingFirm);
     }
-  }, [editingFirm, handleEdit]);
+  }, [editingFirm]);
 
   const isFormValid = formData.name.trim() && formData.funding_amount.trim();
 
@@ -224,6 +228,12 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           />
           
           <ContentFields
+            formData={formData}
+            setFormData={setFormData}
+            loading={loading}
+          />
+
+          <HomepageToggleField
             formData={formData}
             setFormData={setFormData}
             loading={loading}

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -57,7 +57,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      },
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -78,7 +78,52 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      },
+      }
+      drama_reports: {
+        Row: {
+          admin_approved_by: string | null
+          created_at: string
+          date_reported: string
+          description: string
+          drama_type: Database["public"]["Enums"]["drama_type"]
+          firm_name: string
+          id: string
+          severity: Database["public"]["Enums"]["drama_severity"]
+          source_links: string[] | null
+          status: Database["public"]["Enums"]["drama_status"]
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_approved_by?: string | null
+          created_at?: string
+          date_reported?: string
+          description: string
+          drama_type: Database["public"]["Enums"]["drama_type"]
+          firm_name: string
+          id?: string
+          severity: Database["public"]["Enums"]["drama_severity"]
+          source_links?: string[] | null
+          status?: Database["public"]["Enums"]["drama_status"]
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_approved_by?: string | null
+          created_at?: string
+          date_reported?: string
+          description?: string
+          drama_type?: Database["public"]["Enums"]["drama_type"]
+          firm_name?: string
+          id?: string
+          severity?: Database["public"]["Enums"]["drama_severity"]
+          source_links?: string[] | null
+          status?: Database["public"]["Enums"]["drama_status"]
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -102,7 +147,7 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      },
+      }
       prop_firms: {
         Row: {
           affiliate_url: string | null
@@ -127,6 +172,7 @@ export type Database = {
           pros: string[] | null
           regulation: string | null
           review_score: number | null
+          show_on_homepage: boolean
           slug: string
           starting_fee: number | null
           trust_rating: number | null
@@ -156,6 +202,7 @@ export type Database = {
           pros?: string[] | null
           regulation?: string | null
           review_score?: number | null
+          show_on_homepage?: boolean
           slug: string
           starting_fee?: number | null
           trust_rating?: number | null
@@ -185,6 +232,7 @@ export type Database = {
           pros?: string[] | null
           regulation?: string | null
           review_score?: number | null
+          show_on_homepage?: boolean
           slug?: string
           starting_fee?: number | null
           trust_rating?: number | null
@@ -201,6 +249,208 @@ export type Database = {
           },
         ]
       }
+      propfirms: {
+        Row: {
+          category: string
+          cost: number
+          created_at: string | null
+          id: string
+          name: string
+          payout: number
+          platform: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          cost?: number
+          created_at?: string | null
+          id?: string
+          name: string
+          payout?: number
+          platform?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          cost?: number
+          created_at?: string | null
+          id?: string
+          name?: string
+          payout?: number
+          platform?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          content: string
+          created_at: string | null
+          firm_id: string | null
+          helpful_count: number | null
+          id: string
+          images: string[] | null
+          is_verified: boolean | null
+          rating: number
+          reviewer_name: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          firm_id?: string | null
+          helpful_count?: number | null
+          id?: string
+          images?: string[] | null
+          is_verified?: boolean | null
+          rating: number
+          reviewer_name?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          firm_id?: string | null
+          helpful_count?: number | null
+          id?: string
+          images?: string[] | null
+          is_verified?: boolean | null
+          rating?: number
+          reviewer_name?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      section_firms: {
+        Row: {
+          created_at: string | null
+          id: string
+          order: number | null
+          prop_firm_id: string | null
+          section_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order?: number | null
+          prop_firm_id?: string | null
+          section_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order?: number | null
+          prop_firm_id?: string | null
+          section_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "section_firms_prop_firm_id_fkey"
+            columns: ["prop_firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "section_firms_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      section_memberships: {
+        Row: {
+          created_at: string
+          firm_id: string
+          id: string
+          rank: number | null
+          section_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          firm_id: string
+          id?: string
+          rank?: number | null
+          section_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          firm_id?: string
+          id?: string
+          rank?: number | null
+          section_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "section_memberships_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sections: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: number
+          role: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          role?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          role?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -216,7 +466,15 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      drama_severity: "Low" | "Medium" | "High" | "Scam Alert"
+      drama_status: "Pending" | "Approved" | "Rejected"
+      drama_type:
+        | "Payout Delay"
+        | "Account Ban"
+        | "Rule Change"
+        | "Suspicious Activity"
+        | "Shutdown"
+        | "Other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -231,16 +489,18 @@ type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -258,14 +518,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -281,14 +543,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -304,14 +568,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -319,20 +585,33 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      drama_severity: ["Low", "Medium", "High", "Scam Alert"],
+      drama_status: ["Pending", "Approved", "Rejected"],
+      drama_type: [
+        "Payout Delay",
+        "Account Ban",
+        "Rule Change",
+        "Suspicious Activity",
+        "Shutdown",
+        "Other",
+      ],
+    },
   },
 } as const

@@ -7,8 +7,8 @@ import { Category } from "@/types/supabase";
 import { Loader2 } from "lucide-react";
 
 interface BasicInfoFieldsProps {
-  formData: Record<string, unknown>;
-  setFormData: (data: Record<string, unknown>) => void;
+  formData: any;
+  setFormData: (data: any) => void;
   errors: Record<string, string>;
   categories: Category[];
   categoriesLoading: boolean;
@@ -37,7 +37,7 @@ const BasicInfoFields = ({
         <Label htmlFor="name" className="text-gray-300">Firm Name *</Label>
         <Input
           id="name"
-          value={typeof formData['name'] === 'string' ? formData['name'] : ''}
+          value={formData.name}
           onChange={(e) => setFormData({...formData, name: e.target.value})}
           className={inputClassName('name')}
           disabled={loading}
@@ -50,7 +50,7 @@ const BasicInfoFields = ({
         <Label htmlFor="brand" className="text-gray-300">Brand</Label>
         <Input
           id="brand"
-          value={typeof formData['brand'] === 'string' ? formData['brand'] : ''}
+          value={formData.brand}
           onChange={(e) => setFormData({...formData, brand: e.target.value})}
           className={inputClassName('brand')}
           disabled={loading}
@@ -62,7 +62,7 @@ const BasicInfoFields = ({
         <Label htmlFor="slug" className="text-gray-300">Slug</Label>
         <Input
           id="slug"
-          value={typeof formData['slug'] === 'string' ? formData['slug'] : ''}
+          value={formData.slug}
           onChange={(e) => setFormData({...formData, slug: e.target.value})}
           className={inputClassName('slug')}
           placeholder="auto-generated from name if empty"

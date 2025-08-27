@@ -12,21 +12,27 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
 
   useEffect(() => {
+    console.log('AdminDashboard: Auth state changed', { user: !!user, isAdmin, loading });
+    
     if (!loading) {
       if (!user) {
+        console.log('AdminDashboard: No user, redirecting to login');
         navigate("/admin-login");
       } else if (!isAdmin) {
+        console.log('AdminDashboard: User is not admin, redirecting to login');
         navigate("/admin-login");
       }
     }
   }, [user, isAdmin, loading, navigate]);
 
   const handleLogout = async () => {
+    console.log('AdminDashboard: Logging out');
     await signOut();
     navigate("/");
   };
 
   if (loading) {
+    console.log('AdminDashboard: Still loading auth state');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -39,6 +45,7 @@ const AdminDashboard = () => {
   }
 
   if (!user || !isAdmin) {
+    console.log('AdminDashboard: Access denied, showing message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -52,6 +59,7 @@ const AdminDashboard = () => {
     );
   }
 
+  console.log('AdminDashboard: Rendering admin panel');
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <div className="container mx-auto px-4 py-8">
@@ -78,6 +86,7 @@ const AdminDashboard = () => {
             </div>
           </CardHeader>
         </Card>
+
         <AdminPanel />
       </div>
     </div>

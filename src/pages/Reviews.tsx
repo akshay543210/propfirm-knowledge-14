@@ -18,7 +18,7 @@ const Reviews = () => {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showWriteReview, setShowWriteReview] = useState(false);
-  const [selectedFirm, setSelectedFirm] = useState<string | null>(null);
+  const [selectedFirm, setSelectedFirm] = useState<any>(null);
 
   const filteredFirms = propFirms.filter(firm =>
     firm.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -164,20 +164,16 @@ const Reviews = () => {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Link to={`/firms/${firm.slug}`} className="flex-1">
+                  <Link to={`/firm-reviews/${firm.id}`} className="flex-1">
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                       Read Full Review
                     </Button>
                   </Link>
-                  <Button 
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => {
-                      setSelectedFirm(firm.id);
-                      setShowWriteReview(true);
-                    }}
-                  >
-                    Write Review
-                  </Button>
+                  <Link to={`/write-review/${firm.id}`} className="flex-1">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                      Write Review
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -225,8 +221,8 @@ const Reviews = () => {
                 {showWriteReview && (
                   <div className="border-t border-slate-700 pt-6">
                     <WriteReviewForm
-                      firmId={selectedFirm || propFirms[0]?.id || ''}
-                      firmName={propFirms.find(firm => firm.id === selectedFirm)?.name || propFirms[0]?.name || 'PropFirm'}
+                      firmId={selectedFirm?.id || propFirms[0]?.id || ''}
+                      firmName={selectedFirm?.name || propFirms[0]?.name || 'PropFirm'}
                       onClose={() => {
                         setShowWriteReview(false);
                         setSelectedFirm(null);
@@ -242,8 +238,8 @@ const Reviews = () => {
                 {showWriteReview && (
                   <div className="mt-6">
                     <WriteReviewForm
-                      firmId={selectedFirm || propFirms[0]?.id || ''}
-                      firmName={propFirms.find(firm => firm.id === selectedFirm)?.name || propFirms[0]?.name || 'PropFirm'}
+                      firmId={selectedFirm?.id || propFirms[0]?.id || ''}
+                      firmName={selectedFirm?.name || propFirms[0]?.name || 'PropFirm'}
                       onClose={() => {
                         setShowWriteReview(false);
                         setSelectedFirm(null);

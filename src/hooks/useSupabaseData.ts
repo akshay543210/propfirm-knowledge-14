@@ -15,6 +15,7 @@ export const usePropFirms = () => {
         .from('prop_firms')
         .select('*')
         .order('created_at', { ascending: false });
+
       if (error) {
         console.error('usePropFirms: Database error:', error);
         throw error;
@@ -35,6 +36,65 @@ export const usePropFirms = () => {
   }, [fetchPropFirms]);
 
   return { propFirms, loading, error, refetch: fetchPropFirms };
+};
+
+export const useHomepagePropFirms = () => {
+  const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchHomepagePropFirms = useCallback(async () => {
+    try {
+      console.log('useHomepagePropFirms: Starting to fetch homepage prop firms...');
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('prop_firms')
+        .select('*')
+        .eq('show_on_homepage', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('useHomepagePropFirms: Database error:', error);
+        throw error;
+      }
+      console.log('useHomepagePropFirms: Successfully fetched', data?.length || 0, 'homepage prop firms');
+      setPropFirms(data || []);
+      setError(null);
+    } catch (err) {
+      console.error('useHomepagePropFirms: Fetch error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHomepagePropFirms();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('homepage-prop-firms-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'prop_firms',
+          filter: 'show_on_homepage=eq.true'
+        },
+        () => {
+          console.log('Real-time update detected, refetching homepage prop firms...');
+          fetchHomepagePropFirms();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchHomepagePropFirms]);
+
+  return { propFirms, loading, error, refetch: fetchHomepagePropFirms };
 };
 
 export const useCheapestFirms = () => {

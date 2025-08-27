@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -19,11 +20,13 @@ const AllPropFirms = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
+      
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-4">All Prop Firms</h1>
           <p className="text-xl text-gray-300">Discover the best prop trading firms</p>
         </div>
+
         {/* Category Filter Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           <button
@@ -50,6 +53,7 @@ const AllPropFirms = () => {
             </button>
           ))}
         </div>
+
         {/* Results Count */}
         <div className="text-center mb-6">
           <p className="text-gray-400">
@@ -57,6 +61,7 @@ const AllPropFirms = () => {
             {selectedCategory !== 'all' && ` in selected category`}
           </p>
         </div>
+        
         {loading ? (
           <div className="text-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-blue-400 mx-auto mb-4" />
@@ -70,6 +75,7 @@ const AllPropFirms = () => {
                 <PropFirmCard key={firm.id} firm={firm} index={index} />
               ))}
             </div>
+
             {filteredFirms.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-400 text-lg">
@@ -80,6 +86,7 @@ const AllPropFirms = () => {
           </>
         )}
       </div>
+      
       <Footer />
     </div>
   );

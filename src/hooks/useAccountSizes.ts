@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { AccountSize } from '../types/supabaseTypes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,7 @@ export const useAccountSizes = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const fetchAccountSizes = useCallback(async () => {
+  const fetchAccountSizes = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -28,7 +28,7 @@ export const useAccountSizes = () => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setAccountSizes, toast]);
+  };
 
   const addAccountSize = async (accountSize: Omit<AccountSize, 'id' | 'created_at' | 'updated_at'>) => {
     try {
@@ -124,7 +124,7 @@ export const useAccountSizes = () => {
 
   useEffect(() => {
     fetchAccountSizes();
-  }, [fetchAccountSizes]);
+  }, []);
 
   return {
     accountSizes,
