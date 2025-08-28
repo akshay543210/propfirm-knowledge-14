@@ -23,6 +23,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
+import PayoutSupportBanner from "@/components/PayoutSupportBanner";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PayoutSupportBanner />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
