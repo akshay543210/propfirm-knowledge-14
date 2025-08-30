@@ -1,10 +1,10 @@
-
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Category } from "@/types/supabase";
 import { Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface BasicInfoFieldsProps {
   formData: any;
@@ -96,6 +96,52 @@ const BasicInfoFields = ({
             </SelectContent>
           </Select>
         )}
+      </div>
+
+      {/* Section Assignment Options */}
+      <div className="space-y-4 pt-4 border-t border-slate-700">
+        <h3 className="text-lg font-semibold text-white">Section Assignment</h3>
+        
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="top_rated" className="text-gray-300">Top Rated Firm</Label>
+              <p className="text-sm text-gray-400">Appears in Top 5 PropFirms section</p>
+            </div>
+            <Switch
+              id="top_rated"
+              checked={formData.top_rated || false}
+              onCheckedChange={(checked) => setFormData({...formData, top_rated: checked})}
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="budget_firm" className="text-gray-300">Budget Firm</Label>
+              <p className="text-sm text-gray-400">Appears in Cheap Cost PropFirms section</p>
+            </div>
+            <Switch
+              id="budget_firm"
+              checked={formData.budget_firm || false}
+              onCheckedChange={(checked) => setFormData({...formData, budget_firm: checked})}
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="explore_firm" className="text-gray-300">Explore Firm</Label>
+              <p className="text-sm text-gray-400">Appears in Explore All PropFirms section</p>
+            </div>
+            <Switch
+              id="explore_firm"
+              checked={formData.explore_firm || false}
+              onCheckedChange={(checked) => setFormData({...formData, explore_firm: checked})}
+              disabled={loading}
+            />
+          </div>
+        </div>
       </div>
     </>
   );

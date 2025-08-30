@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy } from "lucide-react";
+import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 import { PropFirm } from "@/types/supabase";
 
 interface TopFirmsSectionProps {
@@ -8,13 +9,17 @@ interface TopFirmsSectionProps {
 }
 
 const TopFirmsSection = ({ propFirms }: TopFirmsSectionProps) => {
-  const getTopFirms = () => {
-    return [...propFirms]
-      .sort((a, b) => (b.review_score || 0) - (a.review_score || 0))
-      .slice(0, 5);
-  };
+  const { getMembershipsBySection } = useSectionMemberships();
+  const topFirmsMemberships = getMembershipsBySection("top-firms");
 
-  const topFirms = getTopFirms();
+  // Get firm details for each membership
+  const topFirms = topFirmsMemberships
+    .map(membership => {
+      const firm = propFirms.find(f => f.id === membership.firm_id);
+      return firm ? { ...firm, rank: membership.rank || 0 } : null;
+    })
+    .filter((firm): firm is PropFirm & { rank: number } => firm !== null)
+    .sort((a, b) => a.rank - b.rank);
 
   return (
     <Card className="bg-slate-800/50 border-blue-500/20">
@@ -41,11 +46,11 @@ const TopFirmsSection = ({ propFirms }: TopFirmsSectionProps) => {
             Top 5 Rated Firms
           </h3>
           <p className="text-gray-400 text-sm mb-4">
-            These firms are automatically selected based on review score
+            These firms are manually selected for the top firms section
           </p>
           
           {topFirms.length === 0 ? (
-            <div className="text-gray-400 text-sm">No firms found.</div>
+            <div className="text-gray-400 text-sm">No firms in this section yet.</div>
           ) : (
             <div className="space-y-2">
               {topFirms.map((firm, index) => (
@@ -55,7 +60,7 @@ const TopFirmsSection = ({ propFirms }: TopFirmsSectionProps) => {
                 >
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                      {index + 1}
+                      {firm.rank}
                     </Badge>
                     <div>
                       <div className="text-white font-medium">

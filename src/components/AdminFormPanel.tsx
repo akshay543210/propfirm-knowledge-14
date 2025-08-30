@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import RatingFields from "./admin/RatingFields";
 import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
 import HomepageToggleField from "./admin/HomepageToggleField";
+import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 
 interface AdminFormPanelProps {
   onAdd: (firm: Partial<PropFirm>) => Promise<any>;
@@ -25,6 +25,7 @@ interface AdminFormPanelProps {
 const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading = false }: AdminFormPanelProps) => {
   const { toast } = useToast();
   const { categories, loading: categoriesLoading } = useCategories();
+  const { addFirmToSection, refetch: refetchSections } = useSectionMemberships();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -51,7 +52,10 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     evaluation_model: '',
     starting_fee: 0,
     regulation: '',
-    show_on_homepage: false
+    show_on_homepage: false,
+    top_rated: false,
+    budget_firm: false,
+    explore_firm: false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -82,7 +86,10 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       evaluation_model: '',
       starting_fee: 0,
       regulation: '',
-      show_on_homepage: false
+      show_on_homepage: false,
+      top_rated: false,
+      budget_firm: false,
+      explore_firm: false
     });
     setEditingFirm(null);
     setErrors({});
@@ -122,6 +129,27 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       }
 
       if (result.success) {
+        // Handle section assignments for new firms
+        if (!editingFirm && result.data) {
+          const firmId = result.data.id;
+          
+          // Add to sections based on form selections
+          if (formData.top_rated) {
+            await addFirmToSection('top-firms', firmId, 1);
+          }
+          
+          if (formData.budget_firm) {
+            await addFirmToSection('cheap-firms', firmId, 1);
+          }
+          
+          if (formData.explore_firm) {
+            await addFirmToSection('explore-firms', firmId, 1);
+          }
+          
+          // Refresh section memberships
+          refetchSections();
+        }
+        
         resetForm();
         toast({
           title: "Success",
@@ -164,7 +192,10 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       evaluation_model: firm.evaluation_model || '',
       starting_fee: firm.starting_fee || 0,
       regulation: firm.regulation || '',
-      show_on_homepage: firm.show_on_homepage ?? false
+      show_on_homepage: firm.show_on_homepage ?? false,
+      top_rated: false, // These will be determined by section membership
+      budget_firm: false,
+      explore_firm: false
     });
     setEditingFirm(firm);
     setErrors({});

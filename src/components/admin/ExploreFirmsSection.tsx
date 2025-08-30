@@ -19,7 +19,8 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
     loading: membershipsLoading, 
     addFirmToSection, 
     removeFirmFromSection, 
-    getMembershipsBySection
+    getMembershipsBySection,
+    refetch
   } = useSectionMemberships();
 
   const handleAddToSection = async () => {
@@ -29,14 +30,25 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
     if (result.success) {
       setSelectedFirmId("");
       setSelectedRank("1");
+      refetch(); // Refresh to show the new membership
     }
   };
 
   const handleRemoveFromSection = async (membershipId: string) => {
     await removeFirmFromSection(membershipId);
+    refetch(); // Refresh to show the removed membership
   };
 
-  const exploreFirms = getMembershipsBySection("explore-firms");
+  const exploreFirmsMemberships = getMembershipsBySection("explore-firms");
+
+  // Get firm details for each membership
+  const exploreFirms = exploreFirmsMemberships
+    .map(membership => {
+      const firm = propFirms.find(f => f.id === membership.firm_id);
+      return firm ? { ...firm, rank: membership.rank || 0, membershipId: membership.id } : null;
+    })
+    .filter((firm): firm is PropFirm & { rank: number, membershipId: string } => firm !== null)
+    .sort((a, b) => a.rank - b.rank);
 
   return (
     <Card className="bg-slate-800/50 border-blue-500/20">
@@ -92,7 +104,7 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
                   <SelectValue placeholder="1" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-700 border-slate-600">
-                  {[1,2,3,4,5].map((rank) => (
+                  {[1,2,3,4,5,6,7,8,9,10].map((rank) => (
                     <SelectItem key={rank} value={rank.toString()} className="text-white hover:bg-slate-600">
                       {rank}
                     </SelectItem>
@@ -119,36 +131,34 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
               <div className="text-gray-400 text-sm">No firms in explore section yet.</div>
             ) : (
               <div className="space-y-2">
-                {exploreFirms
-                  .sort((a, b) => (a.rank || 0) - (b.rank || 0))
-                  .map((membership) => (
-                    <div 
-                      key={membership.id} 
-                      className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                          {membership.rank}
-                        </Badge>
-                        <div>
-                          <div className="text-white font-medium">
-                            {membership.prop_firms?.name || 'Unknown Firm'}
-                          </div>
-                          <div className="text-gray-400 text-sm">
-                            ${membership.prop_firms?.price || 'N/A'}
-                          </div>
+                {exploreFirms.map((firm) => (
+                  <div 
+                    key={firm.membershipId} 
+                    className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                        {firm.rank}
+                      </Badge>
+                      <div>
+                        <div className="text-white font-medium">
+                          {firm.name}
+                        </div>
+                        <div className="text-gray-400 text-sm">
+                          ${firm.price}
                         </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                        onClick={() => handleRemoveFromSection(membership.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
-                  ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                      onClick={() => handleRemoveFromSection(firm.membershipId)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
