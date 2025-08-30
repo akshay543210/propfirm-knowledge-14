@@ -1,11 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings, List, Users, AlertTriangle } from "lucide-react";
-import AdminSectionManager from "../AdminSectionManager";
+import SectionManager from "./SectionManager";
 import AdminFormPanel from "../AdminFormPanel";
 import AdminFirmsList from "../AdminFirmsList";
 import UserManagement from "./UserManagement";
 import DramaModerationPanel from "./DramaModerationPanel";
-import { PropFirm } from "../../types/supabase";
+import { PropFirm } from "@/types/supabase";
 
 interface AdminTabsProps {
   propFirms: PropFirm[];
@@ -64,7 +64,7 @@ const AdminTabs = ({
       </TabsList>
 
       <TabsContent value="sections">
-        <AdminSectionManager />
+        <SectionManager />
       </TabsContent>
 
       <TabsContent value="drama">

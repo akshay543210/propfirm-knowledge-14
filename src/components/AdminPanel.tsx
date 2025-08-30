@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { PropFirm } from "../types/supabase";
-import { useAdminOperations } from "../hooks/useAdminOperations";
-import { usePropFirms } from "../hooks/useSupabaseData";
-import { useCategories } from "../hooks/useCategories";
+import { PropFirm } from "@/types/supabase";
+import { useAdminOperations } from "@/hooks/useAdminOperations";
+import { usePropFirms } from "@/hooks/useSupabaseData";
+import { useCategories } from "@/hooks/useCategories";
 import { RefreshCw } from "lucide-react";
 import OperationStatus from "./admin/OperationStatus";
 import AdminHeader from "./admin/AdminHeader";
 import AdminTabs from "./admin/AdminTabs";
+import SectionManager from "./admin/SectionManager";
+
 const AdminPanel = () => {
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);
   const [operationStatus, setOperationStatus] = useState<{
@@ -44,6 +46,7 @@ const AdminPanel = () => {
       return () => clearTimeout(timer);
     }
   }, [operationStatus]);
+
   const handleAdd = async (firmData: Partial<PropFirm>) => {
     console.log('AdminPanel: Adding firm with data:', firmData);
     setOperationStatus({
@@ -81,6 +84,7 @@ const AdminPanel = () => {
       };
     }
   };
+
   const handleUpdate = async (id: string, updates: Partial<PropFirm>) => {
     console.log('AdminPanel: Updating firm with id:', id, 'and data:', updates);
     setOperationStatus({
@@ -119,6 +123,7 @@ const AdminPanel = () => {
       };
     }
   };
+
   const handleDelete = async (id: string) => {
     console.log('AdminPanel: Deleting firm with id:', id);
     setOperationStatus({
@@ -156,6 +161,7 @@ const AdminPanel = () => {
       };
     }
   };
+
   const handleEdit = (firm: PropFirm) => {
     console.log('AdminPanel: Editing firm:', firm);
     setEditingFirm(firm);
@@ -164,6 +170,7 @@ const AdminPanel = () => {
       message: ''
     });
   };
+
   const handleRefresh = async () => {
     console.log('AdminPanel: Manual refresh requested');
     setOperationStatus({
@@ -172,6 +179,7 @@ const AdminPanel = () => {
     });
     await refetch();
   };
+
   if (categoriesLoading) {
     return <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -182,14 +190,26 @@ const AdminPanel = () => {
         </div>
       </div>;
   }
+
   return <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 bg-[#253770]">
       <div className="max-w-7xl mx-auto">
         <AdminHeader categoriesCount={categories.length} propFirmsCount={propFirms.length} onRefresh={handleRefresh} loading={dataLoading} />
 
         <OperationStatus status={operationStatus} />
 
-        <AdminTabs propFirms={propFirms} editingFirm={editingFirm} setEditingFirm={setEditingFirm} onAdd={handleAdd} onUpdate={handleUpdate} onEdit={handleEdit} onDelete={handleDelete} dataLoading={dataLoading} operationLoading={operationLoading} />
+        <AdminTabs 
+          propFirms={propFirms} 
+          editingFirm={editingFirm} 
+          setEditingFirm={setEditingFirm} 
+          onAdd={handleAdd} 
+          onUpdate={handleUpdate} 
+          onEdit={handleEdit} 
+          onDelete={handleDelete} 
+          dataLoading={dataLoading} 
+          operationLoading={operationLoading} 
+        />
       </div>
     </div>;
 };
+
 export default AdminPanel;

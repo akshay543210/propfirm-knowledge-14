@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +13,7 @@ interface PropFirmSectionProps {
 }
 
 const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults }: PropFirmSectionProps) => {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'beginner' | 'intermediate' | 'pro'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'beginners' | 'intermediates' | 'pro-traders'>('all');
   const [displayFirms, setDisplayFirms] = useState<PropFirm[]>([]);
 
   // Use search results if available, otherwise use all prop firms
@@ -23,20 +22,17 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
   useEffect(() => {
     let filteredFirms = [...baseFirms];
 
-    // Apply category filtering based on price ranges for now (since we don't have category data yet)
+    // Apply category filtering based on category_id
     if (selectedCategory !== 'all') {
       switch (selectedCategory) {
-        case 'beginner':
-          // Beginner: Lower priced firms (under $200)
-          filteredFirms = filteredFirms.filter(firm => firm.price < 200);
+        case 'beginners':
+          filteredFirms = filteredFirms.filter(firm => firm.category_id === 'beginners');
           break;
-        case 'intermediate':
-          // Intermediate: Mid-range priced firms ($200-$500)
-          filteredFirms = filteredFirms.filter(firm => firm.price >= 200 && firm.price <= 500);
+        case 'intermediates':
+          filteredFirms = filteredFirms.filter(firm => firm.category_id === 'intermediates');
           break;
-        case 'pro':
-          // Pro: Higher priced firms (over $500)
-          filteredFirms = filteredFirms.filter(firm => firm.price > 500);
+        case 'pro-traders':
+          filteredFirms = filteredFirms.filter(firm => firm.category_id === 'pro-traders');
           break;
       }
     }
@@ -47,9 +43,9 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         case 'price':
           return a.price - b.price;
         case 'review':
-          return b.review_score - a.review_score;
+          return (b.review_score || 0) - (a.review_score || 0);
         case 'trust':
-          return b.trust_rating - a.trust_rating;
+          return (b.trust_rating || 0) - (a.trust_rating || 0);
         default:
           return 0;
       }
@@ -84,9 +80,9 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {[
             { key: 'all', label: 'All Levels' },
-            { key: 'beginner', label: 'Beginner Traders' },
-            { key: 'intermediate', label: 'Intermediate Traders' },
-            { key: 'pro', label: 'Pro Traders' }
+            { key: 'beginners', label: 'Beginner Traders' },
+            { key: 'intermediates', label: 'Intermediate Traders' },
+            { key: 'pro-traders', label: 'Pro Traders' }
           ].map((category) => (
             <Button
               key={category.key}
@@ -107,9 +103,9 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
         {selectedCategory !== 'all' && (
           <div className="text-center mb-6">
             <p className="text-gray-400 text-sm">
-              {selectedCategory === 'beginner' && 'Showing firms under $200 - Perfect for new traders'}
-              {selectedCategory === 'intermediate' && 'Showing firms $200-$500 - Great for experienced traders'}
-              {selectedCategory === 'pro' && 'Showing firms over $500 - Advanced trading opportunities'}
+              {selectedCategory === 'beginners' && 'Showing firms for beginner traders'}
+              {selectedCategory === 'intermediates' && 'Showing firms for intermediate traders'}
+              {selectedCategory === 'pro-traders' && 'Showing firms for professional traders'}
             </p>
           </div>
         )}

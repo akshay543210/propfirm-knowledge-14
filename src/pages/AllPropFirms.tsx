@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -58,7 +57,7 @@ const AllPropFirms = () => {
         <div className="text-center mb-6">
           <p className="text-gray-400">
             Showing {filteredFirms.length} prop firms
-            {selectedCategory !== 'all' && ` in selected category`}
+            {selectedCategory !== 'all' && ` in ${categories.find(c => c.id === selectedCategory)?.name || selectedCategory} category`}
           </p>
         </div>
         
