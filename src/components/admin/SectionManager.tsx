@@ -8,6 +8,7 @@ import {
   DollarSign, 
   Trophy, 
   Table,
+  Globe,
   Plus,
   X,
   ArrowUp,
@@ -17,6 +18,10 @@ import {
 import { usePropFirms } from "@/hooks/useSupabaseData";
 import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AllFirmsSection from "./AllFirmsSection";
+import CheapFirmsSection from "./CheapFirmsSection";
+import TopFirmsSection from "./TopFirmsSection";
+import ExploreFirmsSection from "./ExploreFirmsSection";
 
 const SectionManager = () => {
   const { propFirms, loading: firmsLoading } = usePropFirms();
@@ -97,8 +102,22 @@ const SectionManager = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="budget" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6 bg-slate-800/50">
+      <Tabs defaultValue="all" className="w-full">
+        <TabsList className="grid w-full grid-cols-5 mb-6 bg-slate-800/50">
+          <TabsTrigger 
+            value="all" 
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <Building2 className="h-4 w-4 mr-2" />
+            All Firms
+          </TabsTrigger>
+          <TabsTrigger 
+            value="explore" 
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <Globe className="h-4 w-4 mr-2" />
+            Explore Firms
+          </TabsTrigger>
           <TabsTrigger 
             value="budget" 
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
@@ -120,14 +139,15 @@ const SectionManager = () => {
             <Table className="h-4 w-4 mr-2" />
             Table Review
           </TabsTrigger>
-          <TabsTrigger 
-            value="all" 
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
-          >
-            <Building2 className="h-4 w-4 mr-2" />
-            All Firms
-          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="all">
+          <AllFirmsSection onAddPropFirm={() => {}} />
+        </TabsContent>
+
+        <TabsContent value="explore">
+          <ExploreFirmsSection propFirms={propFirms} />
+        </TabsContent>
 
         <TabsContent value="budget">
           <Card className="bg-slate-800/50 border-blue-500/20">
@@ -428,23 +448,6 @@ const SectionManager = () => {
                     </div>
                   </>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="all">
-          <Card className="bg-slate-800/50 border-blue-500/20">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                All PropFirms
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-gray-400 text-center py-8">
-                <p className="mb-2">All prop firms added through the main form will appear here.</p>
-                <p>Use the other tabs to assign firms to specific sections.</p>
               </div>
             </CardContent>
           </Card>

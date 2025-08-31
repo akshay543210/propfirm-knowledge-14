@@ -12,7 +12,6 @@ import RatingFields from "./admin/RatingFields";
 import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
 import HomepageToggleField from "./admin/HomepageToggleField";
-import TableReviewFields from "./admin/TableReviewFields";
 
 interface AdminFormPanelProps {
   onAdd: (firm: Partial<PropFirm>) => Promise<any>;
@@ -260,12 +259,6 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           />
 
           <HomepageToggleField
-            formData={formData}
-            setFormData={setFormData}
-            loading={loading}
-          />
-          
-          <TableReviewFields
             formData={formData}
             setFormData={setFormData}
             loading={loading}

@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Building2 } from "lucide-react";
 
 interface AllFirmsSectionProps {
@@ -26,16 +25,17 @@ const AllFirmsSection = ({ onAddPropFirm }: AllFirmsSectionProps) => {
       <CardContent className="space-y-4">
         <div className="space-y-4">
           <div className="flex gap-2 mb-4">
-            <Button 
-              className="bg-green-600 hover:bg-green-700 text-white"
+            <button 
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
               onClick={onAddPropFirm}
             >
               <Building2 className="h-4 w-4 mr-2" />
               Add New PropFirm
-            </Button>
+            </button>
           </div>
           <div className="text-gray-400 text-center py-8">
-            All prop firms in the system will appear in the main listing
+            All prop firms added through the main form will appear here.<br />
+            Use the other tabs to assign firms to specific sections.
           </div>
         </div>
       </CardContent>

@@ -99,6 +99,17 @@ export const useAdminOperations = () => {
         }
       }
 
+      // Automatically add to explore section
+      const { error: exploreError } = await supabase
+        .from('explore_firms')
+        .insert({
+          firm_id: data.id
+        });
+
+      if (exploreError) {
+        console.error('Error adding firm to explore section:', exploreError);
+      }
+
       toast({
         title: "Success",
         description: "Prop firm added successfully!",
