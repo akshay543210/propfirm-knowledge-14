@@ -293,7 +293,7 @@ const TableReview = () => {
                     </td>
                     <td className="p-4 text-green-400 font-semibold">
                       ${firm.table_fee ?? firm.price}
-                      {firm.table_fee !== firm.price && firm.price && (
+                      {(firm.table_fee !== null && firm.table_fee !== firm.price) && firm.price && (
                         <div className="text-gray-400 text-sm line-through">${firm.price}</div>
                       )}
                     </td>
@@ -322,7 +322,7 @@ const TableReview = () => {
                       {firm.table_evaluation_rules ?? "Standard"}
                     </td>
                     <td className="p-4">
-                      {firm.table_coupon_code ?? firm.coupon_code ? (
+                      {(firm.table_coupon_code ?? firm.coupon_code) ? (
                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
                           {firm.table_coupon_code ?? firm.coupon_code}
                         </Badge>
@@ -402,7 +402,7 @@ const TableReview = () => {
                     </span>
                   </div>
                   
-                  {firm.table_coupon_code ?? firm.coupon_code && (
+                  {(firm.table_coupon_code ?? firm.coupon_code) && (
                     <div className="flex justify-between">
                       <span className="text-gray-400">Coupon:</span>
                       <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
