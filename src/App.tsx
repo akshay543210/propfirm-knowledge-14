@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import TableReview from "./pages/TableReview";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import PayoutSupportBanner from "@/components/PayoutSupportBanner";
@@ -47,6 +47,7 @@ const App = () => (
           <Route path="/reviews/:slug" element={<ReviewDetail />} />
           <Route path="/firm-reviews/:firmId" element={<FirmReviewDetail />} />
           <Route path="/write-review/:firmId" element={<WriteReview />} />
+          <Route path="/table-review" element={<TableReview />} />
 
           {/* Public auth routes */}
           <Route path="/login" element={<Login />} />

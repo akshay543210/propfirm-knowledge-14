@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
@@ -76,6 +75,12 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
                 className="text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors"
               >
                 Compare
+              </Link>
+              <Link 
+                to="/table-review" 
+                className="text-gray-300 hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Table Review
               </Link>
             </div>
           </div>
@@ -170,6 +175,12 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               className="block px-3 py-2 text-gray-300 hover:text-blue-400 transition-colors"
             >
               Compare
+            </Link>
+            <Link 
+              to="/table-review" 
+              className="block px-3 py-2 text-gray-300 hover:text-blue-400 transition-colors"
+            >
+              Table Review
             </Link>
             {isAdmin && (
               <Link 
