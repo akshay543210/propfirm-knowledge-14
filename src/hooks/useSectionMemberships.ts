@@ -24,7 +24,7 @@ export const useSectionMemberships = () => {
           id,
           propfirm_id,
           created_at,
-          prop_firms (
+          prop_firms!inner (
             id,
             name,
             slug,
@@ -64,14 +64,17 @@ export const useSectionMemberships = () => {
           )
         `);
 
-      if (budgetError) throw budgetError;
+      if (budgetError) {
+        console.error('Budget firms fetch error:', budgetError);
+        throw budgetError;
+      }
       
       const budgetFirms = budgetData
-        .filter((item: any) => item.prop_firms !== null)
         .map((item: any) => ({
           ...item.prop_firms,
           membership_id: item.id
-        }));
+        }))
+        .filter((firm: any) => firm !== null);
       
       setBudgetFirms(budgetFirms);
 
@@ -82,7 +85,7 @@ export const useSectionMemberships = () => {
           id,
           propfirm_id,
           created_at,
-          prop_firms (
+          prop_firms!inner (
             id,
             name,
             slug,
@@ -122,14 +125,17 @@ export const useSectionMemberships = () => {
           )
         `);
 
-      if (topError) throw topError;
+      if (topError) {
+        console.error('Top firms fetch error:', topError);
+        throw topError;
+      }
       
       const topFirms = topData
-        .filter((item: any) => item.prop_firms !== null)
         .map((item: any) => ({
           ...item.prop_firms,
           membership_id: item.id
-        }));
+        }))
+        .filter((firm: any) => firm !== null);
       
       setTopFirms(topFirms);
 
@@ -143,7 +149,7 @@ export const useSectionMemberships = () => {
           sort_priority,
           created_at,
           updated_at,
-          prop_firms (
+          prop_firms!inner (
             id,
             name,
             slug,
@@ -185,21 +191,24 @@ export const useSectionMemberships = () => {
         .eq('is_approved', true)
         .order('sort_priority', { ascending: true });
 
-      if (tableError) throw tableError;
+      if (tableError) {
+        console.error('Table review firms fetch error:', tableError);
+        throw tableError;
+      }
       
       const tableReviewFirms = tableData
-        .filter((item: any) => item.prop_firms !== null)
         .map((item: any) => ({
           ...item.prop_firms,
           membership_id: item.id,
           is_approved: item.is_approved,
           sort_priority: item.sort_priority
-        }));
+        }))
+        .filter((firm: any) => firm !== null);
       
       setTableReviewFirms(tableReviewFirms);
     } catch (error) {
       console.error('Error fetching section memberships:', error);
-      toast.error('Failed to fetch section memberships: ' + (error as Error).message);
+      toast.error('Failed to fetch section memberships');
     } finally {
       setLoading(false);
     }
@@ -222,7 +231,7 @@ export const useSectionMemberships = () => {
       if (error.code === '23505') {
         toast.error('Firm is already in budget section');
       } else {
-        toast.error('Failed to add firm to budget section: ' + error.message);
+        toast.error('Failed to add firm to budget section');
       }
       return { success: false, error: error.message };
     } finally {
@@ -245,7 +254,7 @@ export const useSectionMemberships = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Error removing firm from budget section:', error);
-      toast.error('Failed to remove firm from budget section: ' + error.message);
+      toast.error('Failed to remove firm from budget section');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
@@ -269,7 +278,7 @@ export const useSectionMemberships = () => {
       if (error.code === '23505') {
         toast.error('Firm is already in top 5 section');
       } else {
-        toast.error('Failed to add firm to top 5 section: ' + error.message);
+        toast.error('Failed to add firm to top 5 section');
       }
       return { success: false, error: error.message };
     } finally {
@@ -292,7 +301,7 @@ export const useSectionMemberships = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Error removing firm from top 5 section:', error);
-      toast.error('Failed to remove firm from top 5 section: ' + error.message);
+      toast.error('Failed to remove firm from top 5 section');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
@@ -344,7 +353,7 @@ export const useSectionMemberships = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Error adding firm to table review section:', error);
-      toast.error('Failed to add firm to table review section: ' + error.message);
+      toast.error('Failed to add firm to table review section');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
@@ -368,7 +377,7 @@ export const useSectionMemberships = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Error removing firm from table review section:', error);
-      toast.error('Failed to remove firm from table review section: ' + error.message);
+      toast.error('Failed to remove firm from table review section');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
@@ -389,7 +398,7 @@ export const useSectionMemberships = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Error updating table review priority:', error);
-      toast.error('Failed to update table review priority: ' + error.message);
+      toast.error('Failed to update table review priority');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);

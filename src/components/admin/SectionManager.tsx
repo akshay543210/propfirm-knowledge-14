@@ -11,7 +11,8 @@ import {
   Plus,
   X,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Loader2
 } from "lucide-react";
 import { usePropFirms } from "@/hooks/useSupabaseData";
 import { useSectionMemberships } from "@/hooks/useSectionMemberships";
@@ -141,73 +142,82 @@ const SectionManager = () => {
                 <h3 className="text-white text-lg font-semibold mb-4">
                   Add Firm to Budget Section
                 </h3>
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
-                      Select a firm to add
-                    </label>
-                    <Select 
-                      value={selectedBudgetFirm} 
-                      onValueChange={setSelectedBudgetFirm}
-                      disabled={loading || propFirms.length === 0}
-                    >
-                      <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
-                        <SelectValue placeholder="Select a firm" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
-                        {propFirms.map((firm) => (
-                          <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
-                            {firm.name} - ${firm.price}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {loading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+                    <span className="ml-2 text-gray-300">Loading...</span>
                   </div>
-                  <Button 
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleAddToBudget}
-                    disabled={!selectedBudgetFirm || loading}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add to Budget
-                  </Button>
-                </div>
-                
-                <div className="mt-6">
-                  <h4 className="text-gray-300 text-sm font-medium mb-3">
-                    Current budget firms:
-                  </h4>
-                  {budgetFirms.length === 0 ? (
-                    <div className="text-gray-400 text-sm">No firms in budget section yet.</div>
-                  ) : (
-                    <div className="space-y-2">
-                      {budgetFirms.map((firm) => (
-                        <div 
-                          key={firm.id} 
-                          className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                ) : (
+                  <>
+                    <div className="flex gap-4 items-end">
+                      <div className="flex-1">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Select a firm to add
+                        </label>
+                        <Select 
+                          value={selectedBudgetFirm} 
+                          onValueChange={setSelectedBudgetFirm}
+                          disabled={loading || propFirms.length === 0}
                         >
-                          <div>
-                            <div className="text-white font-medium">
-                              {firm.name}
-                            </div>
-                            <div className="text-gray-400 text-sm">
-                              ${firm.price}
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                            onClick={() => removeFirmFromBudget(firm.membership_id)}
-                            disabled={loading}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name} - ${firm.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleAddToBudget}
+                        disabled={!selectedBudgetFirm || loading}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to Budget
+                      </Button>
                     </div>
-                  )}
-                </div>
+                    
+                    <div className="mt-6">
+                      <h4 className="text-gray-300 text-sm font-medium mb-3">
+                        Current budget firms:
+                      </h4>
+                      {budgetFirms.length === 0 ? (
+                        <div className="text-gray-400 text-sm">No firms in budget section yet.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {budgetFirms.map((firm) => (
+                            <div 
+                              key={firm.id} 
+                              className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                            >
+                              <div>
+                                <div className="text-white font-medium">
+                                  {firm.name}
+                                </div>
+                                <div className="text-gray-400 text-sm">
+                                  ${firm.price}
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                                onClick={() => removeFirmFromBudget(firm.membership_id)}
+                                disabled={loading}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -226,73 +236,82 @@ const SectionManager = () => {
                 <h3 className="text-white text-lg font-semibold mb-4">
                   Add Firm to Top 5 Section
                 </h3>
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
-                      Select a firm to add
-                    </label>
-                    <Select 
-                      value={selectedTopFirm} 
-                      onValueChange={setSelectedTopFirm}
-                      disabled={loading || propFirms.length === 0}
-                    >
-                      <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
-                        <SelectValue placeholder="Select a firm" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
-                        {propFirms.map((firm) => (
-                          <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
-                            {firm.name} - ${firm.price}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {loading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+                    <span className="ml-2 text-gray-300">Loading...</span>
                   </div>
-                  <Button 
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleAddToTop}
-                    disabled={!selectedTopFirm || loading}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add to Top 5
-                  </Button>
-                </div>
-                
-                <div className="mt-6">
-                  <h4 className="text-gray-300 text-sm font-medium mb-3">
-                    Current top 5 firms:
-                  </h4>
-                  {topFirms.length === 0 ? (
-                    <div className="text-gray-400 text-sm">No firms in top 5 section yet.</div>
-                  ) : (
-                    <div className="space-y-2">
-                      {topFirms.map((firm) => (
-                        <div 
-                          key={firm.id} 
-                          className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                ) : (
+                  <>
+                    <div className="flex gap-4 items-end">
+                      <div className="flex-1">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Select a firm to add
+                        </label>
+                        <Select 
+                          value={selectedTopFirm} 
+                          onValueChange={setSelectedTopFirm}
+                          disabled={loading || propFirms.length === 0}
                         >
-                          <div>
-                            <div className="text-white font-medium">
-                              {firm.name}
-                            </div>
-                            <div className="text-gray-400 text-sm">
-                              ${firm.price}
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                            onClick={() => removeFirmFromTop(firm.membership_id)}
-                            disabled={loading}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name} - ${firm.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleAddToTop}
+                        disabled={!selectedTopFirm || loading}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to Top 5
+                      </Button>
                     </div>
-                  )}
-                </div>
+                    
+                    <div className="mt-6">
+                      <h4 className="text-gray-300 text-sm font-medium mb-3">
+                        Current top 5 firms:
+                      </h4>
+                      {topFirms.length === 0 ? (
+                        <div className="text-gray-400 text-sm">No firms in top 5 section yet.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {topFirms.map((firm) => (
+                            <div 
+                              key={firm.id} 
+                              className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                            >
+                              <div>
+                                <div className="text-white font-medium">
+                                  {firm.name}
+                                </div>
+                                <div className="text-gray-400 text-sm">
+                                  ${firm.price}
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                                onClick={() => removeFirmFromTop(firm.membership_id)}
+                                disabled={loading}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -311,95 +330,104 @@ const SectionManager = () => {
                 <h3 className="text-white text-lg font-semibold mb-4">
                   Add Firm to Table Review
                 </h3>
-                <div className="flex gap-4 items-end">
-                  <div className="flex-1">
-                    <label className="block text-gray-300 text-sm font-medium mb-2">
-                      Select a firm to add
-                    </label>
-                    <Select 
-                      value={selectedTableReviewFirm} 
-                      onValueChange={setSelectedTableReviewFirm}
-                      disabled={loading || propFirms.length === 0}
-                    >
-                      <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
-                        <SelectValue placeholder="Select a firm" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-700 border-slate-600">
-                        {propFirms.map((firm) => (
-                          <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
-                            {firm.name} - ${firm.price}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {loading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+                    <span className="ml-2 text-gray-300">Loading...</span>
                   </div>
-                  <Button 
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleAddToTableReview}
-                    disabled={!selectedTableReviewFirm || loading}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add to Table Review
-                  </Button>
-                </div>
-                
-                <div className="mt-6">
-                  <h4 className="text-gray-300 text-sm font-medium mb-3">
-                    Current table review firms:
-                  </h4>
-                  {tableReviewFirms.length === 0 ? (
-                    <div className="text-gray-400 text-sm">No firms in table review section yet.</div>
-                  ) : (
-                    <div className="space-y-2">
-                      {tableReviewFirms.map((firm, index) => (
-                        <div 
-                          key={firm.id} 
-                          className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                ) : (
+                  <>
+                    <div className="flex gap-4 items-end">
+                      <div className="flex-1">
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Select a firm to add
+                        </label>
+                        <Select 
+                          value={selectedTableReviewFirm} 
+                          onValueChange={setSelectedTableReviewFirm}
+                          disabled={loading || propFirms.length === 0}
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="flex flex-col gap-1">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white h-6 w-6 p-0"
-                                onClick={() => moveTableReviewFirm(firm.id, 'up')}
-                                disabled={index === 0 || loading}
-                              >
-                                <ArrowUp className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white h-6 w-6 p-0"
-                                onClick={() => moveTableReviewFirm(firm.id, 'down')}
-                                disabled={index === tableReviewFirms.length - 1 || loading}
-                              >
-                                <ArrowDown className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            <div>
-                              <div className="text-white font-medium">
-                                {firm.name}
-                              </div>
-                              <div className="text-gray-400 text-sm">
-                                ${firm.price}
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                            onClick={() => removeFirmFromTableReview(firm.membership_id)}
-                            disabled={loading}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                          <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                            <SelectValue placeholder="Select a firm" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-700 border-slate-600">
+                            {propFirms.map((firm) => (
+                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                {firm.name} - ${firm.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleAddToTableReview}
+                        disabled={!selectedTableReviewFirm || loading}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add to Table Review
+                      </Button>
                     </div>
-                  )}
-                </div>
+                    
+                    <div className="mt-6">
+                      <h4 className="text-gray-300 text-sm font-medium mb-3">
+                        Current table review firms:
+                      </h4>
+                      {tableReviewFirms.length === 0 ? (
+                        <div className="text-gray-400 text-sm">No firms in table review section yet.</div>
+                      ) : (
+                        <div className="space-y-2">
+                          {tableReviewFirms.map((firm, index) => (
+                            <div 
+                              key={firm.id} 
+                              className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="flex flex-col gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white h-6 w-6 p-0"
+                                    onClick={() => moveTableReviewFirm(firm.id, 'up')}
+                                    disabled={index === 0 || loading}
+                                  >
+                                    <ArrowUp className="h-3 w-3" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white h-6 w-6 p-0"
+                                    onClick={() => moveTableReviewFirm(firm.id, 'down')}
+                                    disabled={index === tableReviewFirms.length - 1 || loading}
+                                  >
+                                    <ArrowDown className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <div>
+                                  <div className="text-white font-medium">
+                                    {firm.name}
+                                  </div>
+                                  <div className="text-gray-400 text-sm">
+                                    ${firm.price}
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                                onClick={() => removeFirmFromTableReview(firm.membership_id)}
+                                disabled={loading}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
