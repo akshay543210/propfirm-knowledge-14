@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PropFirm } from '@/types/supabase';
@@ -21,7 +20,7 @@ export const useAdminOperations = () => {
       // Create complete data object with all required fields
       const completeData = {
         name: firmData.name,
-        slug: firmData.slug || firmData.name.toLowerCase().replace(/\s+/g, '-'),
+        slug: firmData.slug || firmData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
         funding_amount: firmData.funding_amount,
         price: firmData.price || 0,
         original_price: firmData.original_price || 0,
@@ -42,8 +41,9 @@ export const useAdminOperations = () => {
         platform: firmData.platform || null,
         max_funding: firmData.max_funding || null,
         evaluation_model: firmData.evaluation_model || null,
-        starting_fee: firmData.starting_fee || null,
+        starting_fee: firmData.starting_fee || 0,
         regulation: firmData.regulation || null,
+        show_on_homepage: firmData.show_on_homepage || false,
       };
 
       console.log('Inserting data:', completeData);
@@ -89,9 +89,10 @@ export const useAdminOperations = () => {
       // Ensure arrays are properly formatted
       const formattedUpdates = {
         ...updates,
-        features: Array.isArray(updates.features) ? updates.features : [],
-        pros: Array.isArray(updates.pros) ? updates.pros : [],
-        cons: Array.isArray(updates.cons) ? updates.cons : [],
+        features: Array.isArray(updates.features) ? updates.features : (updates.features ? updates.features.split(',').map(f => f.trim()).filter(f => f) : []),
+        pros: Array.isArray(updates.pros) ? updates.pros : (updates.pros ? updates.pros.split(',').map(f => f.trim()).filter(f => f) : []),
+        cons: Array.isArray(updates.cons) ? updates.cons : (updates.cons ? updates.cons.split(',').map(f => f.trim()).filter(f => f) : []),
+        slug: updates.slug || (updates.name ? updates.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : undefined),
       };
 
       console.log('Formatted updates:', formattedUpdates);

@@ -118,7 +118,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
         cons: formData.cons.split(',').map(f => f.trim()).filter(f => f),
         slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         category_id: formData.category_id,
-        starting_fee: formData.starting_fee > 0 ? formData.starting_fee : null,
+        starting_fee: formData.starting_fee > 0 ? formData.starting_fee : 0,
       };
 
       let result;
@@ -155,12 +155,14 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           title: "Success",
           description: editingFirm ? "Prop firm updated successfully!" : "Prop firm added successfully!",
         });
+      } else {
+        throw new Error(result.error?.message || "Operation failed");
       }
     } catch (error) {
       console.error('Form submission error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
     }
