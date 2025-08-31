@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const TopFirms = () => {
-  const { topFirms, loading, error } = useSectionMemberships();
+  const { topFirms, loading } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
 
   const goBack = () => {
@@ -21,20 +21,6 @@ const TopFirms = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <div className="text-white text-lg">Loading top prop firms...</div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <div className="text-red-400 text-lg">Error: {error}</div>
           </div>
         </div>
         <Footer />

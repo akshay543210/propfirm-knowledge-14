@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import PropFirmCard from './PropFirmCard';
-import { getCheapestFirms, getTopRatedFirms } from '@/hooks/useSupabaseData';
+import { usePropFirms } from '@/hooks/useSupabaseData';
 import { PropFirm } from '@/types/supabase';
 
 interface FilteredFirmsListProps {
@@ -11,31 +10,24 @@ interface FilteredFirmsListProps {
 }
 
 const FilteredFirmsList = ({ type, onClose }: FilteredFirmsListProps) => {
-  const [firms, setFirms] = useState<PropFirm[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { propFirms, loading } = usePropFirms();
+  const [displayFirms, setDisplayFirms] = useState<PropFirm[]>([]);
 
   useEffect(() => {
     if (!type) return;
 
-    const fetchFirms = async () => {
-      setLoading(true);
-      try {
-        let data: PropFirm[] = [];
-        if (type === 'cheapest') {
-          data = await getCheapestFirms(10);
-        } else if (type === 'top-rated') {
-          data = await getTopRatedFirms(5);
-        }
-        setFirms(data);
-      } catch (error) {
-        console.error('Error fetching filtered firms:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFirms();
-  }, [type]);
+    let filteredFirms = [...propFirms];
+    
+    if (type === 'cheapest') {
+      filteredFirms.sort((a, b) => a.price - b.price);
+      filteredFirms = filteredFirms.slice(0, 10);
+    } else if (type === 'top-rated') {
+      filteredFirms.sort((a, b) => (b.review_score || 0) - (a.review_score || 0));
+      filteredFirms = filteredFirms.slice(0, 5);
+    }
+    
+    setDisplayFirms(filteredFirms);
+  }, [type, propFirms]);
 
   if (!type) return null;
 
@@ -61,13 +53,13 @@ const FilteredFirmsList = ({ type, onClose }: FilteredFirmsListProps) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {firms.map((firm, index) => (
+            {displayFirms.map((firm, index) => (
               <PropFirmCard key={firm.id} firm={firm} index={index} />
             ))}
           </div>
         )}
 
-        {!loading && firms.length === 0 && (
+        {!loading && displayFirms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">No firms found.</p>
           </div>

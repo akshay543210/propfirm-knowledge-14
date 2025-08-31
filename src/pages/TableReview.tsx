@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import { PropFirm } from "@/types/supabase";
 
 const TableReview = () => {
-  const { tableReviewFirms, loading, error } = useSectionMemberships();
+  const { tableReviewFirms, loading } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
@@ -26,9 +26,9 @@ const TableReview = () => {
     
     // Apply filters
     result = result.filter(firm => {
-      const payoutRate = firm.table_payout_rate ?? firm.payout_rate;
-      const fee = firm.table_fee ?? firm.price;
-      const trustRating = firm.table_trust_rating ?? firm.trust_rating;
+      const payoutRate = (firm as any).table_payout_rate ?? firm.payout_rate;
+      const fee = (firm as any).table_fee ?? firm.price;
+      const trustRating = (firm as any).table_trust_rating ?? firm.trust_rating;
       
       return (
         payoutRate >= filters.minPayoutRate &&
@@ -44,28 +44,28 @@ const TableReview = () => {
         
         switch (sortConfig.key) {
           case "price":
-            aValue = a.table_fee ?? a.price;
-            bValue = b.table_fee ?? b.price;
+            aValue = (a as any).table_fee ?? a.price;
+            bValue = (b as any).table_fee ?? b.price;
             break;
           case "profitSplit":
-            aValue = a.table_profit_split ?? a.profit_split;
-            bValue = b.table_profit_split ?? b.profit_split;
+            aValue = (a as any).table_profit_split ?? a.profit_split;
+            bValue = (b as any).table_profit_split ?? b.profit_split;
             break;
           case "payoutRate":
-            aValue = a.table_payout_rate ?? a.payout_rate;
-            bValue = b.table_payout_rate ?? b.payout_rate;
+            aValue = (a as any).table_payout_rate ?? a.payout_rate;
+            bValue = (b as any).table_payout_rate ?? b.payout_rate;
             break;
           case "trustRating":
-            aValue = a.table_trust_rating ?? a.trust_rating;
-            bValue = b.table_trust_rating ?? b.trust_rating;
+            aValue = (a as any).table_trust_rating ?? a.trust_rating;
+            bValue = (b as any).table_trust_rating ?? b.trust_rating;
             break;
           case "name":
             aValue = a.name.toLowerCase();
             bValue = b.name.toLowerCase();
             break;
           default:
-            aValue = a[sortConfig.key as keyof PropFirm];
-            bValue = b[sortConfig.key as keyof PropFirm];
+            aValue = (a as any)[sortConfig.key];
+            bValue = (b as any)[sortConfig.key];
         }
         
         if (aValue < bValue) {
@@ -113,18 +113,6 @@ const TableReview = () => {
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
         <div className="container mx-auto px-4 py-12">
           <div className="text-center text-white">Loading table review...</div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-red-400">Error: {error}</div>
         </div>
         <Footer />
       </div>
@@ -292,25 +280,25 @@ const TableReview = () => {
                       </div>
                     </td>
                     <td className="p-4 text-green-400 font-semibold">
-                      ${firm.table_fee ?? firm.price}
-                      {(firm.table_fee !== null && firm.table_fee !== firm.price) && firm.price && (
+                      ${(firm as any).table_fee ?? firm.price}
+                      {((firm as any).table_fee !== null && (firm as any).table_fee !== firm.price) && firm.price && (
                         <div className="text-gray-400 text-sm line-through">${firm.price}</div>
                       )}
                     </td>
                     <td className="p-4 text-blue-400 font-semibold">
-                      {firm.table_profit_split ?? firm.profit_split}%
+                      {(firm as any).table_profit_split ?? firm.profit_split}%
                     </td>
                     <td className="p-4 text-purple-400 font-semibold">
-                      {firm.table_payout_rate ?? firm.payout_rate}%
+                      {(firm as any).table_payout_rate ?? firm.payout_rate}%
                     </td>
                     <td className="p-4 text-white">
-                      {firm.table_platform ?? firm.platform ?? "N/A"}
+                      {(firm as any).table_platform ?? firm.platform ?? "N/A"}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center">
                         <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center mr-2">
                           <span className="text-green-400 font-bold">
-                            {firm.table_trust_rating ?? firm.trust_rating}
+                            {(firm as any).table_trust_rating ?? firm.trust_rating}
                           </span>
                         </div>
                         <span className="text-white">
@@ -319,12 +307,12 @@ const TableReview = () => {
                       </div>
                     </td>
                     <td className="p-4 text-white">
-                      {firm.table_evaluation_rules ?? "Standard"}
+                      {(firm as any).table_evaluation_rules ?? "Standard"}
                     </td>
                     <td className="p-4">
-                      {(firm.table_coupon_code ?? firm.coupon_code) ? (
+                      {((firm as any).table_coupon_code ?? firm.coupon_code) ? (
                         <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                          {firm.table_coupon_code ?? firm.coupon_code}
+                          {(firm as any).table_coupon_code ?? firm.coupon_code}
                         </Badge>
                       ) : (
                         <span className="text-gray-400">N/A</span>
@@ -358,28 +346,28 @@ const TableReview = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Price:</span>
                     <span className="text-white font-semibold">
-                      ${firm.table_fee ?? firm.price}
+                      ${(firm as any).table_fee ?? firm.price}
                     </span>
                   </div>
                   
                   <div className="flex justify-between">
                     <span className="text-gray-400">Profit Split:</span>
                     <span className="text-blue-400 font-semibold">
-                      {firm.table_profit_split ?? firm.profit_split}%
+                      {(firm as any).table_profit_split ?? firm.profit_split}%
                     </span>
                   </div>
                   
                   <div className="flex justify-between">
                     <span className="text-gray-400">Payout Rate:</span>
                     <span className="text-purple-400 font-semibold">
-                      {firm.table_payout_rate ?? firm.payout_rate}%
+                      {(firm as any).table_payout_rate ?? firm.payout_rate}%
                     </span>
                   </div>
                   
                   <div className="flex justify-between">
                     <span className="text-gray-400">Platform:</span>
                     <span className="text-white">
-                      {firm.table_platform ?? firm.platform ?? "N/A"}
+                      {(firm as any).table_platform ?? firm.platform ?? "N/A"}
                     </span>
                   </div>
                   
@@ -388,7 +376,7 @@ const TableReview = () => {
                     <div className="flex items-center">
                       <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center mr-1">
                         <span className="text-green-400 text-xs font-bold">
-                          {firm.table_trust_rating ?? firm.trust_rating}
+                          {(firm as any).table_trust_rating ?? firm.trust_rating}
                         </span>
                       </div>
                       <span className="text-white">/10</span>
@@ -398,15 +386,15 @@ const TableReview = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Evaluation:</span>
                     <span className="text-white">
-                      {firm.table_evaluation_rules ?? "Standard"}
+                      {(firm as any).table_evaluation_rules ?? "Standard"}
                     </span>
                   </div>
                   
-                  {(firm.table_coupon_code ?? firm.coupon_code) && (
+                  {((firm as any).table_coupon_code ?? firm.coupon_code) && (
                     <div className="flex justify-between">
                       <span className="text-gray-400">Coupon:</span>
                       <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                        {firm.table_coupon_code ?? firm.coupon_code}
+                        {(firm as any).table_coupon_code ?? firm.coupon_code}
                       </Badge>
                     </div>
                   )}

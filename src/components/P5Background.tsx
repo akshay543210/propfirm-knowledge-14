@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+// @ts-ignore
 import p5 from 'p5';
 
 interface Particle {
@@ -7,19 +8,19 @@ interface Particle {
   vx: number;
   vy: number;
   size: number;
-  color: p5.Color;
+  color: any;
   life: number;
   maxLife: number;
 }
 
 const P5Background = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const p5InstanceRef = useRef<p5 | null>(null);
+  const p5InstanceRef = useRef<any>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const sketch = (p: p5) => {
+    const sketch = (p: any) => {
       let particles: Particle[] = [];
       let mouseX = 0;
       let mouseY = 0;
@@ -119,7 +120,7 @@ const P5Background = () => {
       });
     };
 
-    p5InstanceRef.current = new p5(sketch);
+    p5InstanceRef.current = new (p5 as any)(sketch);
 
     return () => {
       if (p5InstanceRef.current) {
@@ -137,4 +138,4 @@ const P5Background = () => {
   );
 };
 
-export default P5Background; 
+export default P5Background;
