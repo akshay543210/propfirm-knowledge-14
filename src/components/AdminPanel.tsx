@@ -7,7 +7,6 @@ import { RefreshCw } from "lucide-react";
 import OperationStatus from "./admin/OperationStatus";
 import AdminHeader from "./admin/AdminHeader";
 import AdminTabs from "./admin/AdminTabs";
-import SectionManager from "./admin/SectionManager";
 
 const AdminPanel = () => {
   const [editingFirm, setEditingFirm] = useState<PropFirm | null>(null);

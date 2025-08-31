@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropFirm } from "../types/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { useCategories } from "../hooks/useCategories";
-import { Loader2, AlertCircle, Save, Plus } from "lucide-react";
+import { Loader2, AlertCircle, Save, Plus, Check } from "lucide-react";
 import { validateAdminForm } from "../utils/formValidation";
 import BasicInfoFields from "./admin/BasicInfoFields";
 import PricingFields from "./admin/PricingFields";

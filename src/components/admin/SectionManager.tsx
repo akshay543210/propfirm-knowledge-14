@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +18,12 @@ import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SectionManager = () => {
-  const { propFirms } = usePropFirms();
+  const { propFirms, loading: firmsLoading } = usePropFirms();
   const { 
     budgetFirms, 
     topFirms, 
     tableReviewFirms,
-    loading, 
+    loading: membershipsLoading, 
     addFirmToBudget, 
     removeFirmFromBudget, 
     addFirmToTop, 
@@ -37,6 +37,13 @@ const SectionManager = () => {
   const [selectedBudgetFirm, setSelectedBudgetFirm] = useState<string>("");
   const [selectedTopFirm, setSelectedTopFirm] = useState<string>("");
   const [selectedTableReviewFirm, setSelectedTableReviewFirm] = useState<string>("");
+
+  // Refetch memberships when propFirms change
+  useEffect(() => {
+    if (propFirms.length > 0) {
+      refetch();
+    }
+  }, [propFirms, refetch]);
 
   const handleAddToBudget = async () => {
     if (!selectedBudgetFirm) return;
@@ -77,6 +84,8 @@ const SectionManager = () => {
       await updateTableReviewPriority(swappedFirm.membership_id, currentIndex);
     }
   };
+
+  const loading = firmsLoading || membershipsLoading;
 
   return (
     <div className="space-y-6">
@@ -137,7 +146,11 @@ const SectionManager = () => {
                     <label className="block text-gray-300 text-sm font-medium mb-2">
                       Select a firm to add
                     </label>
-                    <Select value={selectedBudgetFirm} onValueChange={setSelectedBudgetFirm}>
+                    <Select 
+                      value={selectedBudgetFirm} 
+                      onValueChange={setSelectedBudgetFirm}
+                      disabled={loading}
+                    >
                       <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                         <SelectValue placeholder="Select a firm" />
                       </SelectTrigger>
@@ -218,7 +231,11 @@ const SectionManager = () => {
                     <label className="block text-gray-300 text-sm font-medium mb-2">
                       Select a firm to add
                     </label>
-                    <Select value={selectedTopFirm} onValueChange={setSelectedTopFirm}>
+                    <Select 
+                      value={selectedTopFirm} 
+                      onValueChange={setSelectedTopFirm}
+                      disabled={loading}
+                    >
                       <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                         <SelectValue placeholder="Select a firm" />
                       </SelectTrigger>
@@ -299,7 +316,11 @@ const SectionManager = () => {
                     <label className="block text-gray-300 text-sm font-medium mb-2">
                       Select a firm to add
                     </label>
-                    <Select value={selectedTableReviewFirm} onValueChange={setSelectedTableReviewFirm}>
+                    <Select 
+                      value={selectedTableReviewFirm} 
+                      onValueChange={setSelectedTableReviewFirm}
+                      disabled={loading}
+                    >
                       <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                         <SelectValue placeholder="Select a firm" />
                       </SelectTrigger>
