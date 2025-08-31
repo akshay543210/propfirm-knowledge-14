@@ -30,12 +30,8 @@ const SectionManager = () => {
     topFirms, 
     tableReviewFirms,
     loading: membershipsLoading, 
-    addFirmToBudget, 
-    removeFirmFromBudget, 
-    addFirmToTop, 
-    removeFirmFromTop,
-    addFirmToTableReview,
-    removeFirmFromTableReview,
+    addFirmToSection, 
+    removeFirmFromSection,
     updateTableReviewPriority,
     refetch 
   } = useSectionMemberships();
@@ -53,19 +49,19 @@ const SectionManager = () => {
 
   const handleAddToBudget = async () => {
     if (!selectedBudgetFirm) return;
-    await addFirmToBudget(selectedBudgetFirm);
+    await addFirmToSection("budget-firms", selectedBudgetFirm);
     setSelectedBudgetFirm("");
   };
 
   const handleAddToTop = async () => {
     if (!selectedTopFirm) return;
-    await addFirmToTop(selectedTopFirm);
+    await addFirmToSection("top-firms", selectedTopFirm);
     setSelectedTopFirm("");
   };
 
   const handleAddToTableReview = async () => {
     if (!selectedTableReviewFirm) return;
-    await addFirmToTableReview(selectedTableReviewFirm);
+    await addFirmToSection("table-review", selectedTableReviewFirm);
     setSelectedTableReviewFirm("");
   };
 
@@ -226,7 +222,7 @@ const SectionManager = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                                onClick={() => removeFirmFromBudget(firm.membership_id)}
+                                onClick={() => removeFirmFromSection(firm.membership_id)}
                                 disabled={loading}
                               >
                                 <X className="h-4 w-4" />
@@ -320,7 +316,7 @@ const SectionManager = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                                onClick={() => removeFirmFromTop(firm.membership_id)}
+                                onClick={() => removeFirmFromSection(firm.membership_id)}
                                 disabled={loading}
                               >
                                 <X className="h-4 w-4" />
@@ -436,7 +432,7 @@ const SectionManager = () => {
                                 variant="outline"
                                 size="sm"
                                 className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                                onClick={() => removeFirmFromTableReview(firm.membership_id)}
+                                onClick={() => removeFirmFromSection(firm.membership_id)}
                                 disabled={loading}
                               >
                                 <X className="h-4 w-4" />

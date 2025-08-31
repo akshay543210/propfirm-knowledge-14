@@ -15,11 +15,10 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
   const [selectedFirmId, setSelectedFirmId] = useState<string>("");
   const [selectedRank, setSelectedRank] = useState<string>("1");
   const { 
-    memberships, 
+    exploreFirms,
     loading: membershipsLoading, 
     addFirmToSection, 
-    removeFirmFromSection, 
-    getMembershipsBySection,
+    removeFirmFromSection,
     refetch
   } = useSectionMemberships();
 
@@ -33,22 +32,6 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
       refetch(); // Refresh to show the new membership
     }
   };
-
-  const handleRemoveFromSection = async (membershipId: string) => {
-    await removeFirmFromSection(membershipId);
-    refetch(); // Refresh to show the removed membership
-  };
-
-  const exploreFirmsMemberships = getMembershipsBySection("explore-firms");
-
-  // Get firm details for each membership
-  const exploreFirms = exploreFirmsMemberships
-    .map(membership => {
-      const firm = propFirms.find(f => f.id === membership.firm_id);
-      return firm ? { ...firm, rank: membership.rank || 0, membershipId: membership.id } : null;
-    })
-    .filter((firm): firm is PropFirm & { rank: number, membershipId: string } => firm !== null)
-    .sort((a, b) => a.rank - b.rank);
 
   return (
     <Card className="bg-slate-800/50 border-blue-500/20">
@@ -133,13 +116,10 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
               <div className="space-y-2">
                 {exploreFirms.map((firm) => (
                   <div 
-                    key={firm.membershipId} 
+                    key={firm.membership_id} 
                     className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
-                        {firm.rank}
-                      </Badge>
                       <div>
                         <div className="text-white font-medium">
                           {firm.name}
@@ -153,7 +133,7 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
                       variant="outline"
                       size="sm"
                       className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                      onClick={() => handleRemoveFromSection(firm.membershipId)}
+                      onClick={() => removeFirmFromSection(firm.membership_id)}
                     >
                       <X className="h-4 w-4" />
                     </Button>
