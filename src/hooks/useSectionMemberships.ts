@@ -17,14 +17,14 @@ export const useSectionMemberships = () => {
     try {
       setLoading(true);
       
-      // Fetch budget firms with proper JOIN
+      // Fetch budget firms - using correct column name 'propfirm_id'
       const { data: budgetData, error: budgetError } = await supabase
         .from('budget_prop')
         .select(`
           id,
           propfirm_id,
           created_at,
-          prop_firms!inner (
+          prop_firms (
             id,
             name,
             slug,
@@ -78,14 +78,14 @@ export const useSectionMemberships = () => {
       
       setBudgetFirms(budgetFirms);
 
-      // Fetch top firms with proper JOIN
+      // Fetch top firms - using correct column name 'propfirm_id'
       const { data: topData, error: topError } = await supabase
         .from('top5_prop')
         .select(`
           id,
           propfirm_id,
           created_at,
-          prop_firms!inner (
+          prop_firms (
             id,
             name,
             slug,
@@ -139,7 +139,7 @@ export const useSectionMemberships = () => {
       
       setTopFirms(topFirms);
 
-      // Fetch table review firms with proper JOIN
+      // Fetch table review firms
       const { data: tableData, error: tableError } = await supabase
         .from('table_review_firms')
         .select(`
@@ -149,7 +149,7 @@ export const useSectionMemberships = () => {
           sort_priority,
           created_at,
           updated_at,
-          prop_firms!inner (
+          prop_firms (
             id,
             name,
             slug,
