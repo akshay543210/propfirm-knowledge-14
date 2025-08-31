@@ -8,53 +8,44 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdminStatus = async (userId: string) => {
+  const checkAdminStatus = async (userEmail: string) => {
     try {
-      console.log('useAuth: Checking admin status for user:', userId);
-      const { data, error } = await supabase.rpc('is_admin');
-      if (error) {
-        console.error('useAuth: Error checking admin status:', error);
-        setIsAdmin(false);
-      } else {
-        console.log('useAuth: Admin status result:', data);
-        setIsAdmin(Boolean(data));
-      }
+      // For now, we'll check if the email is the admin email
+      // In a real app, this would check the user's role in the database
+      const isAdminUser = userEmail === 'bigwinner986@gmail.com';
+      setIsAdmin(isAdminUser);
+      return isAdminUser;
     } catch (error) {
-      console.error('useAuth: Exception checking admin status:', error);
+      console.error('Error checking admin status:', error);
       setIsAdmin(false);
+      return false;
     }
   };
 
   useEffect(() => {
-    console.log('useAuth: Setting up auth state listener');
-    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('useAuth: Auth state changed:', event, !!session?.user);
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           // Check admin status after setting user
-          checkAdminStatus(session.user.id).finally(() => {
-            setLoading(false);
-          });
+          await checkAdminStatus(session.user.email || '');
         } else {
           setIsAdmin(false);
-          setLoading(false);
         }
+        setLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('useAuth: Initial session check:', !!session?.user);
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        checkAdminStatus(session.user.id).finally(() => {
+        checkAdminStatus(session.user.email || '').finally(() => {
           setLoading(false);
         });
       } else {
@@ -64,22 +55,25 @@ export const useAuth = () => {
     });
 
     return () => {
-      console.log('useAuth: Cleaning up auth listener');
       subscription.unsubscribe();
     };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    console.log('useAuth: Attempting sign in for:', email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    if (data.user) {
+      // Check if this user is admin
+      await checkAdminStatus(email);
+    }
+    
     return { data, error };
   };
 
   const signUp = async (email: string, password: string) => {
-    console.log('useAuth: Attempting sign up for:', email);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -93,7 +87,6 @@ export const useAuth = () => {
   };
 
   const signOut = async () => {
-    console.log('useAuth: Signing out');
     const { error } = await supabase.auth.signOut();
     if (!error) {
       setUser(null);

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -43,24 +41,25 @@ const AdminLogin = () => {
       });
       setIsLoading(false);
     } else if (data.user) {
-      console.log('AdminLogin: Login successful, user:', data.user.email);
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to admin panel...",
-      });
-
-      // Navigate immediately so the admin panel shows; AdminRoute will enforce access
-      navigate('/admin-dashboard-2024');
-
-      // Fire-and-forget admin verification for logs (does not block navigation)
-      supabase.rpc('is_admin').then(({ data: isAdminResult, error: adminErr }) => {
-        if (adminErr) {
-          console.error('Admin check failed:', adminErr);
-        } else {
-          console.log('Admin check result:', isAdminResult);
-        }
-      });
-
+      // Check if this is the admin user
+      if (email === 'bigwinner986@gmail.com') {
+        toast({
+          title: "Login Successful",
+          description: "Redirecting to admin panel...",
+        });
+        // Small delay to show the toast before redirecting
+        setTimeout(() => {
+          navigate('/admin-dashboard-2024');
+        }, 1000);
+      } else {
+        toast({
+          title: "Login Successful",
+          description: "Redirecting to homepage...",
+        });
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
       setIsLoading(false);
     }
   };

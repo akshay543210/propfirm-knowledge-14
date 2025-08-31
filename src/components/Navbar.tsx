@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, User, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -114,17 +114,28 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="text-gray-300">
-                    {user.email || 'Account'}
+                    <User className="h-4 w-4 mr-2" />
+                    {user.email ? user.email.split('@')[0] : 'Account'}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-slate-800 text-gray-200 border-blue-500/20">
-                  <DropdownMenuLabel>Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/reviews')}>
                     My Reviews
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/admin-dashboard-2024')} className="flex items-center">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400">
+                    <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -217,8 +228,33 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               <div className="border-t border-gray-700 pt-2 space-y-1">
                 <Button
                   variant="ghost"
+                  className="w-full text-left text-gray-300 hover:text-gray-200 justify-start"
+                  onClick={() => {
+                    navigate('/reviews');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  My Reviews
+                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    className="w-full text-left text-blue-300 hover:text-blue-200 justify-start"
+                    onClick={() => {
+                      navigate('/admin-dashboard-2024');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Admin Panel
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
                   className="w-full text-left text-red-400 hover:text-red-300 justify-start"
-                  onClick={async () => { await handleLogout(); setIsMobileMenuOpen(false); }}
+                  onClick={async () => { 
+                    await handleLogout(); 
+                    setIsMobileMenuOpen(false); 
+                  }}
                 >
                   Logout
                 </Button>

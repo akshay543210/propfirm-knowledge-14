@@ -1,9 +1,8 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Shield, AlertCircle } from "lucide-react";
 import AdminPanel from "../components/AdminPanel";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -12,27 +11,21 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
 
   useEffect(() => {
-    console.log('AdminDashboard: Auth state changed', { user: !!user, isAdmin, loading });
-    
     if (!loading) {
       if (!user) {
-        console.log('AdminDashboard: No user, redirecting to login');
         navigate("/admin-login");
       } else if (!isAdmin) {
-        console.log('AdminDashboard: User is not admin, redirecting to login');
         navigate("/admin-login");
       }
     }
   }, [user, isAdmin, loading, navigate]);
 
   const handleLogout = async () => {
-    console.log('AdminDashboard: Logging out');
     await signOut();
     navigate("/");
   };
 
   if (loading) {
-    console.log('AdminDashboard: Still loading auth state');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -45,7 +38,6 @@ const AdminDashboard = () => {
   }
 
   if (!user || !isAdmin) {
-    console.log('AdminDashboard: Access denied, showing message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -59,9 +51,25 @@ const AdminDashboard = () => {
     );
   }
 
-  console.log('AdminDashboard: Rendering admin panel');
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      {/* Admin Banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Shield className="h-6 w-6 text-white" />
+            <div>
+              <div className="text-white font-bold">Admin Panel</div>
+              <div className="text-blue-100 text-sm">You are logged in as Administrator</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-blue-100 text-sm">
+            <AlertCircle className="h-4 w-4" />
+            <span>bigwinner986@gmail.com</span>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         <Card className="bg-slate-800/50 border-blue-500/20 mb-8">
           <CardHeader>
