@@ -2,12 +2,12 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PropFirmCard from "../components/PropFirmCard";
-import { useTopRatedFirms } from "../hooks/useSupabaseData";
+import { useSectionMemberships } from "../hooks/useSectionMemberships";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const TopFirms = () => {
-  const { propFirms, loading, error } = useTopRatedFirms();
+  const { topFirms, loading, error } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
 
   const goBack = () => {
@@ -20,7 +20,7 @@ const TopFirms = () => {
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <div className="text-white text-lg">Loading top-rated prop firms...</div>
+            <div className="text-white text-lg">Loading top prop firms...</div>
           </div>
         </div>
         <Footer />
@@ -59,26 +59,26 @@ const TopFirms = () => {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">🔥 Top 5 PropFirms</h1>
-          <p className="text-xl text-gray-300">The highest-rated prop trading firms based on review scores</p>
+          <h1 className="text-4xl font-bold text-white mb-4">🔥 Top PropFirms</h1>
+          <p className="text-xl text-gray-300">The highest-rated prop trading firms</p>
         </div>
 
         <div className="mb-6">
           <p className="text-gray-300">
-            Showing top {propFirms.length} prop firms sorted by review score
+            Showing {topFirms.length} top prop firms
           </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {propFirms.map((firm, index) => (
+          {topFirms.map((firm, index) => (
             <PropFirmCard key={firm.id} firm={firm} index={index} />
           ))}
         </div>
 
-        {propFirms.length === 0 && (
+        {topFirms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">
-              No prop firms found.
+              No top prop firms found.
             </p>
           </div>
         )}

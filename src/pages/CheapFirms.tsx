@@ -2,12 +2,12 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PropFirmCard from "../components/PropFirmCard";
-import { useCheapestFirms } from "../hooks/useSupabaseData";
+import { useSectionMemberships } from "../hooks/useSectionMemberships";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const CheapFirms = () => {
-  const { propFirms, loading, error } = useCheapestFirms();
+  const { budgetFirms, loading, error } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
 
   const goBack = () => {
@@ -20,7 +20,7 @@ const CheapFirms = () => {
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <div className="text-white text-lg">Loading cheapest prop firms...</div>
+            <div className="text-white text-lg">Loading budget prop firms...</div>
           </div>
         </div>
         <Footer />
@@ -59,26 +59,26 @@ const CheapFirms = () => {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">💰 Cheapest Cost PropFirms</h1>
-          <p className="text-xl text-gray-300">Discover the most affordable prop trading firms sorted by starting fee</p>
+          <h1 className="text-4xl font-bold text-white mb-4">💰 Budget PropFirms</h1>
+          <p className="text-xl text-gray-300">Discover the most affordable prop trading firms</p>
         </div>
 
         <div className="mb-6">
           <p className="text-gray-300">
-            Showing {propFirms.length} prop firms sorted by lowest starting fee
+            Showing {budgetFirms.length} budget prop firms
           </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {propFirms.map((firm, index) => (
+          {budgetFirms.map((firm, index) => (
             <PropFirmCard key={firm.id} firm={firm} index={index} />
           ))}
         </div>
 
-        {propFirms.length === 0 && (
+        {budgetFirms.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">
-              No prop firms found.
+              No budget prop firms found.
             </p>
           </div>
         )}

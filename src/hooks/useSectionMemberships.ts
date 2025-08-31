@@ -1,42 +1,116 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { PropFirm } from '@/types/supabase';
 
-interface SectionMembership {
-  id: string;
-  section_type: string;
-  firm_id: string;
-  rank: number;
-  created_at: string;
-  updated_at: string;
-  prop_firms?: {
-    id: string;
-    name: string;
-    price: number;
-  };
+interface SectionFirm extends PropFirm {
+  membership_id: string;
 }
 
 export const useSectionMemberships = () => {
-  const [memberships, setMemberships] = useState<SectionMembership[]>([]);
+  const [budgetFirms, setBudgetFirms] = useState<SectionFirm[]>([]);
+  const [topFirms, setTopFirms] = useState<SectionFirm[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchMemberships = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('section_memberships')
+      
+      // Fetch budget firms
+      const { data: budgetData, error: budgetError } = await supabase
+        .from('budget_prop')
         .select(`
-          *,
+          id,
           prop_firms (
             id,
             name,
-            price
+            slug,
+            category_id,
+            price,
+            original_price,
+            coupon_code,
+            review_score,
+            trust_rating,
+            description,
+            features,
+            logo_url,
+            profit_split,
+            payout_rate,
+            funding_amount,
+            user_review_count,
+            pros,
+            cons,
+            affiliate_url,
+            brand,
+            platform,
+            max_funding,
+            evaluation_model,
+            starting_fee,
+            regulation,
+            show_on_homepage,
+            created_at,
+            updated_at
           )
-        `)
-        .order('rank', { ascending: true });
+        `);
 
-      if (error) throw error;
-      setMemberships(data || []);
+      if (budgetError) throw budgetError;
+      
+      const budgetFirms = budgetData
+        .map((item: any) => ({
+          ...item.prop_firms,
+          membership_id: item.id
+        }))
+        .filter((firm: any) => firm !== null);
+      
+      setBudgetFirms(budgetFirms);
+
+      // Fetch top firms
+      const { data: topData, error: topError } = await supabase
+        .from('top5_prop')
+        .select(`
+          id,
+          prop_firms (
+            id,
+            name,
+            slug,
+            category_id,
+            price,
+            original_price,
+            coupon_code,
+            review_score,
+            trust_rating,
+            description,
+            features,
+            logo_url,
+            profit_split,
+            payout_rate,
+            funding_amount,
+            user_review_count,
+            pros,
+            cons,
+            affiliate_url,
+            brand,
+            platform,
+            max_funding,
+            evaluation_model,
+            starting_fee,
+            regulation,
+            show_on_homepage,
+            created_at,
+            updated_at
+          )
+        `);
+
+      if (topError) throw topError;
+      
+      const topFirms = topData
+        .map((item: any) => ({
+          ...item.prop_firms,
+          membership_id: item.id
+        }))
+        .filter((firm: any) => firm !== null);
+      
+      setTopFirms(topFirms);
     } catch (error) {
       console.error('Error fetching section memberships:', error);
       toast.error('Failed to fetch section memberships');
@@ -45,28 +119,24 @@ export const useSectionMemberships = () => {
     }
   };
 
-  const addFirmToSection = async (sectionType: string, firmId: string, rank: number = 1) => {
+  const addFirmToBudget = async (firmId: string) => {
     try {
       setLoading(true);
       const { error } = await supabase
-        .from('section_memberships')
-        .insert([{
-          section_type: sectionType,
-          firm_id: firmId,
-          rank: rank
-        }]);
+        .from('budget_prop')
+        .insert([{ propfirm_id: firmId }]);
 
       if (error) throw error;
       
       await fetchMemberships();
-      toast.success('Firm added to section successfully');
+      toast.success('Firm added to budget section successfully');
       return { success: true };
     } catch (error: any) {
-      console.error('Error adding firm to section:', error);
+      console.error('Error adding firm to budget section:', error);
       if (error.code === '23505') {
-        toast.error('Firm is already in this section');
+        toast.error('Firm is already in budget section');
       } else {
-        toast.error('Failed to add firm to section');
+        toast.error('Failed to add firm to budget section');
       }
       return { success: false, error: error.message };
     } finally {
@@ -74,52 +144,73 @@ export const useSectionMemberships = () => {
     }
   };
 
-  const removeFirmFromSection = async (membershipId: string) => {
+  const removeFirmFromBudget = async (membershipId: string) => {
     try {
       setLoading(true);
       const { error } = await supabase
-        .from('section_memberships')
+        .from('budget_prop')
         .delete()
         .eq('id', membershipId);
 
       if (error) throw error;
       
       await fetchMemberships();
-      toast.success('Firm removed from section successfully');
+      toast.success('Firm removed from budget section successfully');
       return { success: true };
     } catch (error: any) {
-      console.error('Error removing firm from section:', error);
-      toast.error('Failed to remove firm from section');
+      console.error('Error removing firm from budget section:', error);
+      toast.error('Failed to remove firm from budget section');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
     }
   };
 
-  const updateFirmRank = async (membershipId: string, newRank: number) => {
+  const addFirmToTop = async (firmId: string) => {
     try {
       setLoading(true);
       const { error } = await supabase
-        .from('section_memberships')
-        .update({ rank: newRank })
+        .from('top5_prop')
+        .insert([{ propfirm_id: firmId }]);
+
+      if (error) throw error;
+      
+      await fetchMemberships();
+      toast.success('Firm added to top 5 section successfully');
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error adding firm to top 5 section:', error);
+      if (error.code === '23505') {
+        toast.error('Firm is already in top 5 section');
+      } else {
+        toast.error('Failed to add firm to top 5 section');
+      }
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeFirmFromTop = async (membershipId: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('top5_prop')
+        .delete()
         .eq('id', membershipId);
 
       if (error) throw error;
       
       await fetchMemberships();
-      toast.success('Firm rank updated successfully');
+      toast.success('Firm removed from top 5 section successfully');
       return { success: true };
     } catch (error: any) {
-      console.error('Error updating firm rank:', error);
-      toast.error('Failed to update firm rank');
+      console.error('Error removing firm from top 5 section:', error);
+      toast.error('Failed to remove firm from top 5 section');
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
     }
-  };
-
-  const getMembershipsBySection = (sectionType: string) => {
-    return memberships.filter(m => m.section_type === sectionType);
   };
 
   useEffect(() => {
@@ -127,12 +218,13 @@ export const useSectionMemberships = () => {
   }, []);
 
   return {
-    memberships,
+    budgetFirms,
+    topFirms,
     loading,
-    addFirmToSection,
-    removeFirmFromSection,
-    updateFirmRank,
-    getMembershipsBySection,
+    addFirmToBudget,
+    removeFirmFromBudget,
+    addFirmToTop,
+    removeFirmFromTop,
     refetch: fetchMemberships
   };
 };
