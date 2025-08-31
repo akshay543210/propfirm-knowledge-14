@@ -97,6 +97,43 @@ export const useHomepagePropFirms = () => {
   return { propFirms, loading, error, refetch: fetchHomepagePropFirms };
 };
 
+export const useTopRatedFirms = () => {
+  const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTopRatedFirms = useCallback(async () => {
+    try {
+      console.log('useTopRatedFirms: Starting to fetch top rated firms...');
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('prop_firms')
+        .select('*')
+        .order('review_score', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('useTopRatedFirms: Database error:', error);
+        throw error;
+      }
+      console.log('useTopRatedFirms: Successfully fetched', data?.length || 0, 'top rated firms');
+      setPropFirms(data || []);
+      setError(null);
+    } catch (err) {
+      console.error('useTopRatedFirms: Fetch error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTopRatedFirms();
+  }, [fetchTopRatedFirms]);
+
+  return { propFirms, loading, error, refetch: fetchTopRatedFirms };
+};
+
 export const useReviews = (firmId?: string) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
