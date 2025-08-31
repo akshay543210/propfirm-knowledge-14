@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,8 @@ const AdminSectionManager = () => {
   const { addFirm, updateFirm, deleteFirm, loading } = useAdminOperations();
   const { propFirms } = usePropFirms();
   const { 
-    memberships, 
+    budgetFirms, 
+    topFirms,
     loading: membershipsLoading, 
     addFirmToSection, 
     removeFirmFromSection, 
