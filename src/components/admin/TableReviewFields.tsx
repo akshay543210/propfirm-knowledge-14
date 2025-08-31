@@ -1,7 +1,6 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TableReviewFieldsProps {
@@ -17,42 +16,7 @@ const TableReviewFields = ({ formData, setFormData, loading = false }: TableRevi
         <CardTitle className="text-white">Table Review Settings</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label htmlFor="show_in_table_review" className="text-gray-300">
-              Show in Table Review
-            </Label>
-            <p className="text-sm text-gray-400">
-              Enable this firm to appear in the Table Review section
-            </p>
-          </div>
-          <Switch
-            id="show_in_table_review"
-            checked={formData.show_in_table_review || false}
-            onCheckedChange={(checked) => setFormData({ ...formData, show_in_table_review: checked })}
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="table_review_priority" className="text-gray-300">
-            Table Review Priority
-          </Label>
-          <Input
-            id="table_review_priority"
-            type="number"
-            min="0"
-            value={formData.table_review_priority || 0}
-            onChange={(e) => setFormData({ ...formData, table_review_priority: Number(e.target.value) })}
-            className="bg-slate-700 border-blue-500/20 text-white"
-            disabled={loading}
-          />
-          <p className="text-sm text-gray-400 mt-1">
-            Lower numbers appear first in the table review (0 = highest priority)
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="table_price" className="text-gray-300">
               Table Price (USD)

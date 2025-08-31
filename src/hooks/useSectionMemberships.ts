@@ -10,6 +10,7 @@ interface SectionFirm extends PropFirm {
 export const useSectionMemberships = () => {
   const [budgetFirms, setBudgetFirms] = useState<SectionFirm[]>([]);
   const [topFirms, setTopFirms] = useState<SectionFirm[]>([]);
+  const [tableReviewFirms, setTableReviewFirms] = useState<SectionFirm[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchMemberships = async () => {
@@ -48,6 +49,14 @@ export const useSectionMemberships = () => {
             starting_fee,
             regulation,
             show_on_homepage,
+            table_price,
+            table_profit_split,
+            table_payout_rate,
+            table_platform,
+            table_trust_rating,
+            table_evaluation_rules,
+            table_fee,
+            table_coupon_code,
             created_at,
             updated_at
           )
@@ -96,6 +105,14 @@ export const useSectionMemberships = () => {
             starting_fee,
             regulation,
             show_on_homepage,
+            table_price,
+            table_profit_split,
+            table_payout_rate,
+            table_platform,
+            table_trust_rating,
+            table_evaluation_rules,
+            table_fee,
+            table_coupon_code,
             created_at,
             updated_at
           )
@@ -111,6 +128,68 @@ export const useSectionMemberships = () => {
         .filter((firm: any) => firm !== null);
       
       setTopFirms(topFirms);
+
+      // Fetch table review firms
+      const { data: tableData, error: tableError } = await supabase
+        .from('table_review_firms')
+        .select(`
+          id,
+          is_approved,
+          sort_priority,
+          prop_firms (
+            id,
+            name,
+            slug,
+            category_id,
+            price,
+            original_price,
+            coupon_code,
+            review_score,
+            trust_rating,
+            description,
+            features,
+            logo_url,
+            profit_split,
+            payout_rate,
+            funding_amount,
+            user_review_count,
+            pros,
+            cons,
+            affiliate_url,
+            brand,
+            platform,
+            max_funding,
+            evaluation_model,
+            starting_fee,
+            regulation,
+            show_on_homepage,
+            table_price,
+            table_profit_split,
+            table_payout_rate,
+            table_platform,
+            table_trust_rating,
+            table_evaluation_rules,
+            table_fee,
+            table_coupon_code,
+            created_at,
+            updated_at
+          )
+        `)
+        .eq('is_approved', true)
+        .order('sort_priority', { ascending: true });
+
+      if (tableError) throw tableError;
+      
+      const tableReviewFirms = tableData
+        .map((item: any) => ({
+          ...item.prop_firms,
+          membership_id: item.id,
+          is_approved: item.is_approved,
+          sort_priority: item.sort_priority
+        }))
+        .filter((firm: any) => firm !== null);
+      
+      setTableReviewFirms(tableReviewFirms);
     } catch (error) {
       console.error('Error fetching section memberships:', error);
       toast.error('Failed to fetch section memberships');
@@ -213,6 +292,103 @@ export const useSectionMemberships = () => {
     }
   };
 
+  const addFirmToTableReview = async (firmId: string, sortPriority: number = 0) => {
+    try {
+      setLoading(true);
+      
+      // Check if firm is already in table review
+      const { data: existingData, error: existingError } = await supabase
+        .from('table_review_firms')
+        .select('id')
+        .eq('firm_id', firmId)
+        .single();
+
+      if (existingError && existingError.code !== 'PGRST116') {
+        throw existingError;
+      }
+
+      let error;
+      if (existingData) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('table_review_firms')
+          .update({ 
+            is_approved: true,
+            sort_priority: sortPriority
+          })
+          .eq('id', existingData.id);
+        error = updateError;
+      } else {
+        // Create new record
+        const { error: insertError } = await supabase
+          .from('table_review_firms')
+          .insert([{ 
+            firm_id: firmId,
+            is_approved: true,
+            sort_priority: sortPriority
+          }]);
+        error = insertError;
+      }
+
+      if (error) throw error;
+      
+      await fetchMemberships();
+      toast.success('Firm added to table review section successfully');
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error adding firm to table review section:', error);
+      toast.error('Failed to add firm to table review section');
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeFirmFromTableReview = async (membershipId: string) => {
+    try {
+      setLoading(true);
+      
+      // Instead of deleting, we'll set is_approved to false
+      const { error } = await supabase
+        .from('table_review_firms')
+        .update({ is_approved: false })
+        .eq('id', membershipId);
+
+      if (error) throw error;
+      
+      await fetchMemberships();
+      toast.success('Firm removed from table review section successfully');
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error removing firm from table review section:', error);
+      toast.error('Failed to remove firm from table review section');
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTableReviewPriority = async (membershipId: string, sortPriority: number) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('table_review_firms')
+        .update({ sort_priority: sortPriority })
+        .eq('id', membershipId);
+
+      if (error) throw error;
+      
+      await fetchMemberships();
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error updating table review priority:', error);
+      toast.error('Failed to update table review priority');
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchMemberships();
   }, []);
@@ -220,11 +396,15 @@ export const useSectionMemberships = () => {
   return {
     budgetFirms,
     topFirms,
+    tableReviewFirms,
     loading,
     addFirmToBudget,
     removeFirmFromBudget,
     addFirmToTop,
     removeFirmFromTop,
+    addFirmToTableReview,
+    removeFirmFromTableReview,
+    updateTableReviewPriority,
     refetch: fetchMemberships
   };
 };

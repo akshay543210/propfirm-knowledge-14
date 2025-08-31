@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import { PropFirm } from "@/types/supabase";
 
 const TableReview = () => {
-  const { budgetFirms, topFirms, loading, error } = useSectionMemberships();
+  const { tableReviewFirms, loading, error } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
@@ -21,13 +21,8 @@ const TableReview = () => {
   });
   const [filteredFirms, setFilteredFirms] = useState<PropFirm[]>([]);
 
-  // Combine budget and top firms for the table review
-  const allFirms = [...budgetFirms, ...topFirms.filter(firm => 
-    !budgetFirms.some(budgetFirm => budgetFirm.id === firm.id)
-  )];
-
   useEffect(() => {
-    let result = [...allFirms];
+    let result = [...tableReviewFirms];
     
     // Apply filters
     result = result.filter(firm => {
@@ -84,7 +79,7 @@ const TableReview = () => {
     }
     
     setFilteredFirms(result);
-  }, [allFirms, sortConfig, filters]);
+  }, [tableReviewFirms, sortConfig, filters]);
 
   const requestSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";
