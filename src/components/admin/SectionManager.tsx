@@ -40,10 +40,10 @@ const SectionManager = () => {
 
   // Refetch memberships when propFirms change
   useEffect(() => {
-    if (propFirms.length > 0) {
+    if (!firmsLoading && propFirms.length > 0) {
       refetch();
     }
-  }, [propFirms, refetch]);
+  }, [propFirms, firmsLoading, refetch]);
 
   const handleAddToBudget = async () => {
     if (!selectedBudgetFirm) return;
@@ -149,7 +149,7 @@ const SectionManager = () => {
                     <Select 
                       value={selectedBudgetFirm} 
                       onValueChange={setSelectedBudgetFirm}
-                      disabled={loading}
+                      disabled={loading || propFirms.length === 0}
                     >
                       <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                         <SelectValue placeholder="Select a firm" />
@@ -234,7 +234,7 @@ const SectionManager = () => {
                     <Select 
                       value={selectedTopFirm} 
                       onValueChange={setSelectedTopFirm}
-                      disabled={loading}
+                      disabled={loading || propFirms.length === 0}
                     >
                       <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                         <SelectValue placeholder="Select a firm" />
@@ -319,7 +319,7 @@ const SectionManager = () => {
                     <Select 
                       value={selectedTableReviewFirm} 
                       onValueChange={setSelectedTableReviewFirm}
-                      disabled={loading}
+                      disabled={loading || propFirms.length === 0}
                     >
                       <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                         <SelectValue placeholder="Select a firm" />
