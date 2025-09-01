@@ -26,6 +26,7 @@ import { useAdminOperations } from "../hooks/useAdminOperations";
 import { usePropFirms } from "../hooks/useSupabaseData";
 import { useSectionMemberships } from "../hooks/useSectionMemberships";
 import { PropFirm } from "../types/supabase";
+import { toast } from "sonner";
 
 interface SectionData {
   id: string;
@@ -169,13 +170,27 @@ const AdminSectionManager = () => {
 
   const handleAddToSection = async (sectionId: string) => {
     if (!selectedFirmId) {
+      toast.error('Please select a firm to add');
       return;
     }
     
-    const result = await addFirmToSection(sectionId, selectedFirmId, parseInt(selectedRank));
+    let sectionKey;
+    switch (sectionId) {
+      case 'cheap-firms':
+        sectionKey = 'budget-firms';
+        break;
+      case 'top-firms':
+        sectionKey = 'top-firms';
+        break;
+      default:
+        sectionKey = sectionId;
+    }
+    
+    const result = await addFirmToSection(sectionKey, selectedFirmId, parseInt(selectedRank));
     if (result.success) {
       setSelectedFirmId("");
       setSelectedRank("1");
+      toast.success(`Firm added to ${sectionId} successfully`);
     }
   };
 
@@ -230,8 +245,8 @@ const AdminSectionManager = () => {
               </CardHeader>
               
               <CardContent className="space-y-4">
-                {/* Add Firm Selection for Cheap/Top Firms */}
-                {(section.id === 'cheap-firms' || section.id === 'top-firms') ? (
+                {/* Add Firm Selection for All Sections */}
+                {(section.id === 'cheap-firms' || section.id === 'top-firms' || section.id === 'explore-firms') ? (
                   <div className="bg-slate-700/50 p-6 rounded-lg">
                     <h3 className="text-white text-lg font-semibold mb-4">
                       Add Firm to {section.name}
@@ -244,16 +259,22 @@ const AdminSectionManager = () => {
                         <label className="block text-gray-300 text-sm font-medium mb-2">
                           Select a firm to add
                         </label>
-                        <Select value={selectedFirmId} onValueChange={setSelectedFirmId}>
+                        <Select value={selectedFirmId} onValueChange={setSelectedFirmId} disabled={loading || propFirms.length === 0}>
                           <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
                             <SelectValue placeholder="Select a firm" />
                           </SelectTrigger>
                           <SelectContent className="bg-slate-700 border-slate-600">
-                            {propFirms.map((firm) => (
-                              <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
-                                {firm.name} - ${firm.price}
+                            {propFirms.length === 0 ? (
+                              <SelectItem value="no-firms" className="text-gray-400" disabled>
+                                No firms available
                               </SelectItem>
-                            ))}
+                            ) : (
+                              propFirms.map((firm) => (
+                                <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                                  {firm.name} - ${firm.price}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -333,11 +354,16 @@ const AdminSectionManager = () => {
                       <Button 
                         className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={handleAddPropFirm}
+                        disabled={loading}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Add New PropFirm
                       </Button>
-                      <Button variant="outline" className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900">
+                      <Button 
+                        variant="outline" 
+                        className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900"
+                        disabled={loading}
+                      >
                         <Edit className="h-4 w-4 mr-2" />
                         Bulk Edit
                       </Button>

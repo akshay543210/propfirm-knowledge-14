@@ -3,14 +3,15 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Grid, Table as TableIcon, ChevronUp, ChevronDown, Minus } from "lucide-react";
+import { ArrowLeft, Grid, Table as TableIcon, ChevronUp, ChevronDown, Minus, RefreshCw, AlertCircle, ExternalLink, ShoppingCart } from "lucide-react";
 import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { PropFirm } from "@/types/supabase";
+import { toast } from "sonner";
 
 const TableReview = () => {
-  const { tableReviewFirms, loading } = useSectionMemberships();
+  const { tableReviewFirms, loading, error, refetch, hasInitialized } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
@@ -20,6 +21,25 @@ const TableReview = () => {
     minTrustRating: 0,
   });
   const [filteredFirms, setFilteredFirms] = useState<PropFirm[]>([]);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const handleRetry = async () => {
+    if (retryCount < 3) {
+      setRetryCount(prev => prev + 1);
+      await refetch();
+    } else {
+      toast.error("Maximum retry attempts reached. Please refresh the page.");
+    }
+  };
+
+  useEffect(() => {
+    if (error && retryCount === 0) {
+      // Auto retry once on initial error
+      setTimeout(() => {
+        handleRetry();
+      }, 1000);
+    }
+  }, [error, retryCount]);
 
   useEffect(() => {
     let result = [...tableReviewFirms];
@@ -107,12 +127,39 @@ const TableReview = () => {
     }));
   };
 
-  if (loading) {
+  if (loading && !hasInitialized) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-white">Loading table review...</div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+            <div className="text-white">Loading table review...</div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+            <div className="text-white text-lg mb-4">Failed to load table review</div>
+            <div className="text-gray-400 text-sm mb-4">{error}</div>
+            <Button 
+              onClick={handleRetry}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              {loading ? 'Retrying...' : 'Retry'}
+            </Button>
+          </div>
         </div>
         <Footer />
       </div>
@@ -259,6 +306,9 @@ const TableReview = () => {
                   <th className="text-left p-4 text-white font-semibold">
                     Coupon Code
                   </th>
+                  <th className="text-left p-4 text-white font-semibold">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -316,6 +366,25 @@ const TableReview = () => {
                         </Badge>
                       ) : (
                         <span className="text-gray-400">N/A</span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      {firm.affiliate_url ? (
+                        <Button 
+                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                          onClick={() => window.open(firm.affiliate_url!, '_blank')}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Buy Now
+                        </Button>
+                      ) : (
+                        <Button 
+                          disabled
+                          className="bg-gray-600/50 text-gray-400 cursor-not-allowed px-4 py-2"
+                        >
+                          <Minus className="h-4 w-4 mr-2" />
+                          No Link
+                        </Button>
                       )}
                     </td>
                   </tr>
@@ -397,6 +466,27 @@ const TableReview = () => {
                         {(firm as any).table_coupon_code ?? firm.coupon_code}
                       </Badge>
                     </div>
+                  )}
+                </div>
+                
+                {/* Buy Now Button */}
+                <div className="mt-4 pt-4 border-t border-slate-700">
+                  {firm.affiliate_url ? (
+                    <Button 
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300"
+                      onClick={() => window.open(firm.affiliate_url!, '_blank')}
+                    >
+                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      Buy Now - Get Started
+                    </Button>
+                  ) : (
+                    <Button 
+                      disabled
+                      className="w-full bg-gray-600/50 text-gray-400 cursor-not-allowed py-3"
+                    >
+                      <Minus className="h-5 w-5 mr-2" />
+                      Affiliate Link Not Available
+                    </Button>
                   )}
                 </div>
               </div>

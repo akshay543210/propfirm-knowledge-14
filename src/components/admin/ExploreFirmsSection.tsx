@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Globe, X, Plus } from "lucide-react";
 import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 import { PropFirm } from "@/types/supabase";
+import { toast } from "sonner";
 
 interface ExploreFirmsSectionProps {
   propFirms: PropFirm[];
@@ -23,7 +24,10 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
   } = useSectionMemberships();
 
   const handleAddToSection = async () => {
-    if (!selectedFirmId) return;
+    if (!selectedFirmId) {
+      toast.error('Please select a firm to add');
+      return;
+    }
     
     const result = await addFirmToSection("explore-firms", selectedFirmId, parseInt(selectedRank));
     if (result.success) {
@@ -47,7 +51,7 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
             </div>
           </div>
           <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-            {exploreFirms.length} items
+            {exploreFirms?.length || 0} items
           </Badge>
         </div>
       </CardHeader>
@@ -110,8 +114,10 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
             <h4 className="text-gray-300 text-sm font-medium mb-3">
               Current firms in explore section:
             </h4>
-            {exploreFirms.length === 0 ? (
-              <div className="text-gray-400 text-sm">No firms in explore section yet.</div>
+            {!exploreFirms || exploreFirms.length === 0 ? (
+              <div className="text-gray-400 text-sm">
+                No firms in explore section yet. Add some firms to get started!
+              </div>
             ) : (
               <div className="space-y-2">
                 {exploreFirms.map((firm) => (

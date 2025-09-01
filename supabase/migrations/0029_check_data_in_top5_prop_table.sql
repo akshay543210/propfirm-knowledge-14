@@ -1,0 +1,1 @@
+SELECT COUNT(*) as count FROM top5_prop;

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PropFirm } from '@/types/supabase';
 
 interface SectionFirm extends PropFirm {
   membership_id: string;
+  sort_priority?: number;
 }
 
 export const useSectionMemberships = () => {
@@ -13,12 +14,18 @@ export const useSectionMemberships = () => {
   const [tableReviewFirms, setTableReviewFirms] = useState<SectionFirm[]>([]);
   const [exploreFirms, setExploreFirms] = useState<SectionFirm[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  const fetchMemberships = async () => {
+  const fetchMemberships = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('useSectionMemberships: Starting to fetch memberships...');
       
       // Fetch budget firms
+      console.log('useSectionMemberships: Fetching budget firms...');
       const { data: budgetData, error: budgetError } = await supabase
         .from('budget_prop')
         .select(`
@@ -67,6 +74,15 @@ export const useSectionMemberships = () => {
 
       if (budgetError) {
         console.error('Budget firms fetch error:', budgetError);
+        // If we get a permission error, it's likely due to RLS policies
+        if (budgetError.code === '42501' || budgetError.message?.includes('permission denied') || budgetError.message?.includes('policy')) {
+          console.warn('🚨 Budget firms RLS policy issue detected. Using empty result for now.');
+          console.warn('💡 To fix: Run the SQL in EMERGENCY_FIX_RLS_POLICIES.sql in Supabase SQL Editor');
+          toast.error('❌ Budget firms data access restricted. Admin needs to fix RLS policies.');
+          setError('Budget firms access denied: Missing public read policy for budget_prop table');
+        } else {
+          setError(`Budget firms error: ${budgetError.message}`);
+        }
       }
       
       const budgetFirms = budgetData
@@ -76,9 +92,11 @@ export const useSectionMemberships = () => {
         }))
         .filter((firm: any) => firm && firm.id) || [];
       
+      console.log('useSectionMemberships: Budget firms found:', budgetFirms.length);
       setBudgetFirms(budgetFirms);
 
       // Fetch top firms
+      console.log('useSectionMemberships: Fetching top firms...');
       const { data: topData, error: topError } = await supabase
         .from('top5_prop')
         .select(`
@@ -127,6 +145,15 @@ export const useSectionMemberships = () => {
 
       if (topError) {
         console.error('Top firms fetch error:', topError);
+        // If we get a permission error, it's likely due to RLS policies
+        if (topError.code === '42501' || topError.message?.includes('permission denied') || topError.message?.includes('policy')) {
+          console.warn('🚨 Top firms RLS policy issue detected. Using empty result for now.');
+          console.warn('💡 To fix: Run the SQL in EMERGENCY_FIX_RLS_POLICIES.sql in Supabase SQL Editor');
+          toast.error('❌ Top firms data access restricted. Admin needs to fix RLS policies.');
+          setError('Top firms access denied: Missing public read policy for top5_prop table');
+        } else {
+          setError(`Top firms error: ${topError.message}`);
+        }
       }
       
       const topFirms = topData
@@ -136,6 +163,7 @@ export const useSectionMemberships = () => {
         }))
         .filter((firm: any) => firm && firm.id) || [];
       
+      console.log('useSectionMemberships: Top firms found:', topFirms.length);
       setTopFirms(topFirms);
 
       // Fetch table review firms
@@ -198,16 +226,15 @@ export const useSectionMemberships = () => {
         ?.map((item: any) => ({
           ...(item.prop_firms || {}),
           membership_id: item.id,
-          is_approved: item.is_approved,
           sort_priority: item.sort_priority
         }))
         .filter((firm: any) => firm && firm.id) || [];
       
       setTableReviewFirms(tableReviewFirms);
-
-      // Fetch explore firms
+      
+      // Fetch explore firms from the actual table
       const { data: exploreData, error: exploreError } = await supabase
-        .from('explore_firms')
+        .from('explore_firms' as any)
         .select(`
           id,
           firm_id,
@@ -250,9 +277,8 @@ export const useSectionMemberships = () => {
             created_at,
             updated_at
           )
-        `)
-        .order('created_at', { ascending: false });
-
+        `);
+      
       if (exploreError) {
         console.error('Explore firms fetch error:', exploreError);
       }
@@ -265,191 +291,37 @@ export const useSectionMemberships = () => {
         .filter((firm: any) => firm && firm.id) || [];
       
       setExploreFirms(exploreFirms);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching section memberships:', error);
-      toast.error('Failed to fetch section memberships');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addFirmToBudget = async (firmId: string) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('budget_prop')
-        .insert([{ propfirm_id: firmId }]);
-
-      if (error) throw error;
+      setError(error.message || 'Failed to fetch section memberships');
       
-      await fetchMemberships();
-      toast.success('Firm added to budget section successfully');
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error adding firm to budget section:', error);
-      if (error.code === '23505') {
-        toast.error('Firm is already in budget section');
+      // Check if this is a policy/permission error
+      if (error.code === '42501' || error.message?.includes('permission denied') || error.message?.includes('policy')) {
+        console.warn('RLS policy error detected. This likely means public read policies are missing.');
+        console.warn('SOLUTION: Run the SQL script in EMERGENCY_FIX_RLS_POLICIES.sql in your Supabase SQL editor');
+        
+        toast.error('Database access restricted. Admin needs to fix RLS policies. Check console for details.');
+        
+        // Set empty arrays as fallback
+        setBudgetFirms([]);
+        setTopFirms([]);
+        setTableReviewFirms([]);
+        setExploreFirms([]);
       } else {
-        toast.error('Failed to add firm to budget section');
+        toast.error('Failed to fetch section memberships');
       }
-      return { success: false, error: error.message };
     } finally {
       setLoading(false);
+      setHasInitialized(true);
     }
-  };
-
-  const removeFirmFromBudget = async (membershipId: string) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('budget_prop')
-        .delete()
-        .eq('id', membershipId);
-
-      if (error) throw error;
-      
-      await fetchMemberships();
-      toast.success('Firm removed from budget section successfully');
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error removing firm from budget section:', error);
-      toast.error('Failed to remove firm from budget section');
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addFirmToTop = async (firmId: string) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('top5_prop')
-        .insert([{ propfirm_id: firmId }]);
-
-      if (error) throw error;
-      
-      await fetchMemberships();
-      toast.success('Firm added to top 5 section successfully');
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error adding firm to top 5 section:', error);
-      if (error.code === '23505') {
-        toast.error('Firm is already in top 5 section');
-      } else {
-        toast.error('Failed to add firm to top 5 section');
-      }
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const removeFirmFromTop = async (membershipId: string) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('top5_prop')
-        .delete()
-        .eq('id', membershipId);
-
-      if (error) throw error;
-      
-      await fetchMemberships();
-      toast.success('Firm removed from top 5 section successfully');
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error removing firm from top 5 section:', error);
-      toast.error('Failed to remove firm from top 5 section');
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addFirmToTableReview = async (firmId: string, sortPriority: number = 0) => {
-    try {
-      setLoading(true);
-      
-      // Check if firm is already in table review
-      const { data: existingData, error: existingError } = await supabase
-        .from('table_review_firms')
-        .select('id')
-        .eq('firm_id', firmId)
-        .single();
-
-      if (existingError && existingError.code !== 'PGRST116') {
-        throw existingError;
-      }
-
-      let error;
-      if (existingData) {
-        // Update existing record
-        const { error: updateError } = await supabase
-          .from('table_review_firms')
-          .update({ 
-            is_approved: true,
-            sort_priority: sortPriority
-          })
-          .eq('id', existingData.id);
-        error = updateError;
-      } else {
-        // Create new record
-        const { error: insertError } = await supabase
-          .from('table_review_firms')
-          .insert([{ 
-            firm_id: firmId,
-            is_approved: true,
-            sort_priority: sortPriority
-          }]);
-        error = insertError;
-      }
-
-      if (error) throw error;
-      
-      await fetchMemberships();
-      toast.success('Firm added to table review section successfully');
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error adding firm to table review section:', error);
-      toast.error('Failed to add firm to table review section');
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const removeFirmFromTableReview = async (membershipId: string) => {
-    try {
-      setLoading(true);
-      
-      // Instead of deleting, we'll set is_approved to false
-      const { error } = await supabase
-        .from('table_review_firms')
-        .update({ is_approved: false })
-        .eq('id', membershipId);
-
-      if (error) throw error;
-      
-      await fetchMemberships();
-      toast.success('Firm removed from table review section successfully');
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error removing firm from table review section:', error);
-      toast.error('Failed to remove firm from table review section');
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
 
   const addFirmToExplore = async (firmId: string) => {
     try {
-      setLoading(true);
       const { error } = await supabase
-        .from('explore_firms')
+        .from('explore_firms' as any)
         .insert([{ firm_id: firmId }]);
-
+      
       if (error) throw error;
       
       await fetchMemberships();
@@ -463,19 +335,16 @@ export const useSectionMemberships = () => {
         toast.error('Failed to add firm to explore section');
       }
       return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
     }
   };
 
   const removeFirmFromExplore = async (membershipId: string) => {
     try {
-      setLoading(true);
       const { error } = await supabase
-        .from('explore_firms')
+        .from('explore_firms' as any)
         .delete()
         .eq('id', membershipId);
-
+      
       if (error) throw error;
       
       await fetchMemberships();
@@ -485,8 +354,6 @@ export const useSectionMemberships = () => {
       console.error('Error removing firm from explore section:', error);
       toast.error('Failed to remove firm from explore section');
       return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -522,11 +389,7 @@ export const useSectionMemberships = () => {
           break;
           
         case 'explore-firms':
-          const { error: exploreError } = await supabase
-            .from('explore_firms')
-            .insert([{ firm_id: firmId }]);
-          error = exploreError;
-          break;
+          return await addFirmToExplore(firmId);
           
         default:
           throw new Error('Invalid section');
@@ -555,12 +418,12 @@ export const useSectionMemberships = () => {
       setLoading(true);
       
       // Try to delete from each possible table
-      const tables = ['budget_prop', 'top5_prop', 'table_review_firms', 'explore_firms'];
+      const tables = ['budget_prop', 'top5_prop', 'table_review_firms'];
       let deleted = false;
       
       for (const table of tables) {
         const { error } = await supabase
-          .from(table)
+          .from(table as any)
           .delete()
           .eq('id', membershipId);
           
@@ -589,6 +452,7 @@ export const useSectionMemberships = () => {
   const getMembershipsBySection = (section: string) => {
     switch (section) {
       case 'budget-firms':
+      case 'cheap-firms':
         return budgetFirms.map(firm => ({
           id: firm.membership_id,
           firm_id: firm.id,
@@ -621,30 +485,11 @@ export const useSectionMemberships = () => {
     }
   };
 
-  const updateTableReviewPriority = async (membershipId: string, sortPriority: number) => {
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('table_review_firms')
-        .update({ sort_priority: sortPriority })
-        .eq('id', membershipId);
-
-      if (error) throw error;
-      
-      await fetchMemberships();
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error updating table review priority:', error);
-      toast.error('Failed to update table review priority');
-      return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchMemberships();
-  }, []);
+    if (!hasInitialized) {
+      fetchMemberships();
+    }
+  }, [fetchMemberships, hasInitialized]);
 
   return {
     budgetFirms,
@@ -652,18 +497,13 @@ export const useSectionMemberships = () => {
     tableReviewFirms,
     exploreFirms,
     loading,
-    addFirmToBudget,
-    removeFirmFromBudget,
-    addFirmToTop,
-    removeFirmFromTop,
-    addFirmToTableReview,
-    removeFirmFromTableReview,
+    error,
+    hasInitialized,
     addFirmToExplore,
     removeFirmFromExplore,
     addFirmToSection,
     removeFirmFromSection,
     getMembershipsBySection,
-    updateTableReviewPriority,
     refetch: fetchMemberships
   };
 };

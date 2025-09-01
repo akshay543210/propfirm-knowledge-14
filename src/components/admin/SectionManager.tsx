@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,13 +17,17 @@ import {
 } from "lucide-react";
 import { usePropFirms } from "@/hooks/useSupabaseData";
 import { useSectionMemberships } from "@/hooks/useSectionMemberships";
+import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AllFirmsSection from "./AllFirmsSection";
 import CheapFirmsSection from "./CheapFirmsSection";
 import TopFirmsSection from "./TopFirmsSection";
 import ExploreFirmsSection from "./ExploreFirmsSection";
+import DatabaseFixPanel from "./DatabaseFixPanel";
+import { toast } from "sonner";
+import { memo } from "react";
 
-const SectionManager = () => {
+const SectionManager = memo(() => {
   const { propFirms, loading: firmsLoading } = usePropFirms();
   const { 
     budgetFirms, 
@@ -32,37 +36,80 @@ const SectionManager = () => {
     loading: membershipsLoading, 
     addFirmToSection, 
     removeFirmFromSection,
-    updateTableReviewPriority,
-    refetch 
+    refetch,
+    error,
+    hasInitialized
   } = useSectionMemberships();
   
   const [selectedBudgetFirm, setSelectedBudgetFirm] = useState<string>("");
   const [selectedTopFirm, setSelectedTopFirm] = useState<string>("");
   const [selectedTableReviewFirm, setSelectedTableReviewFirm] = useState<string>("");
 
-  // Refetch memberships when propFirms change
-  useEffect(() => {
-    if (!firmsLoading && propFirms.length > 0) {
+  // Memoized refetch function to prevent unnecessary re-renders
+  const memoizedRefetch = useCallback(() => {
+    if (!firmsLoading && propFirms.length > 0 && hasInitialized) {
       refetch();
     }
-  }, [propFirms, firmsLoading, refetch]);
+  }, [propFirms.length, firmsLoading, refetch, hasInitialized]);
 
-  const handleAddToBudget = async () => {
-    if (!selectedBudgetFirm) return;
-    await addFirmToSection("budget-firms", selectedBudgetFirm);
-    setSelectedBudgetFirm("");
-  };
+  // Only refetch when propFirms actually change
+  useEffect(() => {
+    memoizedRefetch();
+  }, [memoizedRefetch]);
 
-  const handleAddToTop = async () => {
-    if (!selectedTopFirm) return;
-    await addFirmToSection("top-firms", selectedTopFirm);
-    setSelectedTopFirm("");
-  };
+  const handleAddToBudget = useCallback(async () => {
+    if (!selectedBudgetFirm) {
+      toast.error('Please select a firm to add');
+      return;
+    }
+    const result = await addFirmToSection("budget-firms", selectedBudgetFirm);
+    if (result.success) {
+      setSelectedBudgetFirm("");
+      toast.success('Firm added to budget section successfully');
+    }
+  }, [selectedBudgetFirm, addFirmToSection]);
 
-  const handleAddToTableReview = async () => {
-    if (!selectedTableReviewFirm) return;
-    await addFirmToSection("table-review", selectedTableReviewFirm);
-    setSelectedTableReviewFirm("");
+  const handleAddToTop = useCallback(async () => {
+    if (!selectedTopFirm) {
+      toast.error('Please select a firm to add');
+      return;
+    }
+    const result = await addFirmToSection("top-firms", selectedTopFirm);
+    if (result.success) {
+      setSelectedTopFirm("");
+      toast.success('Firm added to top firms successfully');
+    }
+  }, [selectedTopFirm, addFirmToSection]);
+
+  const handleAddToTableReview = useCallback(async () => {
+    if (!selectedTableReviewFirm) {
+      toast.error('Please select a firm to add');
+      return;
+    }
+    const result = await addFirmToSection("table-review", selectedTableReviewFirm);
+    if (result.success) {
+      setSelectedTableReviewFirm("");
+      toast.success('Firm added to table review successfully');
+    }
+  }, [selectedTableReviewFirm, addFirmToSection]);
+
+  const updateTableReviewPriority = async (membershipId: string, newPriority: number) => {
+    try {
+      const { error } = await supabase
+        .from('table_review_firms')
+        .update({ sort_priority: newPriority })
+        .eq('id', membershipId);
+      
+      if (error) throw error;
+      
+      await refetch();
+      toast.success('Firm priority updated successfully');
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error updating firm priority:', error);
+      toast.error('Failed to update firm priority');
+      return { success: false, error: error.message };
+    }
   };
 
   const moveTableReviewFirm = async (firmId: string, direction: 'up' | 'down') => {
@@ -87,6 +134,18 @@ const SectionManager = () => {
     }
   };
 
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-400 mb-4">Error loading section data</div>
+        <div className="text-gray-400 text-sm mb-4">{error}</div>
+        <Button onClick={refetch} className="bg-blue-600 hover:bg-blue-700 text-white">
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   const loading = firmsLoading || membershipsLoading;
 
   return (
@@ -97,6 +156,9 @@ const SectionManager = () => {
           Manage which prop firms appear in each section
         </p>
       </div>
+
+      {/* Database Fix Panel - Show if there are issues */}
+      <DatabaseFixPanel />
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-5 mb-6 bg-slate-800/50">
@@ -451,6 +513,8 @@ const SectionManager = () => {
       </Tabs>
     </div>
   );
-};
+});
+
+SectionManager.displayName = 'SectionManager';
 
 export default SectionManager;

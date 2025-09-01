@@ -5,14 +5,17 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { PropFirm } from "@/types/supabase";
 import { motion } from "framer-motion";
+import { useImageLazyLoad } from "@/hooks/useImageLazyLoad";
+import { memo } from "react";
 
 interface PropFirmCardProps {
   firm: PropFirm;
   index?: number;
 }
 
-const PropFirmCard = ({ firm, index = 0 }: PropFirmCardProps) => {
+const PropFirmCard = memo(({ firm, index = 0 }: PropFirmCardProps) => {
   const navigate = useNavigate();
+  const { imgRef, imageSrc, isLoading } = useImageLazyLoad(firm.logo_url || '');
 
   const discountPercentage = Math.round(((firm.original_price - firm.price) / firm.original_price) * 100);
   
@@ -51,7 +54,25 @@ const PropFirmCard = ({ firm, index = 0 }: PropFirmCardProps) => {
       <Card className="h-full flex flex-col glass-card hover-glow border-primary/20 hover:border-primary/40 transition-all duration-300">
         <CardHeader className="min-h-[120px]">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xl font-bold text-foreground line-clamp-2 leading-tight">{firm.name}</h3>
+            <div className="flex items-center gap-3">
+              {firm.logo_url && (
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-slate-700">
+                  <img
+                    ref={imgRef}
+                    src={imageSrc}
+                    alt={`${firm.name} logo`}
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
+                      isLoading ? 'opacity-0' : 'opacity-100'
+                    }`}
+                    loading="lazy"
+                  />
+                  {isLoading && (
+                    <div className="absolute inset-0 bg-slate-600 animate-pulse" />
+                  )}
+                </div>
+              )}
+              <h3 className="text-xl font-bold text-foreground line-clamp-2 leading-tight">{firm.name}</h3>
+            </div>
             {firm.brand && (
               <Badge className="bg-primary/20 text-primary border-primary/30 shrink-0">
                 {firm.brand}
@@ -157,6 +178,8 @@ const PropFirmCard = ({ firm, index = 0 }: PropFirmCardProps) => {
       </Card>
     </motion.div>
   );
-};
+});
+
+PropFirmCard.displayName = 'PropFirmCard';
 
 export default PropFirmCard;
