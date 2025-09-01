@@ -84,55 +84,49 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center hero-bg px-6 font-poppins overflow-hidden">
-      {/* Mouse-follow glow effect */}
-      <motion.div 
-        className="pointer-events-none absolute w-[500px] h-[500px] bg-primary/20 blur-3xl rounded-full mix-blend-screen"
-        animate={{
-          x: mousePosition.x - 250,
-          y: mousePosition.y - 250,
-        }}
-        transition={{ type: "spring", damping: 30, stiffness: 200 }}
-      />
-      
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-[600px] h-[600px] bg-accent/10 blur-3xl rounded-full -top-40 -right-40 mix-blend-screen"></div>
-        <div className="absolute w-[400px] h-[400px] bg-warning/10 blur-3xl rounded-full -bottom-40 -left-40 mix-blend-screen"></div>
+    <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/3 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl animate-pulse"></div>
       </div>
 
       <motion.div
-        className="relative z-10 max-w-6xl mx-auto"
+        className="relative z-10 max-w-6xl mx-auto w-full"
         variants={containerVariants}
         initial="hidden"
         animate={isVisible ? "visible" : "hidden"}
       >
+        {/* Main heading with gradient text */}
         <motion.h1 
-          className="text-5xl md:text-7xl font-bold mb-6 gradient-text leading-tight"
+          className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-8 max-w-4xl mx-auto leading-tight"
           variants={itemVariants}
         >
-          Trade Only with<br />
-          <span className="text-yellow-400">Paying Firms</span>
+          <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            Find the Perfect Prop Trading Firm
+          </span>
         </motion.h1>
         
-        <motion.p 
-          className="text-2xl md:text-3xl text-white mb-4 max-w-4xl mx-auto font-bold leading-relaxed"
-          variants={itemVariants}
-        >
-          <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-            Trade with only the Best propfirms.
-          </span>
-        </motion.p>
-        
-        <motion.p 
-          className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto font-medium leading-relaxed"
-          variants={itemVariants}
-        >
-          If not, our <span className="text-yellow-300 font-bold">PayoutCases</span> will help in it.
-        </motion.p>
-
-        <motion.div
+        {/* Subheading text */}
+        <motion.div 
           className="mb-12 max-w-2xl mx-auto"
+          variants={itemVariants}
+        >
+          <p className="text-xl md:text-2xl text-gray-200 mb-4 font-medium">
+            Trade only with paying firms and get your payout.
+          </p>
+          <p className="text-xl md:text-2xl text-gray-200 mb-4 font-medium">
+            If not, our <span className="text-yellow-400 font-bold">PayoutCases</span> will help in it.
+          </p>
+          <p className="text-xl md:text-2xl text-gray-200 font-medium">
+            Trade with only the Best propfirms.
+          </p>
+        </motion.div>
+
+        {/* Search bar */}
+        <motion.div
+          className="mb-16 max-w-2xl mx-auto"
           variants={itemVariants}
         >
           <SearchBar 
@@ -141,16 +135,16 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
           />
         </motion.div>
 
+        {/* Action buttons */}
         <motion.div 
-          className="flex flex-wrap gap-4 justify-center mb-16"
+          className="flex flex-wrap gap-4 justify-center mb-20"
           variants={containerVariants}
         >
           <motion.div variants={buttonVariants}>
             <Button 
               onClick={navigateToAllFirms}
-              variant="gradient"
               size="lg"
-              className="text-lg px-8 py-4 rounded-2xl font-medium"
+              className="text-lg px-8 py-6 rounded-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <TrendingUp className="mr-2 h-5 w-5" />
               Explore All Firms
@@ -160,36 +154,12 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
           <motion.div variants={buttonVariants}>
             <Button 
               onClick={navigateToCompare}
-              variant="glassmorphism"
+              variant="outline"
               size="lg"
-              className="text-lg px-8 py-4 rounded-2xl font-medium"
+              className="text-lg px-8 py-6 rounded-xl font-semibold border-2 border-purple-500 text-purple-400 hover:bg-purple-500/20 transition-all duration-300"
             >
               <Shield className="mr-2 h-5 w-5" />
               Compare Firms
-            </Button>
-          </motion.div>
-          
-          <motion.div variants={buttonVariants}>
-            <Button 
-              onClick={navigateToCheapFirms}
-              variant="glassmorphism"
-              size="lg"
-              className="text-lg px-8 py-4 rounded-2xl font-medium"
-            >
-              <DollarSign className="mr-2 h-5 w-5" />
-              Budget Options
-            </Button>
-          </motion.div>
-          
-          <motion.div variants={buttonVariants}>
-            <Button 
-              onClick={navigateToTopFirms}
-              variant="glassmorphism"
-              size="lg"
-              className="text-lg px-8 py-4 rounded-2xl font-medium"
-            >
-              <Users className="mr-2 h-5 w-5" />
-              Top Rated
             </Button>
           </motion.div>
         </motion.div>
@@ -200,36 +170,36 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
           variants={containerVariants}
         >
           <motion.div 
-            className="glass-card p-6 rounded-2xl hover-glow"
+            className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300"
             variants={itemVariants}
           >
-            <div className="text-4xl font-bold text-success mb-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent mb-2">
               <CountUp end={15000} duration={2.5} separator="," suffix="+" />
             </div>
             <div className="text-slate-300 text-lg">Active Traders</div>
-            <div className="text-sm text-muted-foreground mt-1">Successfully funded worldwide</div>
+            <div className="text-sm text-slate-400 mt-1">Successfully funded worldwide</div>
           </motion.div>
           
           <motion.div 
-            className="glass-card p-6 rounded-2xl hover-glow"
+            className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300"
             variants={itemVariants}
           >
-            <div className="text-4xl font-bold text-warning mb-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent mb-2">
               $<CountUp end={2.5} duration={2.5} decimals={1} suffix="B" />
             </div>
             <div className="text-slate-300 text-lg">Capital Deployed</div>
-            <div className="text-sm text-muted-foreground mt-1">Total funding allocated</div>
+            <div className="text-sm text-slate-400 mt-1">Total funding allocated</div>
           </motion.div>
           
           <motion.div 
-            className="glass-card p-6 rounded-2xl hover-glow"
+            className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300"
             variants={itemVariants}
           >
-            <div className="text-4xl font-bold text-primary mb-2">
+            <div className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
               <CountUp end={87} duration={2.5} suffix="%" />
             </div>
             <div className="text-slate-300 text-lg">Success Rate</div>
-            <div className="text-sm text-muted-foreground mt-1">Traders achieving profitability</div>
+            <div className="text-sm text-slate-400 mt-1">Traders achieving profitability</div>
           </motion.div>
         </motion.div>
       </motion.div>
