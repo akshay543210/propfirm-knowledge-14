@@ -6,7 +6,6 @@ import { Button } from "./ui/button";
 import { TrendingUp, Shield, Users, DollarSign } from "lucide-react";
 import CountUp from "react-countup";
 import { useEffect, useState } from "react";
-import { usePropFirms } from "@/hooks/useSupabaseData";
 
 interface HeroProps {
   propFirms?: PropFirm[];
@@ -17,7 +16,6 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
   const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
-  const { propFirms: topFirms } = usePropFirms();
 
   useEffect(() => {
     setIsVisible(true);
