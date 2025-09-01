@@ -1,0 +1,1 @@
+SELECT COUNT(*) as count FROM prop_firms;
