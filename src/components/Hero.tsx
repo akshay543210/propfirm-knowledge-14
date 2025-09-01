@@ -113,16 +113,24 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
           className="text-5xl md:text-7xl font-bold mb-6 gradient-text leading-tight"
           variants={itemVariants}
         >
-          Find the Perfect<br />
-          Prop Trading Firm
+          Trade Only with<br />
+          <span className="text-yellow-400">Paying Firms</span>
         </motion.h1>
         
         <motion.p 
-          className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto font-light leading-relaxed"
+          className="text-2xl md:text-3xl text-white mb-4 max-w-4xl mx-auto font-bold leading-relaxed"
           variants={itemVariants}
         >
-          Compare top proprietary trading firms, read verified reviews, 
-          and discover the best funding opportunities for your trading journey.
+          <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+            Trade with only the Best propfirms.
+          </span>
+        </motion.p>
+        
+        <motion.p 
+          className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto font-medium leading-relaxed"
+          variants={itemVariants}
+        >
+          If not, our <span className="text-yellow-300 font-bold">PayoutCases</span> will help in it.
         </motion.p>
 
         <motion.div
