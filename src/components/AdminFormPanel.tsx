@@ -146,7 +146,6 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
         throw new Error(result.error?.message || "Operation failed");
       }
     } catch (error) {
-      console.error('Form submission error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "An unexpected error occurred",

@@ -32,6 +32,11 @@
   transform: translateY(-2px);
 }
 
+/* Radial gradient utility */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
 @layer base {
   :root {
     --background: 15 23% 10%;

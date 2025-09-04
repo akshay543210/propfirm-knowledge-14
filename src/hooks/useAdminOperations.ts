@@ -110,9 +110,9 @@ export const useAdminOperations = () => {
       // Ensure arrays are properly formatted
       const formattedUpdates: any = {
         ...updates,
-        features: Array.isArray(updates.features) ? updates.features : (updates.features ? updates.features.split(',').map(f => f.trim()).filter(f => f) : []),
-        pros: Array.isArray(updates.pros) ? updates.pros : (updates.pros ? updates.pros.split(',').map(f => f.trim()).filter(f => f) : []),
-        cons: Array.isArray(updates.cons) ? updates.cons : (updates.cons ? updates.cons.split(',').map(f => f.trim()).filter(f => f) : []),
+        features: Array.isArray(updates.features) ? updates.features : (updates.features ? (updates.features as string).split(',').map(f => f.trim()).filter(f => f) : []),
+        pros: Array.isArray(updates.pros) ? updates.pros : (updates.pros ? (updates.pros as string).split(',').map(f => f.trim()).filter(f => f) : []),
+        cons: Array.isArray(updates.cons) ? updates.cons : (updates.cons ? (updates.cons as string).split(',').map(f => f.trim()).filter(f => f) : []),
         slug: updates.slug || (updates.name ? updates.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : undefined),
         updated_at: new Date().toISOString(),
       };

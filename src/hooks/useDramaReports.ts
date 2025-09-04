@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DramaReport, DramaReportInsert } from '@/types/dramaReports';
+import { DramaReport, DramaReportInsert, DramaType, DramaSeverity, DramaStatus } from '@/types/dramaReports';
 
 export const useDramaReports = () => {
   const [dramaReports, setDramaReports] = useState<DramaReport[]>([]);
@@ -13,11 +13,20 @@ export const useDramaReports = () => {
       const { data, error } = await supabase
         .from('drama_reports')
         .select('*')
-        .eq('status', 'Approved')
+        .eq('status', 'Approved' as DramaStatus)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDramaReports(data || []);
+      
+      // Cast the data to DramaReport type
+      const reports = data.map(report => ({
+        ...report,
+        drama_type: report.drama_type as DramaType,
+        severity: report.severity as DramaSeverity,
+        status: report.status as DramaStatus
+      }));
+      
+      setDramaReports(reports || []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -73,7 +82,16 @@ export const useUserDramaReports = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDramaReports(data || []);
+      
+      // Cast the data to DramaReport type
+      const reports = data.map(report => ({
+        ...report,
+        drama_type: report.drama_type as DramaType,
+        severity: report.severity as DramaSeverity,
+        status: report.status as DramaStatus
+      }));
+      
+      setDramaReports(reports || []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -103,7 +121,16 @@ export const useAdminDramaReports = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDramaReports(data || []);
+      
+      // Cast the data to DramaReport type
+      const reports = data.map(report => ({
+        ...report,
+        drama_type: report.drama_type as DramaType,
+        severity: report.severity as DramaSeverity,
+        status: report.status as DramaStatus
+      }));
+      
+      setDramaReports(reports || []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

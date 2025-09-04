@@ -381,6 +381,32 @@ export type Database = {
           }
         ]
       }
+      explore_firms: {
+        Row: {
+          id: string
+          firm_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          firm_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          firm_id?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explore_firms_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

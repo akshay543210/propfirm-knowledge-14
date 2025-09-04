@@ -23,7 +23,7 @@ import AllFirmsSection from "./AllFirmsSection";
 import CheapFirmsSection from "./CheapFirmsSection";
 import TopFirmsSection from "./TopFirmsSection";
 import ExploreFirmsSection from "./ExploreFirmsSection";
-import DatabaseFixPanel from "./DatabaseFixPanel";
+
 import { toast } from "sonner";
 import { memo } from "react";
 
@@ -106,7 +106,6 @@ const SectionManager = memo(() => {
       toast.success('Firm priority updated successfully');
       return { success: true };
     } catch (error: any) {
-      console.error('Error updating firm priority:', error);
       toast.error('Failed to update firm priority');
       return { success: false, error: error.message };
     }
@@ -157,8 +156,7 @@ const SectionManager = memo(() => {
         </p>
       </div>
 
-      {/* Database Fix Panel - Show if there are issues */}
-      <DatabaseFixPanel />
+
 
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-5 mb-6 bg-slate-800/50">

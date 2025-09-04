@@ -64,7 +64,6 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
       
       onClose();
     } catch (error) {
-      console.error('Error submitting review:', error);
       toast({
         title: "Error",
         description: "Failed to submit review. Please try again.",
