@@ -78,349 +78,202 @@ const SectionManager = memo(() => {
       setSelectedTopFirm("");
       toast.success('Firm added to top firms successfully');
     }
-<dyad-problem-report summary="3 problems">
-<problem file="src/components/AnimationShowcase.tsx" line="228" column="11" code="2322">Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
-  Property 'visible' is incompatible with index signature.
-    Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
-      Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
-        Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition&lt;any&gt;; transitionEnd?: ResolvedValues; }'.
-          Types of property 'transition' are incompatible.
-            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition&lt;any&gt;'.
-              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides&lt;any&gt;'.
-                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition&lt;any&gt;'.
-                  Types of property 'ease' are incompatible.
-                    Type 'string' is not assignable to type 'Easing | Easing[]'.</problem>
-<problem file="src/components/AnimationShowcase.tsx" line="280" column="11" code="2322">Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
-  Property 'visible' is incompatible with index signature.
-    Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
-      Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
-        Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition&lt;any&gt;; transitionEnd?: ResolvedValues; }'.
-          Types of property 'transition' are incompatible.
-            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition&lt;any&gt;'.
-              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides&lt;any&gt;'.
-                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition&lt;any&gt;'.
-                  Types of property 'ease' are incompatible.
-                    Type 'string' is not assignable to type 'Easing | Easing[]'.</problem>
-<problem file="src/components/AnimationShowcase.tsx" line="291" column="11" code="2322">Type '{ hidden: { opacity: number; y: number; }; visible: { opacity: number; y: number; transition: { duration: number; ease: string; }; }; }' is not assignable to type 'Variants'.
-  Property 'visible' is incompatible with index signature.
-    Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'Variant'.
-      Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type 'TargetAndTransition'.
-        Type '{ opacity: number; y: number; transition: { duration: number; ease: string; }; }' is not assignable to type '{ transition?: Transition&lt;any&gt;; transitionEnd?: ResolvedValues; }'.
-          Types of property 'transition' are incompatible.
-            Type '{ duration: number; ease: string; }' is not assignable to type 'Transition&lt;any&gt;'.
-              Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides&lt;any&gt;'.
-                Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition&lt;any&gt;'.
-                  Types of property 'ease' are incompatible.
-                    Type 'string' is not assignable to type 'Easing | Easing[]'.</problem>
-</dyad-problem-report><dyad-write path="src/components/AnimationShowcase.tsx" description="Fix TypeScript errors in AnimationShowcase component related to Framer Motion variants">
-import React from 'react';
-import { motion, Transition } from 'framer-motion';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import AnimatedButton from '@/components/ui/animated-button';
+  }, [selectedTopFirm, addFirmToSection]);
 
-// Individual animation demo components
-const HoverEffectsDemo = () => (
-  <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover-lift">
-    <h3 className="text-xl font-bold text-white mb-4">Hover Effects</h3>
-    <div className="space-y-4">
-      <motion.div
-        className="w-full h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg"
-        whileHover={{ scale: 1.05, rotate: 2 }}
-        transition={{ duration: 0.3 }}
-      />
-      <AnimatedButton variant="primary" className="w-full">
-        Hover Me
-      </AnimatedButton>
-    </div>
-  </div>
-);
-
-const ScrollAnimationsDemo = ({ controls, variants }: any) => (
-  <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover-lift">
-    <h3 className="text-xl font-bold text-white mb-4">Scroll Animations</h3>
-    <div className="space-y-4">
-      <motion.div
-        className="w-full h-20 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg"
-        variants={variants.fadeInUp}
-        initial="hidden"
-        animate={controls}
-      />
-      <motion.div
-        className="w-full h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"
-        variants={variants.fadeInLeft}
-        initial="hidden"
-        animate={controls}
-      />
-    </div>
-  </div>
-);
-
-const ParticleEffectsDemo = () => (
-  <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover-lift">
-    <h3 className="text-xl font-bold text-white mb-4">Particle Effects</h3>
-    <div className="relative h-32 bg-slate-700/30 rounded-lg overflow-hidden">
-      <motion.div
-        className="absolute w-2 h-2 bg-blue-400 rounded-full"
-        animate={{
-          x: [0, 100, 0],
-          y: [0, 50, 0],
-          scale: [1, 1.5, 1],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute w-3 h-3 bg-purple-400 rounded-full"
-        animate={{
-          x: [100, 0, 100],
-          y: [50, 0, 50],
-          scale: [1, 2, 1],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1,
-        }}
-      />
-    </div>
-  </div>
-);
-
-const MagneticEffectsDemo = () => (
-  <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover-lift">
-    <h3 className="text-xl font-bold text-white mb-4">Magnetic Effects</h3>
-    <div className="space-y-4">
-      <motion.div
-        className="w-full h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg cursor-pointer"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-      />
-      <AnimatedButton variant="secondary" className="w-full">
-        Magnetic Button
-      </AnimatedButton>
-    </div>
-  </div>
-);
-
-const ColorAnimationsDemo = () => (
-  <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover-lift">
-    <h3 className="text-xl font-bold text-white mb-4">Color Animations</h3>
-    <div className="space-y-4">
-      <motion.div
-        className="w-full h-20 rounded-lg"
-        animate={{
-          background: [
-            'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-            'linear-gradient(45deg, #4ecdc4, #45b7d1)',
-            'linear-gradient(45deg, #45b7d1, #96ceb4)',
-            'linear-gradient(45deg, #96ceb4, #ff6b6b)',
-          ],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      />
-      <motion.div
-        className="text-center text-lg font-bold"
-        animate={{
-          color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ff6b6b'],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      >
-        Color Shifting Text
-      </motion.div>
-    </div>
-  </div>
-);
-
-const LoadingStatesDemo = () => (
-  <div className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-6 hover-lift">
-    <h3 className="text-xl font-bold text-white mb-4">Loading States</h3>
-    <div className="space-y-4">
-      <div className="flex justify-center">
-        <motion.div
-          className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        />
-      </div>
-      <div className="space-y-2">
-        <motion.div
-          className="h-2 bg-slate-700 rounded-full overflow-hidden"
-          initial={{ width: 0 }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <motion.div
-            className="h-full bg-blue-500"
-            animate={{ x: [-100, 100] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          />
-        </motion.div>
-      </div>
-    </div>
-  </div>
-);
-
-const InteractiveDemo = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-    <motion.div
-      className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-8"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <h4 className="text-lg font-bold text-white mb-4">3D Card Effect</h4>
-      <motion.div
-        className="w-full h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg"
-        whileHover={{ rotateX: 10, rotateY: 10 }}
-        transition={{ duration: 0.3 }}
-        style={{ transformStyle: "preserve-3d" }}
-      />
-    </motion.div>
-
-    <motion.div
-      className="bg-slate-800/50 backdrop-blur-lg border border-slate-700/50 rounded-xl p-8"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <h4 className="text-lg font-bold text-white mb-4">Spring Animation</h4>
-      <motion.div
-        className="w-16 h-16 bg-green-500 rounded-full mx-auto"
-        animate={{ y: [0, -20, 0] }}
-        transition={{
-          duration: 1,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-    </motion.div>
-  </div>
-);
-
-const AnimationShowcase = () => {
-  const { ref, controls, variants } = useScrollAnimation();
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      } as Transition,
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      } as Transition,
-    },
-  };
+  const handleAddToTableReview = useCallback(async () => {
+    if (!selectedTableReviewFirm) {
+      toast.error('Please select a firm to add');
+      return;
+    }
+    const result = await addFirmToSection("table-review", selectedTableReviewFirm);
+    if (result.success) {
+      setSelectedTableReviewFirm("");
+      toast.success('Firm added to table review section successfully');
+    }
+  }, [selectedTableReviewFirm, addFirmToSection]);
 
   return (
-    <section 
-      ref={ref}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"
-    >
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          variants={variants.fadeInUp}
-          initial="hidden"
-          animate={controls}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            <span className="gradient-text-blue">Animation</span> Showcase
-          </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Experience the power of modern web animations with our comprehensive collection of interactive effects.
-          </p>
-        </motion.div>
-
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate={controls}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {/* Hover Effects */}
-          <motion.div variants={itemVariants} className="group">
-            <HoverEffectsDemo />
-          </motion.div>
-
-          {/* Scroll Animations */}
-          <motion.div variants={itemVariants} className="group">
-            <ScrollAnimationsDemo controls={controls} variants={variants} />
-          </motion.div>
-
-          {/* Particle Effects */}
-          <motion.div variants={itemVariants} className="group">
-            <ParticleEffectsDemo />
-          </motion.div>
-
-          {/* Magnetic Effects */}
-          <motion.div variants={itemVariants} className="group">
-            <MagneticEffectsDemo />
-          </motion.div>
-
-          {/* Color Animations */}
-          <motion.div variants={itemVariants} className="group">
-            <ColorAnimationsDemo />
-          </motion.div>
-
-          {/* Loading States */}
-          <motion.div variants={itemVariants} className="group">
-            <LoadingStatesDemo />
-          </motion.div>
-        </motion.div>
-
-        {/* Interactive Demo Section */}
-        <motion.div
-          variants={variants.fadeInUp}
-          initial="hidden"
-          animate={controls}
-          className="mt-16 text-center"
-        >
-          <h3 className="text-2xl font-bold text-white mb-8">Interactive Demo</h3>
-          <InteractiveDemo />
-        </motion.div>
-
-        {/* Call to Action */}
-        <motion.div
-          variants={variants.fadeInUp}
-          initial="hidden"
-          animate={controls}
-          className="mt-16 text-center"
-        >
-          <AnimatedButton
-            size="lg"
-            variant="primary"
-            glow={true}
-            pulse={true}
-            className="text-lg px-8 py-4"
-          >
-            Explore More Animations
-          </AnimatedButton>
-        </motion.div>
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-white mb-4">Section Management</h2>
+        <p className="text-gray-300">
+          Manage different sections of your website. Changes here will reflect on the live site.
+        </p>
       </div>
-    </section>
-  );
-};
 
-export default AnimationShowcase;
+      <Tabs defaultValue="all-firms" className="w-full">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-6 bg-slate-800/50">
+          <TabsTrigger 
+            key="all-firms" 
+            value="all-firms"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Building2 className="h-4 w-4" />
+              <span className="hidden sm:inline">All Firms</span>
+            </div>
+          </TabsTrigger>
+          <TabsTrigger 
+            key="cheap-firms" 
+            value="cheap-firms"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <DollarSign className="h-4 w-4" />
+              <span className="hidden sm:inline">Budget</span>
+            </div>
+          </TabsTrigger>
+          <TabsTrigger 
+            key="top-firms" 
+            value="top-firms"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Top</span>
+            </div>
+          </TabsTrigger>
+          <TabsTrigger 
+            key="explore-firms" 
+            value="explore-firms"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">Explore</span>
+            </div>
+          </TabsTrigger>
+          <TabsTrigger 
+            key="table-review" 
+            value="table-review"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Table className="h-4 w-4" />
+              <span className="hidden sm:inline">Table</span>
+            </div>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all-firms">
+          <AllFirmsSection onAddPropFirm={() => {}} />
+        </TabsContent>
+
+        <TabsContent value="cheap-firms">
+          <CheapFirmsSection />
+        </TabsContent>
+
+        <TabsContent value="top-firms">
+          <TopFirmsSection />
+        </TabsContent>
+
+        <TabsContent value="explore-firms">
+          <ExploreFirmsSection propFirms={propFirms} />
+        </TabsContent>
+
+        <TabsContent value="table-review">
+          <Card className="bg-slate-800/50 border-blue-500/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Table className="h-5 w-5 text-blue-400" />
+                  <div>
+                    <CardTitle className="text-white text-xl">Table Review Firms</CardTitle>
+                    <p className="text-gray-400 text-sm">
+                      Manage firms featured in table review section
+                    </p>
+                  </div>
+                </div>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                  {tableReviewFirms.length} items
+                </Badge>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-4">
+              <div className="bg-slate-700/50 p-6 rounded-lg">
+                <h3 className="text-white text-lg font-semibold mb-4">
+                  Add Firm to Table Review
+                </h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  Select a firm to feature in the table review section
+                </p>
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Select a firm to add
+                    </label>
+                    <Select value={selectedTableReviewFirm} onValueChange={setSelectedTableReviewFirm}>
+                      <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                        <SelectValue placeholder="Select a firm" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-700 border-slate-600">
+                        {propFirms.map((firm) => (
+                          <SelectItem key={firm.id} value={firm.id} className="text-white hover:bg-slate-600">
+                            {firm.name} - ${firm.price}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={handleAddToTableReview}
+                    disabled={!selectedTableReviewFirm || membershipsLoading}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add
+                  </Button>
+                </div>
+                
+                {/* Current firms in table review section */}
+                <div className="mt-6">
+                  <h4 className="text-gray-300 text-sm font-medium mb-3">
+                    Current firms in table review:
+                  </h4>
+                  {tableReviewFirms.length === 0 ? (
+                    <div className="text-gray-400 text-sm">
+                      No firms in table review section yet. Add some firms to get started!
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {tableReviewFirms.map((firm) => (
+                        <div 
+                          key={firm.id} 
+                          className="flex items-center justify-between bg-slate-600/50 p-3 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <div className="text-white font-medium">
+                                {firm.name}
+                              </div>
+                              <div className="text-gray-400 text-sm">
+                                ${firm.price}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                            onClick={() => removeFirmFromSection(firm.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+});
+
+SectionManager.displayName = 'SectionManager';
+
+export default SectionManager;
