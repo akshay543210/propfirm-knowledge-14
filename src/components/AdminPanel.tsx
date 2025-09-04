@@ -47,12 +47,14 @@ const AdminPanel = () => {
   }, [operationStatus]);
 
   const handleAdd = async (firmData: Partial<PropFirm>) => {
+    console.log('AdminPanel: Adding firm with data:', firmData);
     setOperationStatus({
       type: null,
       message: ''
     });
     try {
       const result = await addFirm(firmData);
+      console.log('AdminPanel: Add result:', result);
       if (result.success) {
         setOperationStatus({
           type: 'success',
@@ -69,6 +71,7 @@ const AdminPanel = () => {
       }
       return result;
     } catch (error) {
+      console.error('AdminPanel: Add error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setOperationStatus({
         type: 'error',
@@ -82,12 +85,14 @@ const AdminPanel = () => {
   };
 
   const handleUpdate = async (id: string, updates: Partial<PropFirm>) => {
+    console.log('AdminPanel: Updating firm with id:', id, 'and data:', updates);
     setOperationStatus({
       type: null,
       message: ''
     });
     try {
       const result = await updateFirm(id, updates);
+      console.log('AdminPanel: Update result:', result);
       if (result.success) {
         setEditingFirm(null);
         setOperationStatus({
@@ -105,6 +110,7 @@ const AdminPanel = () => {
       }
       return result;
     } catch (error) {
+      console.error('AdminPanel: Update error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setOperationStatus({
         type: 'error',
@@ -118,12 +124,14 @@ const AdminPanel = () => {
   };
 
   const handleDelete = async (id: string) => {
+    console.log('AdminPanel: Deleting firm with id:', id);
     setOperationStatus({
       type: null,
       message: ''
     });
     try {
       const result = await deleteFirm(id);
+      console.log('AdminPanel: Delete result:', result);
       if (result.success) {
         setOperationStatus({
           type: 'success',
@@ -140,6 +148,7 @@ const AdminPanel = () => {
       }
       return result;
     } catch (error) {
+      console.error('AdminPanel: Delete error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setOperationStatus({
         type: 'error',
@@ -153,6 +162,7 @@ const AdminPanel = () => {
   };
 
   const handleEdit = (firm: PropFirm) => {
+    console.log('AdminPanel: Editing firm:', firm);
     setEditingFirm(firm);
     setOperationStatus({
       type: null,
@@ -161,6 +171,7 @@ const AdminPanel = () => {
   };
 
   const handleRefresh = async () => {
+    console.log('AdminPanel: Manual refresh requested');
     setOperationStatus({
       type: null,
       message: ''

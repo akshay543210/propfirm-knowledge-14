@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, Transition } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import AnimatedButton from '@/components/ui/animated-button';
 
@@ -11,7 +11,7 @@ const HoverEffectsDemo = () => (
       <motion.div
         className="w-full h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg"
         whileHover={{ scale: 1.05, rotate: 2 }}
-        transition={{ duration: 0.3 } as Transition}
+        transition={{ duration: 0.3 }}
       />
       <AnimatedButton variant="primary" className="w-full">
         Hover Me
@@ -54,8 +54,8 @@ const ParticleEffectsDemo = () => (
         transition={{
           duration: 3,
           repeat: Infinity,
-          ease: "easeInOut" as any,
-        } as Transition}
+          ease: "easeInOut",
+        }}
       />
       <motion.div
         className="absolute w-3 h-3 bg-purple-400 rounded-full"
@@ -67,9 +67,9 @@ const ParticleEffectsDemo = () => (
         transition={{
           duration: 4,
           repeat: Infinity,
-          ease: "easeInOut" as any,
+          ease: "easeInOut",
           delay: 1,
-        } as Transition}
+        }}
       />
     </div>
   </div>
@@ -108,8 +108,8 @@ const ColorAnimationsDemo = () => (
         transition={{
           duration: 4,
           repeat: Infinity,
-          ease: "linear" as any,
-        } as Transition}
+          ease: "linear",
+        }}
       />
       <motion.div
         className="text-center text-lg font-bold"
@@ -119,8 +119,8 @@ const ColorAnimationsDemo = () => (
         transition={{
           duration: 3,
           repeat: Infinity,
-          ease: "linear" as any,
-        } as Transition}
+          ease: "linear",
+        }}
       >
         Color Shifting Text
       </motion.div>
@@ -136,7 +136,7 @@ const LoadingStatesDemo = () => (
         <motion.div
           className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" as any } as Transition}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         />
       </div>
       <div className="space-y-2">
@@ -144,12 +144,12 @@ const LoadingStatesDemo = () => (
           className="h-2 bg-slate-700 rounded-full overflow-hidden"
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
-          transition={{ duration: 2, repeat: Infinity } as Transition}
+          transition={{ duration: 2, repeat: Infinity }}
         >
           <motion.div
             className="h-full bg-blue-500"
             animate={{ x: [-100, 100] }}
-            transition={{ duration: 1.5, repeat: Infinity } as Transition}
+            transition={{ duration: 1.5, repeat: Infinity }}
           />
         </motion.div>
       </div>
@@ -168,7 +168,7 @@ const InteractiveDemo = () => (
       <motion.div
         className="w-full h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg"
         whileHover={{ rotateX: 10, rotateY: 10 }}
-        transition={{ duration: 0.3 } as Transition}
+        transition={{ duration: 0.3 }}
         style={{ transformStyle: "preserve-3d" }}
       />
     </motion.div>
@@ -185,8 +185,8 @@ const InteractiveDemo = () => (
         transition={{
           duration: 1,
           repeat: Infinity,
-          ease: "easeInOut" as any,
-        } as Transition}
+          ease: "easeInOut",
+        }}
       />
     </motion.div>
   </div>
@@ -213,7 +213,7 @@ const AnimationShowcase = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut" as any,
+        ease: "easeOut" as const,
       },
     },
   };

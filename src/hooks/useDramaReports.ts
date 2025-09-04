@@ -18,15 +18,15 @@ export const useDramaReports = () => {
 
       if (error) throw error;
       
-      // Cast the data to DramaReport type
-      const reports = data.map(report => ({
+      // Cast the data to the correct type
+      const typedData = data.map(report => ({
         ...report,
         drama_type: report.drama_type as DramaType,
         severity: report.severity as DramaSeverity,
         status: report.status as DramaStatus
       }));
       
-      setDramaReports(reports || []);
+      setDramaReports(typedData || []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -83,15 +83,15 @@ export const useUserDramaReports = () => {
 
       if (error) throw error;
       
-      // Cast the data to DramaReport type
-      const reports = data.map(report => ({
+      // Cast the data to the correct type
+      const typedData = data.map(report => ({
         ...report,
         drama_type: report.drama_type as DramaType,
         severity: report.severity as DramaSeverity,
         status: report.status as DramaStatus
       }));
       
-      setDramaReports(reports || []);
+      setDramaReports(typedData || []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -122,15 +122,15 @@ export const useAdminDramaReports = () => {
 
       if (error) throw error;
       
-      // Cast the data to DramaReport type
-      const reports = data.map(report => ({
+      // Cast the data to the correct type
+      const typedData = data.map(report => ({
         ...report,
         drama_type: report.drama_type as DramaType,
         severity: report.severity as DramaSeverity,
         status: report.status as DramaStatus
       }));
       
-      setDramaReports(reports || []);
+      setDramaReports(typedData || []);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -217,7 +217,7 @@ export const submitDramaReport = async (report: DramaReportInsert) => {
       .from('drama_reports')
       .insert({
         ...report,
-        status: 'Pending'
+        status: 'Pending' as DramaStatus
       });
 
     if (error) throw error;

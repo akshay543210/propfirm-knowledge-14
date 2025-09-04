@@ -19,21 +19,26 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps &
     className = "", 
     ...props 
   }, ref) => {
-    const baseClasses = "inline-flex items-center justify-center rounded-md font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none";
+    const baseClasses = "relative font-semibold rounded-lg transition-all duration-300 overflow-hidden";
     
     const variantClasses = {
-      primary: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl",
+      primary: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700",
       secondary: "bg-slate-700 text-white hover:bg-slate-600 border border-slate-600",
     };
     
     const sizeClasses = {
-      sm: "text-xs px-3 py-1.5",
-      md: "text-sm px-4 py-2",
-      lg: "text-base px-6 py-3",
+      sm: "px-3 py-1.5 text-sm",
+      md: "px-4 py-2 text-base",
+      lg: "px-6 py-3 text-lg",
     };
     
-    const glowClasses = glow ? "hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "";
-    const pulseClasses = pulse ? "animate-pulse" : "";
+    const glowClasses = glow 
+      ? "shadow-lg hover:shadow-xl" 
+      : "";
+      
+    const pulseClasses = pulse 
+      ? "animate-pulse" 
+      : "";
     
     const combinedClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${glowClasses} ${pulseClasses} ${className}`;
     
@@ -46,6 +51,9 @@ const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps &
         {...props}
       >
         {children}
+        {glow && (
+          <div className="absolute inset-0 bg-white opacity-0 hover:opacity-20 transition-opacity duration-300 rounded-lg pointer-events-none" />
+        )}
       </motion.button>
     );
   }

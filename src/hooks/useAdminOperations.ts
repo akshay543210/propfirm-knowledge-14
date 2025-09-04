@@ -73,7 +73,7 @@ export const useAdminOperations = () => {
 
       // Automatically add to explore section
       const { error: exploreError } = await supabase
-        .from('explore_firms')
+        .from('explore_firms' as any)
         .insert({
           firm_id: data.id
         });

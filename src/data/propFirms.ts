@@ -1,4 +1,3 @@
-
 import { PropFirm } from "../types/supabase";
 
 export const propFirmsData: PropFirm[] = [
@@ -45,8 +44,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "2-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440002",
@@ -91,8 +99,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "1-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440003",
@@ -137,8 +154,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "2-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440004",
@@ -183,8 +209,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "1-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440005",
@@ -229,8 +264,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "2-step",
     starting_fee: null,
     regulation: "EU",
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440006",
@@ -275,8 +319,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "2-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440007",
@@ -322,8 +375,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "3-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440008",
@@ -369,8 +431,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "1-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440009",
@@ -416,8 +487,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "2-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440010",
@@ -463,8 +543,17 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "3-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   },
   {
     id: "550e8400-e29b-41d4-a716-446655440011",
@@ -510,7 +599,16 @@ export const propFirmsData: PropFirm[] = [
     evaluation_model: "3-step",
     starting_fee: null,
     regulation: null,
+    show_on_homepage: true,
     created_at: "2024-01-01T00:00:00Z",
-    updated_at: "2024-01-01T00:00:00Z"
+    updated_at: "2024-01-01T00:00:00Z",
+    table_price: null,
+    table_profit_split: null,
+    table_payout_rate: null,
+    table_platform: null,
+    table_trust_rating: null,
+    table_evaluation_rules: null,
+    table_fee: null,
+    table_coupon_code: null
   }
 ];
