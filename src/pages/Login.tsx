@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Sun, Moon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -52,8 +53,9 @@ const Login = () => {
           description: 'Logged in successfully' 
         });
         
-        // Check if user is admin
-        if (email === 'bigwinner986@gmail.com') {
+        // Check if user is admin via RPC
+        const { data: isAdminData } = await supabase.rpc('is_admin');
+        if (isAdminData) {
           navigate('/admin-dashboard-2024');
         } else {
           navigate('/');

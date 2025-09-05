@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -41,25 +42,17 @@ const AdminLogin = () => {
       });
       setIsLoading(false);
     } else if (data.user) {
-      // Check if this is the admin user
-      if (email === 'bigwinner986@gmail.com') {
-        toast({
-          title: "Login Successful",
-          description: "Redirecting to admin panel...",
-        });
-        // Small delay to show the toast before redirecting
-        setTimeout(() => {
-          navigate('/admin-dashboard-2024');
-        }, 1000);
-      } else {
-        toast({
-          title: "Login Successful",
-          description: "Redirecting to homepage...",
-        });
-        setTimeout(() => {
-          navigate('/');
-        }, 1000);
-      }
+      // Determine admin from server role via RPC
+      const { data: isAdminData } = await supabase.rpc('is_admin');
+      const isAdminNow = Boolean(isAdminData);
+      toast({
+        title: "Login Successful",
+        description: isAdminNow ? "Redirecting to admin panel..." : "Redirecting to homepage...",
+      });
+      // Small delay to show the toast before redirecting
+      setTimeout(() => {
+        navigate(isAdminNow ? '/admin-dashboard-2024' : '/');
+      }, 1000);
       setIsLoading(false);
     }
   };

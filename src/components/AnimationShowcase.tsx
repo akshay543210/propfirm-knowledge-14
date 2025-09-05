@@ -195,7 +195,7 @@ const InteractiveDemo = () => (
 const AnimationShowcase = () => {
   const { ref, controls, variants } = useScrollAnimation();
 
-  const containerVariants = {
+  const containerVariants: any = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -213,7 +213,7 @@ const AnimationShowcase = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: "easeOut" as const,
+        ease: [0.16, 1, 0.3, 1],
       },
     },
   };

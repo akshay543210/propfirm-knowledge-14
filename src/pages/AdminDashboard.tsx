@@ -65,7 +65,7 @@ const AdminDashboard = () => {
           </div>
           <div className="flex items-center gap-2 text-blue-100 text-sm">
             <AlertCircle className="h-4 w-4" />
-            <span>bigwinner986@gmail.com</span>
+            <span>{user?.email}</span>
           </div>
         </div>
       </div>

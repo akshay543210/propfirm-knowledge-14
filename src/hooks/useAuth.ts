@@ -8,11 +8,11 @@ export const useAuth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdminStatus = async (userEmail: string) => {
+  const checkAdminStatus = async () => {
     try {
-      // For now, we'll check if the email is the admin email
-      // In a real app, this would check the user's role in the database
-      const isAdminUser = userEmail === 'bigwinner986@gmail.com';
+      const { data, error } = await supabase.rpc('is_admin');
+      if (error) throw error;
+      const isAdminUser = Boolean(data);
       setIsAdmin(isAdminUser);
       return isAdminUser;
     } catch (error) {
@@ -32,7 +32,7 @@ export const useAuth = () => {
         
         if (session?.user) {
           // Check admin status after setting user
-          await checkAdminStatus(session.user.email || '');
+          await checkAdminStatus();
         } else {
           setIsAdmin(false);
         }
@@ -46,7 +46,7 @@ export const useAuth = () => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        checkAdminStatus(session.user.email || '').finally(() => {
+        checkAdminStatus().finally(() => {
           setLoading(false);
         });
       } else {
@@ -71,7 +71,7 @@ export const useAuth = () => {
     
     if (data.user) {
       // Check if this user is admin
-      await checkAdminStatus(email);
+      await checkAdminStatus();
     }
     
     return { data, error };

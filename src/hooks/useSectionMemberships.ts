@@ -342,11 +342,12 @@ export const useSectionMemberships = () => {
     try {
       console.log('Attempting to remove firm from explore section with membership ID:', membershipId);
       
-      const { error, count } = await supabase
+      const { error, data } = await supabase
         .from('explore_firms' as any)
         .delete()
         .eq('id', membershipId)
-        .select('*', { count: 'exact', head: true });
+        .select();
+      const count = data?.length ?? 0;
       
       console.log('Delete operation result:', { error, count });
       
@@ -442,11 +443,12 @@ export const useSectionMemberships = () => {
       
       for (const table of tables) {
         console.log(`Attempting to delete from ${table} with ID: ${membershipId}`);
-        const { error, count } = await supabase
+        const { error, data } = await supabase
           .from(table as any)
           .delete()
           .eq('id', membershipId)
-          .select('*', { count: 'exact', head: true });
+          .select();
+        const count = data?.length ?? 0;
           
         console.log(`Delete operation result for ${table}:`, { error, count });
         
