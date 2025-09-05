@@ -98,7 +98,7 @@ export const useSectionMemberships = () => {
       // Fetch top firms
       console.log('useSectionMemberships: Fetching top firms...');
       const { data: topData, error: topError } = await supabase
-        .from('top5_prop')
+        .from('top5_prop' as any)
         .select(`
           id,
           propfirm_id,
@@ -168,7 +168,7 @@ export const useSectionMemberships = () => {
 
       // Fetch table review firms
       const { data: tableData, error: tableError } = await supabase
-        .from('table_review_firms')
+        .from('table_review_firms' as any)
         .select(`
           id,
           firm_id,
@@ -382,26 +382,26 @@ export const useSectionMemberships = () => {
       switch (section) {
         case 'budget-firms':
           const { error: budgetError } = await supabase
-            .from('budget_prop')
-            .insert([{ propfirm_id: firmId }]);
+            .from('budget_prop' as any)
+            .insert([{ propfirm_id: firmId } as any]);
           error = budgetError;
           break;
           
         case 'top-firms':
           const { error: topError } = await supabase
-            .from('top5_prop')
-            .insert([{ propfirm_id: firmId }]);
+            .from('top5_prop' as any)
+            .insert([{ propfirm_id: firmId } as any]);
           error = topError;
           break;
           
         case 'table-review':
           const { error: tableError } = await supabase
-            .from('table_review_firms')
+            .from('table_review_firms' as any)
             .insert([{ 
               firm_id: firmId,
               is_approved: true,
               sort_priority: rank
-            }]);
+            } as any]);
           error = tableError;
           break;
           

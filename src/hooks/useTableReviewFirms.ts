@@ -14,7 +14,7 @@ export const useTableReviewFirms = () => {
         
         // Fetch approved firms for table review with their table-specific data
         const { data, error } = await supabase
-          .from('table_review_firms')
+          .from('table_review_firms' as any)
           .select(`
             sort_priority,
             prop_firms (

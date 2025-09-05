@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Star, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { sanitizeFormData } from '@/utils/sanitization';
 
 interface WriteReviewFormProps {
   firmId: string;
@@ -38,14 +39,19 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
     setIsSubmitting(true);
 
     try {
+      // Sanitize all user inputs to prevent XSS attacks
+      const sanitizedData = sanitizeFormData({
+        title: title.trim() || null,
+        content: content.trim(),
+        reviewer_name: reviewerName.trim() || 'Anonymous'
+      });
+
       const { error } = await supabase
         .from('reviews')
         .insert({
           firm_id: firmId,
           rating,
-          title: title.trim() || null,
-          content: content.trim(),
-          reviewer_name: reviewerName.trim() || 'Anonymous'
+          ...sanitizedData
         });
 
       if (error) throw error;

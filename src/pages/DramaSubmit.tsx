@@ -13,6 +13,7 @@ import { submitDramaReport } from "@/hooks/useDramaReports";
 import { DramaType, DramaSeverity } from "@/types/dramaReports";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { sanitizeFormData, sanitizeStringArray } from "@/utils/sanitization";
 
 const DramaSubmit = () => {
   const navigate = useNavigate();
@@ -88,15 +89,21 @@ const DramaSubmit = () => {
     setSubmitting(true);
 
     try {
+      // Sanitize all user inputs to prevent XSS attacks
       const filteredLinks = formData.source_links.filter(link => link.trim() !== '');
+      const sanitizedLinks = sanitizeStringArray(filteredLinks);
+      
+      const sanitizedData = sanitizeFormData({
+        firm_name: formData.firm_name,
+        description: formData.description,
+      });
       
       const result = await submitDramaReport({
-        firm_name: formData.firm_name,
+        ...sanitizedData,
         date_reported: formData.date_reported,
         drama_type: formData.drama_type,
-        description: formData.description,
         severity: formData.severity,
-        source_links: filteredLinks.length > 0 ? filteredLinks : undefined,
+        source_links: sanitizedLinks.length > 0 ? sanitizedLinks : undefined,
         submitted_by: user.id
       });
 

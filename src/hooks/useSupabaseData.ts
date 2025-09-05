@@ -21,7 +21,7 @@ export const usePropFirms = () => {
         throw error;
       }
       console.log('usePropFirms: Successfully fetched', data?.length || 0, 'prop firms');
-      setPropFirms(data || []);
+      setPropFirms(data as any || []);
       setError(null);
     } catch (err) {
       console.error('usePropFirms: Fetch error:', err);
@@ -58,7 +58,7 @@ export const useHomepagePropFirms = () => {
         throw error;
       }
       console.log('useHomepagePropFirms: Successfully fetched', data?.length || 0, 'homepage prop firms');
-      setPropFirms(data || []);
+      setPropFirms(data as any || []);
       setError(null);
     } catch (err) {
       console.error('useHomepagePropFirms: Fetch error:', err);
@@ -117,7 +117,7 @@ export const useTopRatedFirms = () => {
         throw error;
       }
       console.log('useTopRatedFirms: Successfully fetched', data?.length || 0, 'top rated firms');
-      setPropFirms(data || []);
+      setPropFirms(data as any || []);
       setError(null);
     } catch (err) {
       console.error('useTopRatedFirms: Fetch error:', err);

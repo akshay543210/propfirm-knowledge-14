@@ -28,7 +28,7 @@ const WriteReview = () => {
           .single();
 
         if (error) throw error;
-        setFirm(data);
+        setFirm(data as any);
       } catch (error) {
         console.error('Error fetching firm:', error);
         navigate('/reviews');
