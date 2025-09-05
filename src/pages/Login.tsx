@@ -28,11 +28,24 @@ const Login = () => {
       const { data, error } = await signIn(email, password);
       
       if (error) {
-        toast({ 
-          title: 'Login failed', 
-          description: error.message, 
-          variant: 'destructive' 
-        });
+        // Check if it's an email not confirmed error
+        if (error.message.includes('Email not confirmed')) {
+          toast({ 
+            title: 'Email not verified', 
+            description: 'Please check your email and click the confirmation link before logging in. Redirecting to signup page...', 
+            variant: 'destructive' 
+          });
+          // Redirect to signup page after a short delay
+          setTimeout(() => {
+            navigate('/signup');
+          }, 3000);
+        } else {
+          toast({ 
+            title: 'Login failed', 
+            description: error.message, 
+            variant: 'destructive' 
+          });
+        }
       } else if (data.user) {
         toast({ 
           title: 'Welcome back!', 

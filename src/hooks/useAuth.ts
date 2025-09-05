@@ -26,6 +26,7 @@ export const useAuth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -60,6 +61,9 @@ export const useAuth = () => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    // First check if the user's email is confirmed
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -78,7 +82,7 @@ export const useAuth = () => {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${window.location.origin}/verify`,
       },
     });
 

@@ -26,6 +26,9 @@ const AdminDashboard = React.lazy(() => import("./pages/AdminDashboard"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const Login = React.lazy(() => import("./pages/Login"));
 const Signup = React.lazy(() => import("./pages/Signup"));
+const EmailConfirmation = React.lazy(() => import("./pages/EmailConfirmation"));
+const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
 const TableReview = React.lazy(() => import("./pages/TableReview"));
 const ProtectedRoute = React.lazy(() => import("@/components/ProtectedRoute"));
 const AdminRoute = React.lazy(() => import("@/components/AdminRoute"));
@@ -69,6 +72,9 @@ const App = () => (
               {/* Public auth routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/verify" element={<EmailConfirmation />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Admin auth */}
               <Route path="/admin-login" element={<AdminLogin />} />
