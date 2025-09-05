@@ -206,14 +206,13 @@ const AnimationShowcase = () => {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: any = {
     hidden: { opacity: 0, y: 50 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.6,
-        ease: [0.16, 1, 0.3, 1],
       },
     },
   };
@@ -225,7 +224,7 @@ const AnimationShowcase = () => {
     >
       <div className="max-w-7xl mx-auto">
         <motion.div
-          variants={variants.fadeInUp}
+          variants={variants.fadeInUp as any}
           initial="hidden"
           animate={controls}
           className="text-center mb-16"
@@ -277,7 +276,7 @@ const AnimationShowcase = () => {
 
         {/* Interactive Demo Section */}
         <motion.div
-          variants={variants.fadeInUp}
+          variants={variants.fadeInUp as any}
           initial="hidden"
           animate={controls}
           className="mt-16 text-center"
@@ -288,7 +287,7 @@ const AnimationShowcase = () => {
 
         {/* Call to Action */}
         <motion.div
-          variants={variants.fadeInUp}
+          variants={variants.fadeInUp as any}
           initial="hidden"
           animate={controls}
           className="mt-16 text-center"
