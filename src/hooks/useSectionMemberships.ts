@@ -340,19 +340,35 @@ export const useSectionMemberships = () => {
 
   const removeFirmFromExplore = async (membershipId: string) => {
     try {
-      const { error } = await supabase
+      console.log('Attempting to remove firm from explore section with membership ID:', membershipId);
+      
+      const { error, count } = await supabase
         .from('explore_firms' as any)
         .delete()
-        .eq('id', membershipId);
+        .eq('id', membershipId)
+        .select('*', { count: 'exact', head: true });
       
-      if (error) throw error;
+      console.log('Delete operation result:', { error, count });
       
+      if (error) {
+        console.error('Error deleting from explore_firms:', error);
+        throw error;
+      }
+      
+      // Check if any rows were actually deleted
+      if (!count || count === 0) {
+        const errorMsg = `No matching firm found in explore section. Membership ID: ${membershipId}`;
+        console.warn(errorMsg);
+        throw new Error(errorMsg);
+      }
+      
+      console.log(`Successfully deleted ${count} rows from explore_firms`);
       await fetchMemberships();
       toast.success('Firm removed from explore section successfully');
       return { success: true };
     } catch (error: any) {
       console.error('Error removing firm from explore section:', error);
-      toast.error('Failed to remove firm from explore section');
+      toast.error(`Failed to remove firm from explore section: ${error.message}`);
       return { success: false, error: error.message };
     }
   };
@@ -416,25 +432,44 @@ export const useSectionMemberships = () => {
   const removeFirmFromSection = async (membershipId: string) => {
     try {
       setLoading(true);
+      console.log('Attempting to remove firm from section with membership ID:', membershipId);
       
       // Try to delete from each possible table
       const tables = ['budget_prop', 'top5_prop', 'table_review_firms'];
       let deleted = false;
+      let deletionCount = 0;
+      let errorTable = '';
       
       for (const table of tables) {
-        const { error } = await supabase
+        console.log(`Attempting to delete from ${table} with ID: ${membershipId}`);
+        const { error, count } = await supabase
           .from(table as any)
           .delete()
-          .eq('id', membershipId);
+          .eq('id', membershipId)
+          .select('*', { count: 'exact', head: true });
           
-        if (!error) {
+        console.log(`Delete operation result for ${table}:`, { error, count });
+        
+        if (error) {
+          console.error(`Error deleting from ${table}:`, error);
+          errorTable = table;
+          continue;
+        }
+        
+        if (count && count > 0) {
           deleted = true;
+          deletionCount = count;
+          console.log(`Successfully deleted ${count} rows from ${table}`);
           break;
+        } else {
+          console.log(`No rows deleted from ${table} (count: ${count})`);
         }
       }
       
       if (!deleted) {
-        throw new Error('Failed to remove firm from section');
+        const errorMsg = `Failed to remove firm from section - no matching record found in any table. Membership ID: ${membershipId}`;
+        console.warn(errorMsg);
+        throw new Error(errorMsg);
       }
       
       await fetchMemberships();
@@ -442,7 +477,7 @@ export const useSectionMemberships = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Error removing firm from section:', error);
-      toast.error('Failed to remove firm from section');
+      toast.error(`Failed to remove firm from section: ${error.message}`);
       return { success: false, error: error.message };
     } finally {
       setLoading(false);

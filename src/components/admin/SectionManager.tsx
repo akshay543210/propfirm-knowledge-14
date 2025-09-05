@@ -156,15 +156,15 @@ const SectionManager = memo(() => {
         </TabsList>
 
         <TabsContent value="all-firms">
-          <AllFirmsSection onAddPropFirm={() => {}} />
+          <AllFirmsSection onAddPropFirm={() => {}} onEditFirm={() => {}} />
         </TabsContent>
 
         <TabsContent value="cheap-firms">
-          <CheapFirmsSection />
+          <CheapFirmsSection propFirms={propFirms} />
         </TabsContent>
 
         <TabsContent value="top-firms">
-          <TopFirmsSection />
+          <TopFirmsSection propFirms={propFirms} />
         </TabsContent>
 
         <TabsContent value="explore-firms">
@@ -256,7 +256,7 @@ const SectionManager = memo(() => {
                             variant="outline"
                             size="sm"
                             className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                            onClick={() => removeFirmFromSection(firm.id)}
+                            onClick={() => removeFirmFromSection(firm.membership_id)}
                           >
                             <X className="h-4 w-4" />
                           </Button>

@@ -19,7 +19,7 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
     exploreFirms,
     loading: membershipsLoading, 
     addFirmToSection, 
-    removeFirmFromSection,
+    removeFirmFromExplore,
     refetch
   } = useSectionMemberships();
 
@@ -34,6 +34,14 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
       setSelectedFirmId("");
       setSelectedRank("1");
       refetch(); // Refresh to show the new membership
+    }
+  };
+
+  const handleRemoveFromSection = async (membershipId: string) => {
+    const result = await removeFirmFromExplore(membershipId);
+    if (result.success) {
+      refetch(); // Refresh to remove the firm from display
+      toast.success('Firm removed from explore section successfully');
     }
   };
 
@@ -139,7 +147,8 @@ const ExploreFirmsSection = ({ propFirms }: ExploreFirmsSectionProps) => {
                       variant="outline"
                       size="sm"
                       className="border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
-                      onClick={() => removeFirmFromSection(firm.membership_id)}
+                      onClick={() => handleRemoveFromSection(firm.membership_id)}
+                      disabled={membershipsLoading}
                     >
                       <X className="h-4 w-4" />
                     </Button>
