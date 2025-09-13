@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import AdminPanel from "../components/AdminPanel";
 import { useHomepagePropFirms } from "../hooks/useSupabaseData";
 import { PropFirm } from "../types/supabase";
+import { addTestReviews } from "../utils/addTestReviews";
 
 const Index = () => {
   const { propFirms, loading } = useHomepagePropFirms();
@@ -26,6 +27,21 @@ const Index = () => {
       setIsAdminMode(true);
     }
   }, []);
+
+  // Add test reviews on first load
+  useEffect(() => {
+    if (!loading && propFirms.length > 0) {
+      const hasAddedReviews = localStorage.getItem("hasAddedTestReviews");
+      if (!hasAddedReviews) {
+        addTestReviews().then(success => {
+          if (success) {
+            localStorage.setItem("hasAddedTestReviews", "true");
+            console.log('Test reviews added successfully');
+          }
+        });
+      }
+    }
+  }, [propFirms, loading]);
 
   // Save admin mode state to localStorage
   useEffect(() => {
