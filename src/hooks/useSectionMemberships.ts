@@ -24,65 +24,22 @@ export const useSectionMemberships = () => {
       
       console.log('useSectionMemberships: Starting to fetch memberships...');
       
-      // Fetch budget firms
+      // Fetch budget firms from section_memberships
       console.log('useSectionMemberships: Fetching budget firms...');
       const { data: budgetData, error: budgetError } = await supabase
-        .from('budget_prop')
+        .from('section_memberships')
         .select(`
           id,
-          propfirm_id,
-          created_at,
-          prop_firms (
-            id,
-            name,
-            slug,
-            category_id,
-            price,
-            original_price,
-            coupon_code,
-            review_score,
-            trust_rating,
-            description,
-            features,
-            logo_url,
-            profit_split,
-            payout_rate,
-            funding_amount,
-            user_review_count,
-            pros,
-            cons,
-            affiliate_url,
-            brand,
-            platform,
-            max_funding,
-            evaluation_model,
-            starting_fee,
-            regulation,
-            show_on_homepage,
-            table_price,
-            table_profit_split,
-            table_payout_rate,
-            table_platform,
-            table_trust_rating,
-            table_evaluation_rules,
-            table_fee,
-            table_coupon_code,
-            created_at,
-            updated_at
-          )
-        `);
+          firm_id,
+          rank,
+          prop_firms:firm_id (*)
+        `)
+        .eq('section_type', 'budget-firms')
+        .order('rank', { ascending: true });
 
       if (budgetError) {
         console.error('Budget firms fetch error:', budgetError);
-        // If we get a permission error, it's likely due to RLS policies
-        if (budgetError.code === '42501' || budgetError.message?.includes('permission denied') || budgetError.message?.includes('policy')) {
-          console.warn('🚨 Budget firms RLS policy issue detected. Using empty result for now.');
-          console.warn('💡 To fix: Run the SQL in EMERGENCY_FIX_RLS_POLICIES.sql in Supabase SQL Editor');
-          toast.error('❌ Budget firms data access restricted. Admin needs to fix RLS policies.');
-          setError('Budget firms access denied: Missing public read policy for budget_prop table');
-        } else {
-          setError(`Budget firms error: ${budgetError.message}`);
-        }
+        setError(`Budget firms error: ${budgetError.message}`);
       }
       
       const budgetFirms = budgetData
@@ -95,65 +52,22 @@ export const useSectionMemberships = () => {
       console.log('useSectionMemberships: Budget firms found:', budgetFirms.length);
       setBudgetFirms(budgetFirms);
 
-      // Fetch top firms
+      // Fetch top firms from section_memberships
       console.log('useSectionMemberships: Fetching top firms...');
       const { data: topData, error: topError } = await supabase
-        .from('top5_prop' as any)
+        .from('section_memberships')
         .select(`
           id,
-          propfirm_id,
-          created_at,
-          prop_firms (
-            id,
-            name,
-            slug,
-            category_id,
-            price,
-            original_price,
-            coupon_code,
-            review_score,
-            trust_rating,
-            description,
-            features,
-            logo_url,
-            profit_split,
-            payout_rate,
-            funding_amount,
-            user_review_count,
-            pros,
-            cons,
-            affiliate_url,
-            brand,
-            platform,
-            max_funding,
-            evaluation_model,
-            starting_fee,
-            regulation,
-            show_on_homepage,
-            table_price,
-            table_profit_split,
-            table_payout_rate,
-            table_platform,
-            table_trust_rating,
-            table_evaluation_rules,
-            table_fee,
-            table_coupon_code,
-            created_at,
-            updated_at
-          )
-        `);
+          firm_id,
+          rank,
+          prop_firms:firm_id (*)
+        `)
+        .eq('section_type', 'top-firms')
+        .order('rank', { ascending: true });
 
       if (topError) {
         console.error('Top firms fetch error:', topError);
-        // If we get a permission error, it's likely due to RLS policies
-        if (topError.code === '42501' || topError.message?.includes('permission denied') || topError.message?.includes('policy')) {
-          console.warn('🚨 Top firms RLS policy issue detected. Using empty result for now.');
-          console.warn('💡 To fix: Run the SQL in EMERGENCY_FIX_RLS_POLICIES.sql in Supabase SQL Editor');
-          toast.error('❌ Top firms data access restricted. Admin needs to fix RLS policies.');
-          setError('Top firms access denied: Missing public read policy for top5_prop table');
-        } else {
-          setError(`Top firms error: ${topError.message}`);
-        }
+        setError(`Top firms error: ${topError.message}`);
       }
       
       const topFirms = topData
@@ -166,121 +80,48 @@ export const useSectionMemberships = () => {
       console.log('useSectionMemberships: Top firms found:', topFirms.length);
       setTopFirms(topFirms);
 
-      // Fetch table review firms
+      // Fetch table review firms from section_memberships
       const { data: tableData, error: tableError } = await supabase
-        .from('table_review_firms' as any)
+        .from('section_memberships')
         .select(`
           id,
           firm_id,
-          is_approved,
-          sort_priority,
-          created_at,
-          updated_at,
-          prop_firms (
-            id,
-            name,
-            slug,
-            category_id,
-            price,
-            original_price,
-            coupon_code,
-            review_score,
-            trust_rating,
-            description,
-            features,
-            logo_url,
-            profit_split,
-            payout_rate,
-            funding_amount,
-            user_review_count,
-            pros,
-            cons,
-            affiliate_url,
-            brand,
-            platform,
-            max_funding,
-            evaluation_model,
-            starting_fee,
-            regulation,
-            show_on_homepage,
-            table_price,
-            table_profit_split,
-            table_payout_rate,
-            table_platform,
-            table_trust_rating,
-            table_evaluation_rules,
-            table_fee,
-            table_coupon_code,
-            created_at,
-            updated_at
-          )
+          rank,
+          prop_firms:firm_id (*)
         `)
-        .eq('is_approved', true)
-        .order('sort_priority', { ascending: true });
+        .eq('section_type', 'table-review')
+        .order('rank', { ascending: true });
 
       if (tableError) {
         console.error('Table review firms fetch error:', tableError);
+        setError(`Table review error: ${tableError.message}`);
       }
       
       const tableReviewFirms = tableData
         ?.map((item: any) => ({
           ...(item.prop_firms || {}),
           membership_id: item.id,
-          sort_priority: item.sort_priority
+          sort_priority: item.rank
         }))
         .filter((firm: any) => firm && firm.id) || [];
       
       setTableReviewFirms(tableReviewFirms);
       
-      // Fetch explore firms from the actual table
+      // Fetch explore firms from section_memberships
       const { data: exploreData, error: exploreError } = await supabase
-        .from('explore_firms' as any)
+        .from('section_memberships')
         .select(`
           id,
           firm_id,
-          created_at,
-          prop_firms (
-            id,
-            name,
-            slug,
-            category_id,
-            price,
-            original_price,
-            coupon_code,
-            review_score,
-            trust_rating,
-            description,
-            features,
-            logo_url,
-            profit_split,
-            payout_rate,
-            funding_amount,
-            user_review_count,
-            pros,
-            cons,
-            affiliate_url,
-            brand,
-            platform,
-            max_funding,
-            evaluation_model,
-            starting_fee,
-            regulation,
-            show_on_homepage,
-            table_price,
-            table_profit_split,
-            table_payout_rate,
-            table_platform,
-            table_trust_rating,
-            table_evaluation_rules,
-            table_fee,
-            table_coupon_code,
-            created_at,
-            updated_at
-          )
-        `);
+          rank,
+          prop_firms:firm_id (*)
+        `)
+        .eq('section_type', 'explore-firms')
+        .order('rank', { ascending: true });
       
       if (exploreError) {
         console.error('Explore firms fetch error:', exploreError);
+        setError(`Explore firms error: ${exploreError.message}`);
       }
       
       const exploreFirms = exploreData
@@ -318,9 +159,24 @@ export const useSectionMemberships = () => {
 
   const addFirmToExplore = async (firmId: string) => {
     try {
+      // Get the highest rank and add 1
+      const { data: maxRankData } = await supabase
+        .from('section_memberships')
+        .select('rank')
+        .eq('section_type', 'explore-firms')
+        .order('rank', { ascending: false })
+        .limit(1)
+        .single();
+      
+      const nextRank = (maxRankData?.rank || 0) + 1;
+      
       const { error } = await supabase
-        .from('explore_firms' as any)
-        .insert([{ firm_id: firmId }]);
+        .from('section_memberships')
+        .insert([{ 
+          section_type: 'explore-firms',
+          firm_id: firmId,
+          rank: nextRank
+        }]);
       
       if (error) throw error;
       
@@ -343,16 +199,17 @@ export const useSectionMemberships = () => {
       console.log('Attempting to remove firm from explore section with membership ID:', membershipId);
       
       const { error, data } = await supabase
-        .from('explore_firms' as any)
+        .from('section_memberships')
         .delete()
         .eq('id', membershipId)
+        .eq('section_type', 'explore-firms')
         .select();
       const count = data?.length ?? 0;
       
       console.log('Delete operation result:', { error, count });
       
       if (error) {
-        console.error('Error deleting from explore_firms:', error);
+        console.error('Error deleting from section_memberships:', error);
         throw error;
       }
       
@@ -363,7 +220,7 @@ export const useSectionMemberships = () => {
         throw new Error(errorMsg);
       }
       
-      console.log(`Successfully deleted ${count} rows from explore_firms`);
+      console.log(`Successfully deleted ${count} rows from section_memberships`);
       await fetchMemberships();
       toast.success('Firm removed from explore section successfully');
       return { success: true };
@@ -377,40 +234,39 @@ export const useSectionMemberships = () => {
   const addFirmToSection = async (section: string, firmId: string, rank: number = 1) => {
     try {
       setLoading(true);
-      let error;
       
-      switch (section) {
-        case 'budget-firms':
-          const { error: budgetError } = await supabase
-            .from('budget_prop' as any)
-            .insert([{ propfirm_id: firmId } as any]);
-          error = budgetError;
-          break;
-          
-        case 'top-firms':
-          const { error: topError } = await supabase
-            .from('top5_prop' as any)
-            .insert([{ propfirm_id: firmId } as any]);
-          error = topError;
-          break;
-          
-        case 'table-review':
-          const { error: tableError } = await supabase
-            .from('table_review_firms' as any)
-            .insert([{ 
-              firm_id: firmId,
-              is_approved: true,
-              sort_priority: rank
-            } as any]);
-          error = tableError;
-          break;
-          
-        case 'explore-firms':
-          return await addFirmToExplore(firmId);
-          
-        default:
-          throw new Error('Invalid section');
+      // Map section names to section_type values
+      const sectionTypeMap: Record<string, string> = {
+        'budget-firms': 'budget-firms',
+        'cheap-firms': 'budget-firms',
+        'top-firms': 'top-firms',
+        'table-review': 'table-review',
+        'explore-firms': 'explore-firms'
+      };
+      
+      const sectionType = sectionTypeMap[section];
+      if (!sectionType) {
+        throw new Error('Invalid section');
       }
+      
+      // Get the highest rank and add 1
+      const { data: maxRankData } = await supabase
+        .from('section_memberships')
+        .select('rank')
+        .eq('section_type', sectionType)
+        .order('rank', { ascending: false })
+        .limit(1)
+        .single();
+      
+      const nextRank = (maxRankData?.rank || 0) + 1;
+      
+      const { error } = await supabase
+        .from('section_memberships')
+        .insert([{ 
+          section_type: sectionType,
+          firm_id: firmId,
+          rank: rank || nextRank
+        }]);
 
       if (error) throw error;
       
@@ -435,45 +291,27 @@ export const useSectionMemberships = () => {
       setLoading(true);
       console.log('Attempting to remove firm from section with membership ID:', membershipId);
       
-      // Try to delete from each possible table
-      const tables = ['budget_prop', 'top5_prop', 'table_review_firms'];
-      let deleted = false;
-      let deletionCount = 0;
-      let errorTable = '';
+      const { error, data } = await supabase
+        .from('section_memberships')
+        .delete()
+        .eq('id', membershipId)
+        .select();
+      const count = data?.length ?? 0;
+        
+      console.log('Delete operation result:', { error, count });
       
-      for (const table of tables) {
-        console.log(`Attempting to delete from ${table} with ID: ${membershipId}`);
-        const { error, data } = await supabase
-          .from(table as any)
-          .delete()
-          .eq('id', membershipId)
-          .select();
-        const count = data?.length ?? 0;
-          
-        console.log(`Delete operation result for ${table}:`, { error, count });
-        
-        if (error) {
-          console.error(`Error deleting from ${table}:`, error);
-          errorTable = table;
-          continue;
-        }
-        
-        if (count && count > 0) {
-          deleted = true;
-          deletionCount = count;
-          console.log(`Successfully deleted ${count} rows from ${table}`);
-          break;
-        } else {
-          console.log(`No rows deleted from ${table} (count: ${count})`);
-        }
+      if (error) {
+        console.error('Error deleting from section_memberships:', error);
+        throw error;
       }
       
-      if (!deleted) {
-        const errorMsg = `Failed to remove firm from section - no matching record found in any table. Membership ID: ${membershipId}`;
+      if (!count || count === 0) {
+        const errorMsg = `No matching record found. Membership ID: ${membershipId}`;
         console.warn(errorMsg);
         throw new Error(errorMsg);
       }
       
+      console.log(`Successfully deleted ${count} rows from section_memberships`);
       await fetchMemberships();
       toast.success('Firm removed from section successfully');
       return { success: true };

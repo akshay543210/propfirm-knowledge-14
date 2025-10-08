@@ -12,12 +12,14 @@ export const useTableReviewFirms = () => {
       try {
         setLoading(true);
         
-        // Fetch approved firms for table review with their table-specific data
+        // Fetch firms from section_memberships table
         const { data, error } = await supabase
-          .from('table_review_firms' as any)
+          .from('section_memberships')
           .select(`
-            sort_priority,
-            prop_firms (
+            id,
+            firm_id,
+            rank,
+            prop_firms:firm_id (
               id,
               name,
               slug,
@@ -44,30 +46,22 @@ export const useTableReviewFirms = () => {
               starting_fee,
               regulation,
               show_on_homepage,
-              table_price,
-              table_profit_split,
-              table_payout_rate,
-              table_platform,
-              table_trust_rating,
-              table_evaluation_rules,
-              table_fee,
-              table_coupon_code,
               created_at,
               updated_at
             )
           `)
-          .eq('is_approved', true)
-          .order('sort_priority', { ascending: true });
+          .eq('section_type', 'table-review')
+          .order('rank', { ascending: true });
 
         if (error) throw error;
         
-        // Extract the prop_firms data from the table_review_firms result
+        // Extract the prop_firms data from the section_memberships result
         const firms = data
           .map((item: any) => ({
             ...item.prop_firms,
-            sort_priority: item.sort_priority
+            sort_priority: item.rank
           }))
-          .filter((firm: any) => firm !== null);
+          .filter((firm: any) => firm !== null && firm.id);
         
         setFirms(firms);
         setError(null);
