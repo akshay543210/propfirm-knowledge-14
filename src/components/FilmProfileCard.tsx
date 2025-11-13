@@ -9,6 +9,7 @@ interface FilmProfile {
   rating: number;
   category: 'Beginner' | 'Intermediate' | 'Pro';
   image?: string;
+  logo_url?: string;
   description?: string;
 }
 
@@ -45,9 +46,21 @@ const FilmProfileCard = ({ profile, index }: FilmProfileCardProps) => {
   return (
     <Card className="bg-slate-800/50 border-blue-500/20 hover:border-blue-400/40 transition-all duration-300 hover:scale-105 animate-fade-in">
       <CardContent className="p-6">
-        {/* Profile Image Placeholder */}
-        <div className="w-full h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg mb-4 flex items-center justify-center">
-          <div className="text-6xl text-blue-400/60">🎬</div>
+        {/* Profile Image */}
+        <div className="w-full h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+          {profile.logo_url || profile.image ? (
+            <img 
+              src={profile.logo_url || profile.image} 
+              alt={profile.name}
+              className="w-full h-full object-contain p-4"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = '<div class="text-6xl text-blue-400/60">🎬</div>';
+              }}
+            />
+          ) : (
+            <div className="text-6xl text-blue-400/60">🎬</div>
+          )}
         </div>
 
         {/* Profile Name */}
