@@ -123,12 +123,28 @@ const Reviews = () => {
           {filteredFirms.map((firm, index) => (
             <Card key={firm.id} className="bg-slate-800/50 border-blue-500/20 hover:border-blue-400/40 transition-all duration-300">
               <CardHeader>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
-                  <Badge className={`${getBadgeColor(index)} border text-xs`}>
-                    {getBadgeText(index)}
-                  </Badge>
-                </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-700/60 flex items-center justify-center">
+                      {firm.logo_url ? (
+                        <img
+                          src={firm.logo_url}
+                          alt={`${firm.name} logo`}
+                          className="w-full h-full object-contain"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) parent.innerHTML = '<div class="w-10 h-10 rounded-lg bg-slate-600"></div>';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-slate-600" />
+                      )}
+                    </div>
+                    <Badge className={`${getBadgeColor(index)} border text-xs`}>
+                      {getBadgeText(index)}
+                    </Badge>
+                  </div>
                 
                 <h3 className="text-xl font-bold text-white mb-2">{firm.name}</h3>
                 

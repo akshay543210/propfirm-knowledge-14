@@ -316,8 +316,24 @@ const TableReview = () => {
                   <tr key={firm.id} className="border-t border-slate-700 hover:bg-slate-700/50">
                     <td className="p-4 text-white font-medium">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
-                          {firm.name.charAt(0)}
+                        <div className="w-10 h-10 rounded-lg mr-3 overflow-hidden bg-slate-700/60 flex items-center justify-center">
+                          {firm.logo_url ? (
+                            <img
+                              src={(firm as any).logo_url}
+                              alt={`${firm.name} logo`}
+                              className="w-full h-full object-contain"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const p = e.currentTarget.parentElement;
+                                if (p) p.innerHTML = `<div class='w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center'>${firm.name.charAt(0)}</div>`;
+                              }}
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center">
+                              {firm.name.charAt(0)}
+                            </div>
+                          )}
                         </div>
                         <div>
                           <div>{firm.name}</div>
