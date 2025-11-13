@@ -492,14 +492,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      ensure_admin_access: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      ensure_admin_access: { Args: never; Returns: undefined }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       drama_severity: "Low" | "Medium" | "High" | "Scam Alert"
