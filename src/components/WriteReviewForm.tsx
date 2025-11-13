@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Star, X } from 'lucide-react';
+import { Star, X, Upload, ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeFormData } from '@/utils/sanitization';
@@ -21,8 +21,38 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [reviewerName, setReviewerName] = useState('');
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + images.length > 5) {
+      toast({
+        title: "Error",
+        description: "You can upload a maximum of 5 images.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setImages(prev => [...prev, ...files]);
+    
+    // Create preview URLs
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +69,30 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
     setIsSubmitting(true);
 
     try {
+      // Upload images first if any
+      const imageUrls: string[] = [];
+      
+      if (images.length > 0) {
+        for (const image of images) {
+          const fileExt = image.name.split('.').pop();
+          const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+          const filePath = `${firmId}/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('review-images')
+            .upload(filePath, image);
+
+          if (uploadError) throw uploadError;
+
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('review-images')
+            .getPublicUrl(filePath);
+
+          imageUrls.push(publicUrl);
+        }
+      }
+
       // Sanitize all user inputs to prevent XSS attacks
       const sanitizedData = sanitizeFormData({
         title: title.trim() || null,
@@ -51,6 +105,7 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
         .insert({
           firm_id: firmId,
           rating,
+          images: imageUrls,
           ...sanitizedData
         });
 
@@ -67,6 +122,8 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
       setTitle('');
       setContent('');
       setReviewerName('');
+      setImages([]);
+      setImagePreviews([]);
       
       onClose();
     } catch (error) {
@@ -158,6 +215,48 @@ const WriteReviewForm = ({ firmId, firmName, onClose }: WriteReviewFormProps) =>
               rows={4}
               className="bg-slate-600 border-slate-500 text-white"
             />
+          </div>
+
+          {/* Image Upload */}
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-2">
+              Add Images (optional, max 5)
+            </label>
+            <div className="space-y-3">
+              <label className="flex items-center justify-center gap-2 cursor-pointer bg-slate-600 border-2 border-dashed border-slate-500 rounded-lg p-4 hover:bg-slate-500 transition-colors">
+                <Upload className="h-5 w-5 text-gray-400" />
+                <span className="text-gray-400">Click to upload images</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageChange}
+                  className="hidden"
+                  disabled={images.length >= 5}
+                />
+              </label>
+              
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3 text-white" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Submit Button */}

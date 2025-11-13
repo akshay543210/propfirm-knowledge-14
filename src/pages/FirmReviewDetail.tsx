@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, ArrowLeft, User, Calendar, Camera } from "lucide-react";
+import { Star, ArrowLeft, User, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PropFirm, Review } from "@/types/supabase";
 import Navbar from "@/components/Navbar";
@@ -212,11 +212,20 @@ const FirmReviewDetail = () => {
                     
                     <p className="text-gray-300 mb-4">{review.content}</p>
                     
-                    {/* Review Images Placeholder */}
-                    <div className="flex gap-2 text-gray-400 text-sm">
-                      <Camera className="h-4 w-4" />
-                      <span>Images support coming soon</span>
-                    </div>
+                    {/* Review Images */}
+                    {review.images && review.images.length > 0 && (
+                      <div className="flex gap-2 flex-wrap mt-4">
+                        {review.images.map((imageUrl, idx) => (
+                          <img
+                            key={idx}
+                            src={imageUrl}
+                            alt={`Review image ${idx + 1}`}
+                            className="w-32 h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => window.open(imageUrl, '_blank')}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

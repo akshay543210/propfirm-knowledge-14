@@ -46,6 +46,7 @@ export interface Review {
   rating: number;
   title: string | null;
   content: string;
+  images: string[] | null;
   is_verified: boolean | null;
   helpful_count: number | null;
   created_at: string | null;
