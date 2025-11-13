@@ -145,7 +145,18 @@ export const useReviews = (firmId?: string) => {
         let query = supabase
           .from('reviews')
           .select(`
-            *,
+            id,
+            firm_id,
+            user_id,
+            reviewer_name,
+            rating,
+            title,
+            content,
+            images,
+            is_verified,
+            helpful_count,
+            created_at,
+            updated_at,
             prop_firms:firm_id (
               id,
               name,

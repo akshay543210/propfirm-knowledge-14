@@ -406,6 +406,7 @@ export type Database = {
           firm_id: string | null
           helpful_count: number | null
           id: string
+          images: string[] | null
           is_verified: boolean | null
           rating: number
           reviewer_name: string | null
@@ -419,6 +420,7 @@ export type Database = {
           firm_id?: string | null
           helpful_count?: number | null
           id?: string
+          images?: string[] | null
           is_verified?: boolean | null
           rating: number
           reviewer_name?: string | null
@@ -432,6 +434,7 @@ export type Database = {
           firm_id?: string | null
           helpful_count?: number | null
           id?: string
+          images?: string[] | null
           is_verified?: boolean | null
           rating?: number
           reviewer_name?: string | null
@@ -442,6 +445,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reviews_firm_id_fkey"
+            columns: ["firm_id"]
+            isOneToOne: false
+            referencedRelation: "prop_firms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      section_memberships: {
+        Row: {
+          created_at: string | null
+          firm_id: string | null
+          id: string
+          rank: number | null
+          section_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          firm_id?: string | null
+          id?: string
+          rank?: number | null
+          section_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          firm_id?: string | null
+          id?: string
+          rank?: number | null
+          section_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "section_memberships_firm_id_fkey"
             columns: ["firm_id"]
             isOneToOne: false
             referencedRelation: "prop_firms"
