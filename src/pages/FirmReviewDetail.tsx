@@ -128,7 +128,21 @@ const FirmReviewDetail = () => {
         <Card className="bg-slate-800/50 border-blue-500/20 mb-8">
           <CardHeader>
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-700/60 flex items-center justify-center">
+                {firm.logo_url ? (
+                  <img
+                    src={firm.logo_url}
+                    alt={`${firm.name} logo`}
+                    className="w-full h-full object-contain"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-slate-600" />
+                )}
+              </div>
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-white mb-2">{firm.name}</h1>
                 <div className="flex items-center gap-4">
