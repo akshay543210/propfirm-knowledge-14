@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -10,6 +9,25 @@ import { useReviews, usePropFirms } from "@/hooks/useSupabaseData";
 import WriteReviewForm from "@/components/WriteReviewForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+// Safe fallback component for firm logos
+const FirmLogo = ({ logoUrl, name }: { logoUrl?: string | null; name: string }) => {
+  const [hasError, setHasError] = useState(false);
+  
+  if (!logoUrl || hasError) {
+    return <div className="w-10 h-10 rounded-lg bg-slate-600" />;
+  }
+  
+  return (
+    <img
+      src={logoUrl}
+      alt={`${name} logo`}
+      className="w-full h-full object-contain"
+      loading="lazy"
+      onError={() => setHasError(true)}
+    />
+  );
+};
 
 const Reviews = () => {
   const { reviews, loading, error } = useReviews();
@@ -125,21 +143,7 @@ const Reviews = () => {
               <CardHeader>
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-700/60 flex items-center justify-center">
-                      {firm.logo_url ? (
-                        <img
-                          src={firm.logo_url}
-                          alt={`${firm.name} logo`}
-                          className="w-full h-full object-contain"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            const parent = e.currentTarget.parentElement;
-                            if (parent) parent.innerHTML = '<div class="w-10 h-10 rounded-lg bg-slate-600"></div>';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-600" />
-                      )}
+                      <FirmLogo logoUrl={firm.logo_url} name={firm.name} />
                     </div>
                     <Badge className={`${getBadgeColor(index)} border text-xs`}>
                       {getBadgeText(index)}

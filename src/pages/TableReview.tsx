@@ -10,6 +10,29 @@ import Footer from "@/components/Footer";
 import { PropFirm } from "@/types/supabase";
 import { toast } from "sonner";
 
+// Safe fallback component for firm logos - prevents XSS via innerHTML
+const TableFirmLogo = ({ logoUrl, name }: { logoUrl?: string | null; name: string }) => {
+  const [hasError, setHasError] = useState(false);
+  
+  if (!logoUrl || hasError) {
+    return (
+      <div className="w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center text-white">
+        {name.charAt(0)}
+      </div>
+    );
+  }
+  
+  return (
+    <img
+      src={logoUrl}
+      alt={`${name} logo`}
+      className="w-full h-full object-contain"
+      loading="lazy"
+      onError={() => setHasError(true)}
+    />
+  );
+};
+
 const TableReview = () => {
   const { tableReviewFirms, loading, error, refetch, hasInitialized } = useSectionMemberships();
   const [isAdminMode, setIsAdminMode] = useState(false);
@@ -317,23 +340,7 @@ const TableReview = () => {
                     <td className="p-4 text-white font-medium">
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-lg mr-3 overflow-hidden bg-slate-700/60 flex items-center justify-center">
-                          {firm.logo_url ? (
-                            <img
-                              src={(firm as any).logo_url}
-                              alt={`${firm.name} logo`}
-                              className="w-full h-full object-contain"
-                              loading="lazy"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                const p = e.currentTarget.parentElement;
-                                if (p) p.innerHTML = `<div class='w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center'>${firm.name.charAt(0)}</div>`;
-                              }}
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center">
-                              {firm.name.charAt(0)}
-                            </div>
-                          )}
+                          <TableFirmLogo logoUrl={firm.logo_url} name={firm.name} />
                         </div>
                         <div>
                           <div>{firm.name}</div>
