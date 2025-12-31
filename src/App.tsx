@@ -6,9 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PayoutSupportBanner from "@/components/PayoutSupportBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { Loader2 } from "lucide-react";
+import TradingLoader from "@/components/TradingLoader";
 
-// Lazy load components
+// Lazy load components for better performance
 const Index = React.lazy(() => import("./pages/Index"));
 const AllPropFirms = React.lazy(() => import("./pages/AllPropFirms"));
 const Comparison = React.lazy(() => import("./pages/Comparison"));
@@ -33,17 +33,17 @@ const TableReview = React.lazy(() => import("./pages/TableReview"));
 const ProtectedRoute = React.lazy(() => import("@/components/ProtectedRoute"));
 const AdminRoute = React.lazy(() => import("@/components/AdminRoute"));
 
-// Loading component
-const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
-    <div className="text-center">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-400 mx-auto mb-4" />
-      <div className="text-white text-lg">Loading...</div>
-    </div>
-  </div>
-);
-
-const queryClient = new QueryClient();
+// QueryClient with optimized settings for faster loading
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>
@@ -53,7 +53,7 @@ const App = () => (
         <Sonner />
         <PayoutSupportBanner />
         <BrowserRouter>
-          <Suspense fallback={<LoadingSpinner />}>
+          <Suspense fallback={<TradingLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/propfirms" element={<AllPropFirms />} />
