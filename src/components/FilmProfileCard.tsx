@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
@@ -19,6 +19,8 @@ interface FilmProfileCardProps {
 }
 
 const FilmProfileCard = ({ profile, index }: FilmProfileCardProps) => {
+  const [imageError, setImageError] = useState(false);
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
@@ -48,15 +50,12 @@ const FilmProfileCard = ({ profile, index }: FilmProfileCardProps) => {
       <CardContent className="p-6">
         {/* Profile Image */}
         <div className="w-full h-48 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-          {profile.logo_url || profile.image ? (
+          {(profile.logo_url || profile.image) && !imageError ? (
             <img 
               src={profile.logo_url || profile.image} 
               alt={profile.name}
               className="w-full h-full object-contain p-4"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<div class="text-6xl text-blue-400/60">🎬</div>';
-              }}
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="text-6xl text-blue-400/60">🎬</div>
