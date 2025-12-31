@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { LogOut, Shield, AlertCircle } from "lucide-react";
+import { LogOut, Shield, AlertCircle, Home } from "lucide-react";
 import AdminPanel from "../components/AdminPanel";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -83,14 +83,24 @@ const AdminDashboard = () => {
                   <p className="text-gray-400">Manage PropFirmHub content and settings</p>
                 </div>
               </div>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="border-red-400 text-red-400 hover:bg-red-400 hover:text-slate-900"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => navigate("/")}
+                  variant="outline"
+                  className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900"
+                >
+                  <Home className="h-4 w-4 mr-2" />
+                  Exit to Website
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="border-red-400 text-red-400 hover:bg-red-400 hover:text-slate-900"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </CardHeader>
         </Card>
