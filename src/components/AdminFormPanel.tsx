@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropFirm } from "../types/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { useCategories } from "../hooks/useCategories";
-import { Loader2, AlertCircle, Save, Plus, Check } from "lucide-react";
+import { Loader2, AlertCircle, Save, Plus } from "lucide-react";
 import { validateAdminForm } from "../utils/formValidation";
 import BasicInfoFields from "./admin/BasicInfoFields";
 import PricingFields from "./admin/PricingFields";
@@ -12,6 +12,8 @@ import RatingFields from "./admin/RatingFields";
 import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
 import HomepageToggleField from "./admin/HomepageToggleField";
+import MarketTypeField from "./admin/MarketTypeField";
+import { MarketType } from "@/contexts/MarketContext";
 
 interface AdminFormPanelProps {
   onAdd: (firm: Partial<PropFirm>) => Promise<any>;
@@ -51,6 +53,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     starting_fee: 0,
     regulation: '',
     show_on_homepage: false,
+    market_type: ['forex'] as MarketType[],
     table_price: null as number | null,
     table_profit_split: null as number | null,
     table_payout_rate: null as number | null,
@@ -90,6 +93,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       starting_fee: 0,
       regulation: '',
       show_on_homepage: false,
+      market_type: ['forex'] as MarketType[],
       table_price: null,
       table_profit_split: null,
       table_payout_rate: null,
@@ -181,6 +185,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       starting_fee: firm.starting_fee || 0,
       regulation: firm.regulation || '',
       show_on_homepage: firm.show_on_homepage ?? false,
+      market_type: firm.market_type || ['forex'],
       table_price: firm.table_price || null,
       table_profit_split: firm.table_profit_split || null,
       table_payout_rate: firm.table_payout_rate || null,
@@ -258,6 +263,12 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           />
 
           <HomepageToggleField
+            formData={formData}
+            setFormData={setFormData}
+            loading={loading}
+          />
+
+          <MarketTypeField
             formData={formData}
             setFormData={setFormData}
             loading={loading}

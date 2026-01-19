@@ -1,19 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PropFirm, Review } from '@/types/supabase';
+import { useMarket, MarketType } from '@/contexts/MarketContext';
+
+// Helper function to filter firms by market on client side (for joined queries)
+const filterByMarket = (firms: PropFirm[], market: MarketType): PropFirm[] => {
+  return firms.filter(firm => {
+    const marketTypes = firm.market_type || ['forex'];
+    return marketTypes.includes(market);
+  });
+};
 
 export const usePropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { market } = useMarket();
 
   const fetchPropFirms = useCallback(async () => {
     try {
-      console.log('usePropFirms: Starting to fetch prop firms...');
+      console.log('usePropFirms: Starting to fetch prop firms for market:', market);
       setLoading(true);
       const { data, error } = await supabase
         .from('prop_firms')
         .select('*')
+        .contains('market_type', [market])
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -25,6 +36,42 @@ export const usePropFirms = () => {
       setError(null);
     } catch (err) {
       console.error('usePropFirms: Fetch error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, [market]);
+
+  useEffect(() => {
+    fetchPropFirms();
+  }, [fetchPropFirms]);
+
+  return { propFirms, loading, error, refetch: fetchPropFirms };
+};
+
+export const useAllPropFirms = () => {
+  const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPropFirms = useCallback(async () => {
+    try {
+      console.log('useAllPropFirms: Starting to fetch all prop firms (no market filter)...');
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('prop_firms')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('useAllPropFirms: Database error:', error);
+        throw error;
+      }
+      console.log('useAllPropFirms: Successfully fetched', data?.length || 0, 'prop firms');
+      setPropFirms(data as any || []);
+      setError(null);
+    } catch (err) {
+      console.error('useAllPropFirms: Fetch error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -42,15 +89,17 @@ export const useHomepagePropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { market } = useMarket();
 
   const fetchHomepagePropFirms = useCallback(async () => {
     try {
-      console.log('useHomepagePropFirms: Starting to fetch homepage prop firms...');
+      console.log('useHomepagePropFirms: Starting to fetch homepage prop firms for market:', market);
       setLoading(true);
       const { data, error } = await supabase
         .from('prop_firms')
         .select('*')
         .eq('show_on_homepage', true)
+        .contains('market_type', [market])
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -66,7 +115,7 @@ export const useHomepagePropFirms = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [market]);
 
   useEffect(() => {
     fetchHomepagePropFirms();
@@ -101,14 +150,16 @@ export const useTopRatedFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { market } = useMarket();
 
   const fetchTopRatedFirms = useCallback(async () => {
     try {
-      console.log('useTopRatedFirms: Starting to fetch top rated firms...');
+      console.log('useTopRatedFirms: Starting to fetch top rated firms for market:', market);
       setLoading(true);
       const { data, error } = await supabase
         .from('prop_firms')
         .select('*')
+        .contains('market_type', [market])
         .order('review_score', { ascending: false })
         .limit(10);
 
@@ -125,7 +176,7 @@ export const useTopRatedFirms = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [market]);
 
   useEffect(() => {
     fetchTopRatedFirms();
@@ -138,6 +189,7 @@ export const useReviews = (firmId?: string) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { market } = useMarket();
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -157,12 +209,14 @@ export const useReviews = (firmId?: string) => {
             helpful_count,
             created_at,
             updated_at,
+            market_type,
             prop_firms:firm_id (
               id,
               name,
               slug
             )
           `)
+          .eq('market_type', market)
           .order('created_at', { ascending: false });
 
         if (firmId) {
@@ -172,7 +226,7 @@ export const useReviews = (firmId?: string) => {
         const { data, error } = await query;
 
         if (error) throw error;
-        setReviews(data || []);
+        setReviews(data as any || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -181,7 +235,10 @@ export const useReviews = (firmId?: string) => {
     };
 
     fetchReviews();
-  }, [firmId]);
+  }, [firmId, market]);
 
   return { reviews, loading, error };
 };
+
+// Export the helper for use in other components
+export { filterByMarket };

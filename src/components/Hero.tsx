@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
+import MarketToggle from "./MarketToggle";
 import { PropFirm } from "../types/supabase";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "./ui/button";
@@ -162,7 +163,7 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
         
         {/* Subheading text with premium typography */}
         <motion.div 
-          className="mb-12 max-w-2xl mx-auto"
+          className="mb-8 max-w-2xl mx-auto"
           variants={itemVariants}
         >
           <p className="text-xl md:text-2xl text-slate-300 leading-relaxed font-light">
@@ -170,6 +171,14 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
             and discover the best funding opportunities for your trading
             journey.
           </p>
+        </motion.div>
+
+        {/* Market Toggle */}
+        <motion.div 
+          className="mb-12 flex justify-center"
+          variants={itemVariants}
+        >
+          <MarketToggle size="lg" />
         </motion.div>
 
         {/* Search bar */}

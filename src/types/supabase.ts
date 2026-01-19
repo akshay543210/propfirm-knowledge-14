@@ -1,3 +1,5 @@
+import { MarketType } from '@/contexts/MarketContext';
+
 export interface PropFirm {
   id: string;
   name: string;
@@ -27,6 +29,8 @@ export interface PropFirm {
   show_on_homepage: boolean;
   created_at: string | null;
   updated_at: string | null;
+  // Market type (defaults to forex if not set)
+  market_type?: MarketType[];
   // Table review fields
   table_price: number | null;
   table_profit_split: number | null;
@@ -51,6 +55,7 @@ export interface Review {
   helpful_count: number | null;
   created_at: string | null;
   updated_at: string | null;
+  market_type: string | null;
   prop_firms?: {
     id: string;
     name: string;
