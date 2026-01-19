@@ -2,11 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PropFirm } from '@/types/supabase';
+import { useMarket, MarketType } from '@/contexts/MarketContext';
 
 interface SectionFirm extends PropFirm {
   membership_id: string;
   sort_priority?: number;
 }
+
+// Helper function to filter firms by market
+const filterByMarket = (firms: SectionFirm[], market: MarketType): SectionFirm[] => {
+  return firms.filter(firm => {
+    const marketTypes = firm.market_type || ['forex'];
+    return marketTypes.includes(market);
+  });
+};
 
 export const useSectionMemberships = () => {
   const [budgetFirms, setBudgetFirms] = useState<SectionFirm[]>([]);
@@ -366,11 +375,25 @@ export const useSectionMemberships = () => {
     }
   }, [fetchMemberships, hasInitialized]);
 
+  // Get market from context
+  const { market } = useMarket();
+  
+  // Filter firms by current market
+  const filteredBudgetFirms = filterByMarket(budgetFirms, market);
+  const filteredTopFirms = filterByMarket(topFirms, market);
+  const filteredTableReviewFirms = filterByMarket(tableReviewFirms, market);
+  const filteredExploreFirms = filterByMarket(exploreFirms, market);
+
   return {
-    budgetFirms,
-    topFirms,
-    tableReviewFirms,
-    exploreFirms,
+    budgetFirms: filteredBudgetFirms,
+    topFirms: filteredTopFirms,
+    tableReviewFirms: filteredTableReviewFirms,
+    exploreFirms: filteredExploreFirms,
+    // Also expose unfiltered data for admin panel
+    allBudgetFirms: budgetFirms,
+    allTopFirms: topFirms,
+    allTableReviewFirms: tableReviewFirms,
+    allExploreFirms: exploreFirms,
     loading,
     error,
     hasInitialized,

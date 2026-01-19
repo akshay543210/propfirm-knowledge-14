@@ -114,6 +114,7 @@ export type Database = {
           drama_type: string
           firm_name: string
           id: string
+          market_type: string | null
           severity: string
           source_links: string[] | null
           status: string | null
@@ -128,6 +129,7 @@ export type Database = {
           drama_type: string
           firm_name: string
           id?: string
+          market_type?: string | null
           severity: string
           source_links?: string[] | null
           status?: string | null
@@ -142,6 +144,7 @@ export type Database = {
           drama_type?: string
           firm_name?: string
           id?: string
+          market_type?: string | null
           severity?: string
           source_links?: string[] | null
           status?: string | null
@@ -288,6 +291,7 @@ export type Database = {
           funding_amount: string
           id: string
           logo_url: string | null
+          market_type: string[] | null
           max_funding: string | null
           name: string
           original_price: number
@@ -326,6 +330,7 @@ export type Database = {
           funding_amount: string
           id?: string
           logo_url?: string | null
+          market_type?: string[] | null
           max_funding?: string | null
           name: string
           original_price: number
@@ -364,6 +369,7 @@ export type Database = {
           funding_amount?: string
           id?: string
           logo_url?: string | null
+          market_type?: string[] | null
           max_funding?: string | null
           name?: string
           original_price?: number
@@ -408,6 +414,7 @@ export type Database = {
           id: string
           images: string[] | null
           is_verified: boolean | null
+          market_type: string | null
           rating: number
           reviewer_name: string | null
           title: string | null
@@ -422,6 +429,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_verified?: boolean | null
+          market_type?: string | null
           rating: number
           reviewer_name?: string | null
           title?: string | null
@@ -436,6 +444,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_verified?: boolean | null
+          market_type?: string | null
           rating?: number
           reviewer_name?: string | null
           title?: string | null

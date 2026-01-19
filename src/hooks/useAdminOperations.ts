@@ -43,6 +43,7 @@ export const useAdminOperations = () => {
         starting_fee: firmData.starting_fee || 0,
         regulation: firmData.regulation || null,
         show_on_homepage: firmData.show_on_homepage || false,
+        market_type: firmData.market_type || ['forex'],
         table_price: firmData.table_price || null,
         table_profit_split: firmData.table_profit_split || null,
         table_payout_rate: firmData.table_payout_rate || null,
