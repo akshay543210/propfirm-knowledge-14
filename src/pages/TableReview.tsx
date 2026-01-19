@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Grid, Table as TableIcon, ChevronUp, ChevronDown, Minus, RefreshCw, AlertCircle, ExternalLink, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Grid, Table as TableIcon, ChevronUp, ChevronDown, Minus, RefreshCw, AlertCircle, ShoppingCart } from "lucide-react";
 import { useSectionMemberships } from "@/hooks/useSectionMemberships";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -83,32 +83,33 @@ const TableReview = () => {
     // Apply sorting
     if (sortConfig !== null) {
       result.sort((a, b) => {
-        let aValue, bValue;
+        let aValue: string | number | null | undefined;
+        let bValue: string | number | null | undefined;
         
         switch (sortConfig.key) {
           case "price":
-            aValue = (a as any).table_fee ?? a.price;
-            bValue = (b as any).table_fee ?? b.price;
+            aValue = a.table_fee ?? a.price;
+            bValue = b.table_fee ?? b.price;
             break;
           case "profitSplit":
-            aValue = (a as any).table_profit_split ?? a.profit_split;
-            bValue = (b as any).table_profit_split ?? b.profit_split;
+            aValue = a.table_profit_split ?? a.profit_split;
+            bValue = b.table_profit_split ?? b.profit_split;
             break;
           case "payoutRate":
-            aValue = (a as any).table_payout_rate ?? a.payout_rate;
-            bValue = (b as any).table_payout_rate ?? b.payout_rate;
+            aValue = a.table_payout_rate ?? a.payout_rate;
+            bValue = b.table_payout_rate ?? b.payout_rate;
             break;
           case "trustRating":
-            aValue = (a as any).table_trust_rating ?? a.trust_rating;
-            bValue = (b as any).table_trust_rating ?? b.trust_rating;
+            aValue = a.table_trust_rating ?? a.trust_rating;
+            bValue = b.table_trust_rating ?? b.trust_rating;
             break;
           case "name":
             aValue = a.name.toLowerCase();
             bValue = b.name.toLowerCase();
             break;
           default:
-            aValue = (a as any)[sortConfig.key];
-            bValue = (b as any)[sortConfig.key];
+            aValue = a[sortConfig.key as keyof typeof a] as string | number | null | undefined;
+            bValue = b[sortConfig.key as keyof typeof b] as string | number | null | undefined;
         }
         
         if (aValue < bValue) {
@@ -423,7 +424,7 @@ const TableReview = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFirms.map((firm, index) => (
+            {filteredFirms.map((firm) => (
               <div key={firm.id} className="bg-slate-800/50 border border-blue-500/20 rounded-lg p-6">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-white">{firm.name}</h3>

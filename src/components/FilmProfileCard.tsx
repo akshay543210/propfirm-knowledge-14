@@ -15,10 +15,9 @@ interface FilmProfile {
 
 interface FilmProfileCardProps {
   profile: FilmProfile;
-  index: number;
 }
 
-const FilmProfileCard = ({ profile, index }: FilmProfileCardProps) => {
+const FilmProfileCard = ({ profile }: FilmProfileCardProps) => {
   const [imageError, setImageError] = useState(false);
 
   const renderStars = (rating: number) => {
