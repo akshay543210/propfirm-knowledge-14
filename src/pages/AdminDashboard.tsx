@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { LogOut, Shield, AlertCircle, Home } from "lucide-react";
 import AdminPanel from "../components/AdminPanel";
 import { useAuth } from "@/hooks/useAuth";
