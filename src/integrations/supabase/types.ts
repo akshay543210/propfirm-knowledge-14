@@ -222,6 +222,7 @@ export type Database = {
           notes: string | null
           screenshot_url: string | null
           status: string | null
+          submitted_by: string | null
         }
         Insert: {
           amount?: number | null
@@ -232,6 +233,7 @@ export type Database = {
           notes?: string | null
           screenshot_url?: string | null
           status?: string | null
+          submitted_by?: string | null
         }
         Update: {
           amount?: number | null
@@ -242,6 +244,7 @@ export type Database = {
           notes?: string | null
           screenshot_url?: string | null
           status?: string | null
+          submitted_by?: string | null
         }
         Relationships: [
           {
