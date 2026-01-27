@@ -3,16 +3,27 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PropFirmCard from "./PropFirmCard";
 import { PropFirm } from "@/types/supabase";
+import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
 
 interface PropFirmSectionProps {
   propFirms: PropFirm[];
   sortBy: 'price' | 'review' | 'trust';
   setSortBy: (sort: 'price' | 'review' | 'trust') => void;
   loading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   searchResults?: PropFirm[];
 }
 
-const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults }: PropFirmSectionProps) => {
+const PropFirmSection = ({ 
+  propFirms, 
+  sortBy, 
+  setSortBy, 
+  loading, 
+  error,
+  onRetry,
+  searchResults 
+}: PropFirmSectionProps) => {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'beginners' | 'intermediates' | 'pro-traders'>('all');
   const [displayFirms, setDisplayFirms] = useState<PropFirm[]>([]);
 
@@ -54,11 +65,41 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
     setDisplayFirms(filteredFirms);
   }, [baseFirms, selectedCategory, sortBy]);
 
+  // Loading state with timeout indicator
   if (loading) {
     return (
       <section id="firms" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="text-white text-lg">Loading prop firms...</div>
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+            <div className="text-white text-lg">Loading prop firms...</div>
+            <p className="text-gray-400 text-sm">This should only take a moment</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state with retry button
+  if (error) {
+    return (
+      <section id="firms" className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="flex flex-col items-center gap-4">
+            <AlertCircle className="h-12 w-12 text-red-400" />
+            <div className="text-white text-lg">Failed to load prop firms</div>
+            <p className="text-gray-400 text-sm">{error}</p>
+            {onRetry && (
+              <Button 
+                onClick={onRetry}
+                variant="outline"
+                className="mt-4 border-blue-500 text-blue-400 hover:bg-blue-600/20"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+            )}
+          </div>
         </div>
       </section>
     );
@@ -146,14 +187,25 @@ const PropFirmSection = ({ propFirms, sortBy, setSortBy, loading, searchResults 
           ))}
         </div>
 
-        {displayFirms.length === 0 && (
+        {/* Empty State */}
+        {displayFirms.length === 0 && !loading && (
           <div className="text-center py-12">
             <p className="text-gray-400 text-lg">
               {baseFirms.length === 0 && !searchResults 
-                ? "No featured firms available." 
+                ? "No prop firms available for this market." 
                 : "No prop firms found for the selected category."
               }
             </p>
+            {baseFirms.length === 0 && onRetry && (
+              <Button 
+                onClick={onRetry}
+                variant="outline"
+                className="mt-4 border-blue-500 text-blue-400 hover:bg-blue-600/20"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            )}
           </div>
         )}
       </div>
