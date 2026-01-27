@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 
 // Extensible market types - add more as needed
 export type MarketType = 'forex' | 'futures' | 'crypto' | 'stocks' | 'options';
@@ -15,33 +15,56 @@ export const MARKET_OPTIONS: { value: MarketType; label: string; icon: string }[
 interface MarketContextType {
   market: MarketType;
   setMarket: (market: MarketType) => void;
-  isLoading: boolean;
+  isReady: boolean; // Indicates market state is hydrated and ready
 }
 
 const MarketContext = createContext<MarketContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'propfirm-market-selection';
 
-export const MarketProvider = ({ children }: { children: ReactNode }) => {
-  const [market, setMarketState] = useState<MarketType>('forex');
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Load from localStorage on mount
-  useEffect(() => {
+// Synchronously read from localStorage to avoid hydration issues
+const getInitialMarket = (): MarketType => {
+  if (typeof window === 'undefined') return 'forex';
+  
+  try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && MARKET_OPTIONS.some(opt => opt.value === stored)) {
-      setMarketState(stored as MarketType);
+      return stored as MarketType;
     }
-    setIsLoading(false);
+  } catch (e) {
+    console.warn('Failed to read market from localStorage:', e);
+  }
+  return 'forex';
+};
+
+export const MarketProvider = ({ children }: { children: ReactNode }) => {
+  // Initialize synchronously from localStorage - no loading state needed
+  const [market, setMarketState] = useState<MarketType>(getInitialMarket);
+  const [isReady, setIsReady] = useState(false);
+
+  // Mark as ready after initial hydration
+  useEffect(() => {
+    setIsReady(true);
   }, []);
 
   const setMarket = (newMarket: MarketType) => {
     setMarketState(newMarket);
-    localStorage.setItem(STORAGE_KEY, newMarket);
+    try {
+      localStorage.setItem(STORAGE_KEY, newMarket);
+    } catch (e) {
+      console.warn('Failed to save market to localStorage:', e);
+    }
   };
 
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    market,
+    setMarket,
+    isReady,
+  }), [market, isReady]);
+
   return (
-    <MarketContext.Provider value={{ market, setMarket, isLoading }}>
+    <MarketContext.Provider value={contextValue}>
       {children}
     </MarketContext.Provider>
   );

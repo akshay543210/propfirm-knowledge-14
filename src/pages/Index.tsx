@@ -9,7 +9,7 @@ import { PropFirm } from "../types/supabase";
 import { addTestReviews } from "../utils/addTestReviews";
 
 const Index = () => {
-  const { propFirms, loading } = useHomepagePropFirms();
+  const { propFirms, loading, error, refetch } = useHomepagePropFirms();
   const [sortBy, setSortBy] = useState<'price' | 'review' | 'trust'>('review');
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -67,6 +67,8 @@ const Index = () => {
         sortBy={sortBy}
         setSortBy={setSortBy}
         loading={loading}
+        error={error}
+        onRetry={refetch}
         searchResults={searchResults}
       />
       <Footer />

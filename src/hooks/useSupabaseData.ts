@@ -1,7 +1,42 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PropFirm, Review } from '@/types/supabase';
 import { useMarket, MarketType } from '@/contexts/MarketContext';
+
+// Cache for prop firms data
+const CACHE_KEY = 'propfirm-cache';
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+interface CacheEntry {
+  data: PropFirm[];
+  timestamp: number;
+  market: MarketType;
+  type: string;
+}
+
+const getCache = (market: MarketType, type: string): PropFirm[] | null => {
+  try {
+    const cached = sessionStorage.getItem(`${CACHE_KEY}-${type}-${market}`);
+    if (cached) {
+      const entry: CacheEntry = JSON.parse(cached);
+      if (Date.now() - entry.timestamp < CACHE_EXPIRY && entry.market === market) {
+        return entry.data;
+      }
+    }
+  } catch (e) {
+    console.warn('Cache read error:', e);
+  }
+  return null;
+};
+
+const setCache = (data: PropFirm[], market: MarketType, type: string): void => {
+  try {
+    const entry: CacheEntry = { data, timestamp: Date.now(), market, type };
+    sessionStorage.setItem(`${CACHE_KEY}-${type}-${market}`, JSON.stringify(entry));
+  } catch (e) {
+    console.warn('Cache write error:', e);
+  }
+};
 
 // Helper function to filter firms by market on client side (for joined queries)
 const filterByMarket = (firms: PropFirm[], market: MarketType): PropFirm[] => {
@@ -11,40 +46,87 @@ const filterByMarket = (firms: PropFirm[], market: MarketType): PropFirm[] => {
   });
 };
 
+// Timeout constant for failsafe
+const FETCH_TIMEOUT = 10000; // 10 seconds
+
 export const usePropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market } = useMarket();
+  const { market, isReady } = useMarket();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchPropFirms = useCallback(async () => {
+    // Don't fetch if market isn't ready
+    if (!isReady) {
+      console.log('usePropFirms: Waiting for market to be ready...');
+      return;
+    }
+
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     try {
-      console.log('usePropFirms: Starting to fetch prop firms for market:', market);
+      console.log('usePropFirms: Fetching prop firms for market:', market);
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+
+      // Check cache first
+      const cached = getCache(market, 'all');
+      if (cached) {
+        console.log('usePropFirms: Using cached data');
+        setPropFirms(cached);
+        setLoading(false);
+      }
+
+      // Fetch with timeout
+      const timeoutId = setTimeout(() => {
+        abortControllerRef.current?.abort();
+      }, FETCH_TIMEOUT);
+
+      const { data, error: dbError } = await supabase
         .from('prop_firms')
         .select('*')
         .contains('market_type', [market])
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('usePropFirms: Database error:', error);
-        throw error;
+      clearTimeout(timeoutId);
+
+      if (dbError) {
+        console.error('usePropFirms: Database error:', dbError);
+        throw dbError;
       }
-      console.log('usePropFirms: Successfully fetched', data?.length || 0, 'prop firms');
-      setPropFirms(data as any || []);
+
+      const firms = (data as PropFirm[]) || [];
+      console.log('usePropFirms: Fetched', firms.length, 'prop firms');
+      
+      setPropFirms(firms);
+      setCache(firms, market, 'all');
       setError(null);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('usePropFirms: Request aborted');
+        return;
+      }
       console.error('usePropFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Failed to load prop firms');
     } finally {
       setLoading(false);
     }
-  }, [market]);
+  }, [market, isReady]);
 
   useEffect(() => {
-    fetchPropFirms();
-  }, [fetchPropFirms]);
+    if (isReady) {
+      fetchPropFirms();
+    }
+
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, [fetchPropFirms, isReady]);
 
   return { propFirms, loading, error, refetch: fetchPropFirms };
 };
@@ -53,26 +135,44 @@ export const useAllPropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchPropFirms = useCallback(async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     try {
-      console.log('useAllPropFirms: Starting to fetch all prop firms (no market filter)...');
+      console.log('useAllPropFirms: Fetching all prop firms...');
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+
+      const timeoutId = setTimeout(() => {
+        abortControllerRef.current?.abort();
+      }, FETCH_TIMEOUT);
+
+      const { data, error: dbError } = await supabase
         .from('prop_firms')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('useAllPropFirms: Database error:', error);
-        throw error;
+      clearTimeout(timeoutId);
+
+      if (dbError) {
+        console.error('useAllPropFirms: Database error:', dbError);
+        throw dbError;
       }
-      console.log('useAllPropFirms: Successfully fetched', data?.length || 0, 'prop firms');
-      setPropFirms(data as any || []);
+
+      console.log('useAllPropFirms: Fetched', data?.length || 0, 'prop firms');
+      setPropFirms((data as PropFirm[]) || []);
       setError(null);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error('useAllPropFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Failed to load prop firms');
     } finally {
       setLoading(false);
     }
@@ -80,6 +180,9 @@ export const useAllPropFirms = () => {
 
   useEffect(() => {
     fetchPropFirms();
+    return () => {
+      abortControllerRef.current?.abort();
+    };
   }, [fetchPropFirms]);
 
   return { propFirms, loading, error, refetch: fetchPropFirms };
@@ -89,40 +192,85 @@ export const useHomepagePropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market } = useMarket();
+  const { market, isReady } = useMarket();
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const fetchHomepagePropFirms = useCallback(async () => {
+    // Don't fetch if market isn't ready
+    if (!isReady) {
+      console.log('useHomepagePropFirms: Waiting for market to be ready...');
+      return;
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     try {
-      console.log('useHomepagePropFirms: Starting to fetch homepage prop firms for market:', market);
+      console.log('useHomepagePropFirms: Fetching for market:', market);
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+
+      // Check cache first for instant display
+      const cached = getCache(market, 'homepage');
+      if (cached) {
+        console.log('useHomepagePropFirms: Using cached data');
+        setPropFirms(cached);
+        setLoading(false);
+      }
+
+      const timeoutId = setTimeout(() => {
+        abortControllerRef.current?.abort();
+      }, FETCH_TIMEOUT);
+
+      const { data, error: dbError } = await supabase
         .from('prop_firms')
         .select('*')
         .eq('show_on_homepage', true)
         .contains('market_type', [market])
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('useHomepagePropFirms: Database error:', error);
-        throw error;
+      clearTimeout(timeoutId);
+
+      if (dbError) {
+        console.error('useHomepagePropFirms: Database error:', dbError);
+        throw dbError;
       }
-      console.log('useHomepagePropFirms: Successfully fetched', data?.length || 0, 'homepage prop firms');
-      setPropFirms(data as any || []);
+
+      const firms = (data as PropFirm[]) || [];
+      console.log('useHomepagePropFirms: Fetched', firms.length, 'homepage firms');
+      
+      setPropFirms(firms);
+      setCache(firms, market, 'homepage');
       setError(null);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error('useHomepagePropFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Failed to load prop firms');
     } finally {
       setLoading(false);
     }
-  }, [market]);
+  }, [market, isReady]);
 
   useEffect(() => {
+    if (!isReady) {
+      return;
+    }
+
     fetchHomepagePropFirms();
 
+    // Clean up previous channel
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
     // Set up real-time subscription
-    const channel = supabase
-      .channel('homepage-prop-firms-changes')
+    channelRef.current = supabase
+      .channel(`homepage-prop-firms-${market}`)
       .on(
         'postgres_changes',
         {
@@ -132,16 +280,19 @@ export const useHomepagePropFirms = () => {
           filter: 'show_on_homepage=eq.true'
         },
         () => {
-          console.log('Real-time update detected, refetching homepage prop firms...');
+          console.log('Real-time update detected, refetching...');
           fetchHomepagePropFirms();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      abortControllerRef.current?.abort();
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
     };
-  }, [fetchHomepagePropFirms]);
+  }, [fetchHomepagePropFirms, isReady, market]);
 
   return { propFirms, loading, error, refetch: fetchHomepagePropFirms };
 };
@@ -150,37 +301,74 @@ export const useTopRatedFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market } = useMarket();
+  const { market, isReady } = useMarket();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchTopRatedFirms = useCallback(async () => {
+    if (!isReady) {
+      console.log('useTopRatedFirms: Waiting for market to be ready...');
+      return;
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     try {
-      console.log('useTopRatedFirms: Starting to fetch top rated firms for market:', market);
+      console.log('useTopRatedFirms: Fetching for market:', market);
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+
+      const cached = getCache(market, 'toprated');
+      if (cached) {
+        setPropFirms(cached);
+        setLoading(false);
+      }
+
+      const timeoutId = setTimeout(() => {
+        abortControllerRef.current?.abort();
+      }, FETCH_TIMEOUT);
+
+      const { data, error: dbError } = await supabase
         .from('prop_firms')
         .select('*')
         .contains('market_type', [market])
         .order('review_score', { ascending: false })
         .limit(10);
 
-      if (error) {
-        console.error('useTopRatedFirms: Database error:', error);
-        throw error;
+      clearTimeout(timeoutId);
+
+      if (dbError) {
+        console.error('useTopRatedFirms: Database error:', dbError);
+        throw dbError;
       }
-      console.log('useTopRatedFirms: Successfully fetched', data?.length || 0, 'top rated firms');
-      setPropFirms(data as any || []);
+
+      const firms = (data as PropFirm[]) || [];
+      console.log('useTopRatedFirms: Fetched', firms.length, 'top rated firms');
+      
+      setPropFirms(firms);
+      setCache(firms, market, 'toprated');
       setError(null);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error('useTopRatedFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Failed to load top rated firms');
     } finally {
       setLoading(false);
     }
-  }, [market]);
+  }, [market, isReady]);
 
   useEffect(() => {
-    fetchTopRatedFirms();
-  }, [fetchTopRatedFirms]);
+    if (isReady) {
+      fetchTopRatedFirms();
+    }
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, [fetchTopRatedFirms, isReady]);
 
   return { propFirms, loading, error, refetch: fetchTopRatedFirms };
 };
@@ -189,11 +377,28 @@ export const useReviews = (firmId?: string) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market } = useMarket();
+  const { market, isReady } = useMarket();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    if (!isReady) {
+      return;
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     const fetchReviews = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
+        const timeoutId = setTimeout(() => {
+          abortControllerRef.current?.abort();
+        }, FETCH_TIMEOUT);
+
         let query = supabase
           .from('reviews')
           .select(`
@@ -223,19 +428,28 @@ export const useReviews = (firmId?: string) => {
           query = query.eq('firm_id', firmId);
         }
 
-        const { data, error } = await query;
+        const { data, error: dbError } = await query;
+        clearTimeout(timeoutId);
 
-        if (error) throw error;
-        setReviews(data as any || []);
+        if (dbError) throw dbError;
+        setReviews((data as Review[]) || []);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        setError(err instanceof Error ? err.message : 'Failed to load reviews');
       } finally {
         setLoading(false);
       }
     };
 
     fetchReviews();
-  }, [firmId, market]);
+
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, [firmId, market, isReady]);
 
   return { reviews, loading, error };
 };
