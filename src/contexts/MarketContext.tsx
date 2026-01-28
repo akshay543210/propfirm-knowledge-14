@@ -38,14 +38,9 @@ const getInitialMarket = (): MarketType => {
 };
 
 export const MarketProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize synchronously from localStorage - no loading state needed
+  // Initialize synchronously from localStorage - set isReady immediately
   const [market, setMarketState] = useState<MarketType>(getInitialMarket);
-  const [isReady, setIsReady] = useState(false);
-
-  // Mark as ready after initial hydration
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
+  const [isReady] = useState(true); // Set immediately - no useEffect delay
 
   const setMarket = (newMarket: MarketType) => {
     setMarketState(newMarket);
