@@ -54,7 +54,8 @@ export const usePropFirms = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { market, isReady } = useMarket();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+  const fetchIdRef = useRef(0);
 
   const fetchPropFirms = useCallback(async () => {
     // Don't fetch if market isn't ready
@@ -63,11 +64,7 @@ export const usePropFirms = () => {
       return;
     }
 
-    // Cancel any pending request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
+    const currentFetchId = ++fetchIdRef.current;
 
     try {
       console.log('usePropFirms: Fetching prop firms for market:', market);
@@ -76,24 +73,32 @@ export const usePropFirms = () => {
 
       // Check cache first
       const cached = getCache(market, 'all');
-      if (cached) {
+      if (cached && cached.length > 0) {
         console.log('usePropFirms: Using cached data');
         setPropFirms(cached);
         setLoading(false);
       }
 
-      // Fetch with timeout
-      const timeoutId = setTimeout(() => {
-        abortControllerRef.current?.abort();
-      }, FETCH_TIMEOUT);
+      // Create a timeout promise
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      });
 
-      const { data, error: dbError } = await supabase
+      // Create the fetch promise
+      const fetchPromise = supabase
         .from('prop_firms')
         .select('*')
         .contains('market_type', [market])
         .order('created_at', { ascending: false });
 
-      clearTimeout(timeoutId);
+      const { data, error: dbError } = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as Awaited<typeof fetchPromise>;
+
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
+        return;
+      }
 
       if (dbError) {
         console.error('usePropFirms: Database error:', dbError);
@@ -107,24 +112,27 @@ export const usePropFirms = () => {
       setCache(firms, market, 'all');
       setError(null);
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        console.log('usePropFirms: Request aborted');
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
       }
       console.error('usePropFirms: Fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load prop firms');
     } finally {
-      setLoading(false);
+      if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [market, isReady]);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (isReady) {
       fetchPropFirms();
     }
 
     return () => {
-      abortControllerRef.current?.abort();
+      isMountedRef.current = false;
     };
   }, [fetchPropFirms, isReady]);
 
@@ -135,29 +143,34 @@ export const useAllPropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+  const fetchIdRef = useRef(0);
 
   const fetchPropFirms = useCallback(async () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
+    const currentFetchId = ++fetchIdRef.current;
 
     try {
       console.log('useAllPropFirms: Fetching all prop firms...');
       setLoading(true);
       setError(null);
 
-      const timeoutId = setTimeout(() => {
-        abortControllerRef.current?.abort();
-      }, FETCH_TIMEOUT);
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      });
 
-      const { data, error: dbError } = await supabase
+      const fetchPromise = supabase
         .from('prop_firms')
         .select('*')
         .order('created_at', { ascending: false });
 
-      clearTimeout(timeoutId);
+      const { data, error: dbError } = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as Awaited<typeof fetchPromise>;
+
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
+        return;
+      }
 
       if (dbError) {
         console.error('useAllPropFirms: Database error:', dbError);
@@ -168,20 +181,23 @@ export const useAllPropFirms = () => {
       setPropFirms((data as PropFirm[]) || []);
       setError(null);
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
       }
       console.error('useAllPropFirms: Fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load prop firms');
     } finally {
-      setLoading(false);
+      if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
+    isMountedRef.current = true;
     fetchPropFirms();
     return () => {
-      abortControllerRef.current?.abort();
+      isMountedRef.current = false;
     };
   }, [fetchPropFirms]);
 
@@ -193,8 +209,9 @@ export const useHomepagePropFirms = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { market, isReady } = useMarket();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const fetchIdRef = useRef(0);
 
   const fetchHomepagePropFirms = useCallback(async () => {
     // Don't fetch if market isn't ready
@@ -203,10 +220,7 @@ export const useHomepagePropFirms = () => {
       return;
     }
 
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
+    const currentFetchId = ++fetchIdRef.current;
 
     try {
       console.log('useHomepagePropFirms: Fetching for market:', market);
@@ -215,24 +229,36 @@ export const useHomepagePropFirms = () => {
 
       // Check cache first for instant display
       const cached = getCache(market, 'homepage');
-      if (cached) {
-        console.log('useHomepagePropFirms: Using cached data');
+      if (cached && cached.length > 0) {
+        console.log('useHomepagePropFirms: Using cached data', cached.length);
         setPropFirms(cached);
         setLoading(false);
       }
 
-      const timeoutId = setTimeout(() => {
-        abortControllerRef.current?.abort();
-      }, FETCH_TIMEOUT);
+      // Create a timeout promise
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      });
 
-      const { data, error: dbError } = await supabase
+      // Create the fetch promise
+      const fetchPromise = supabase
         .from('prop_firms')
         .select('*')
         .eq('show_on_homepage', true)
         .contains('market_type', [market])
         .order('created_at', { ascending: false });
 
-      clearTimeout(timeoutId);
+      // Race between fetch and timeout
+      const { data, error: dbError } = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as Awaited<typeof fetchPromise>;
+
+      // Check if this fetch is still relevant
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
+        console.log('useHomepagePropFirms: Fetch superseded or unmounted');
+        return;
+      }
 
       if (dbError) {
         console.error('useHomepagePropFirms: Database error:', dbError);
@@ -246,17 +272,21 @@ export const useHomepagePropFirms = () => {
       setCache(firms, market, 'homepage');
       setError(null);
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
       }
       console.error('useHomepagePropFirms: Fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load prop firms');
     } finally {
-      setLoading(false);
+      if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [market, isReady]);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (!isReady) {
       return;
     }
@@ -270,7 +300,7 @@ export const useHomepagePropFirms = () => {
 
     // Set up real-time subscription
     channelRef.current = supabase
-      .channel(`homepage-prop-firms-${market}`)
+      .channel(`homepage-prop-firms-${market}-${Date.now()}`)
       .on(
         'postgres_changes',
         {
@@ -287,7 +317,7 @@ export const useHomepagePropFirms = () => {
       .subscribe();
 
     return () => {
-      abortControllerRef.current?.abort();
+      isMountedRef.current = false;
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
@@ -302,7 +332,8 @@ export const useTopRatedFirms = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { market, isReady } = useMarket();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+  const fetchIdRef = useRef(0);
 
   const fetchTopRatedFirms = useCallback(async () => {
     if (!isReady) {
@@ -310,10 +341,7 @@ export const useTopRatedFirms = () => {
       return;
     }
 
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
+    const currentFetchId = ++fetchIdRef.current;
 
     try {
       console.log('useTopRatedFirms: Fetching for market:', market);
@@ -321,23 +349,30 @@ export const useTopRatedFirms = () => {
       setError(null);
 
       const cached = getCache(market, 'toprated');
-      if (cached) {
+      if (cached && cached.length > 0) {
         setPropFirms(cached);
         setLoading(false);
       }
 
-      const timeoutId = setTimeout(() => {
-        abortControllerRef.current?.abort();
-      }, FETCH_TIMEOUT);
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      });
 
-      const { data, error: dbError } = await supabase
+      const fetchPromise = supabase
         .from('prop_firms')
         .select('*')
         .contains('market_type', [market])
         .order('review_score', { ascending: false })
         .limit(10);
 
-      clearTimeout(timeoutId);
+      const { data, error: dbError } = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as Awaited<typeof fetchPromise>;
+
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
+        return;
+      }
 
       if (dbError) {
         console.error('useTopRatedFirms: Database error:', dbError);
@@ -351,22 +386,27 @@ export const useTopRatedFirms = () => {
       setCache(firms, market, 'toprated');
       setError(null);
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
       }
       console.error('useTopRatedFirms: Fetch error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load top rated firms');
     } finally {
-      setLoading(false);
+      if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [market, isReady]);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (isReady) {
       fetchTopRatedFirms();
     }
+
     return () => {
-      abortControllerRef.current?.abort();
+      isMountedRef.current = false;
     };
   }, [fetchTopRatedFirms, isReady]);
 
@@ -378,26 +418,26 @@ export const useReviews = (firmId?: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { market, isReady } = useMarket();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
+  const fetchIdRef = useRef(0);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (!isReady) {
       return;
     }
 
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
+    const currentFetchId = ++fetchIdRef.current;
 
     const fetchReviews = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const timeoutId = setTimeout(() => {
-          abortControllerRef.current?.abort();
-        }, FETCH_TIMEOUT);
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+        });
 
         let query = supabase
           .from('reviews')
@@ -428,26 +468,34 @@ export const useReviews = (firmId?: string) => {
           query = query.eq('firm_id', firmId);
         }
 
-        const { data, error: dbError } = await query;
-        clearTimeout(timeoutId);
+        const { data, error: dbError } = await Promise.race([
+          query,
+          timeoutPromise
+        ]) as Awaited<typeof query>;
+
+        if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
+          return;
+        }
 
         if (dbError) throw dbError;
         setReviews((data as Review[]) || []);
         setError(null);
       } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
+        if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
           return;
         }
         setError(err instanceof Error ? err.message : 'Failed to load reviews');
       } finally {
-        setLoading(false);
+        if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
+          setLoading(false);
+        }
       }
     };
 
     fetchReviews();
 
     return () => {
-      abortControllerRef.current?.abort();
+      isMountedRef.current = false;
     };
   }, [firmId, market, isReady]);
 
