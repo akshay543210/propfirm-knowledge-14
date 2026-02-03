@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PropFirm, Review } from '@/types/supabase';
 import { useMarket, MarketType } from '@/contexts/MarketContext';
+import { useAppReady } from '@/contexts/AppReadyContext';
 
 // Cache for prop firms data
 const CACHE_KEY = 'propfirm-cache';
@@ -38,63 +39,71 @@ const setCache = (data: PropFirm[], market: MarketType, type: string): void => {
   }
 };
 
-// Helper function to filter firms by market on client side (for joined queries)
-const filterByMarket = (firms: PropFirm[], market: MarketType): PropFirm[] => {
-  return firms.filter(firm => {
-    const marketTypes = firm.market_type || ['forex'];
-    return marketTypes.includes(market);
+// Timeout constant - reduced to 6 seconds for faster feedback
+const FETCH_TIMEOUT = 6000;
+
+// Helper to create timeout-wrapped fetch
+const fetchWithTimeout = async <T>(
+  fetchFn: () => Promise<T>,
+  timeoutMs: number = FETCH_TIMEOUT
+): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error('Request timeout'));
+    }, timeoutMs);
+
+    fetchFn()
+      .then((result) => {
+        clearTimeout(timeoutId);
+        resolve(result);
+      })
+      .catch((error) => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
   });
 };
-
-// Timeout constant for failsafe
-const FETCH_TIMEOUT = 10000; // 10 seconds
 
 export const usePropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market, isReady } = useMarket();
+  const { market, isReady: marketReady } = useMarket();
+  const { allReady } = useAppReady();
   const isMountedRef = useRef(true);
   const fetchIdRef = useRef(0);
+  const hasFetchedRef = useRef(false);
 
   const fetchPropFirms = useCallback(async () => {
-    // Don't fetch if market isn't ready
-    if (!isReady) {
-      console.log('usePropFirms: Waiting for market to be ready...');
+    // Guard: Don't fetch until ALL systems are ready
+    if (!allReady || !marketReady) {
+      console.log('usePropFirms: Not ready yet, skipping fetch');
       return;
     }
 
     const currentFetchId = ++fetchIdRef.current;
+    hasFetchedRef.current = true;
+
+    // Check cache first for instant display
+    const cached = getCache(market, 'all');
+    if (cached && cached.length > 0) {
+      console.log('usePropFirms: Using cached data');
+      setPropFirms(cached);
+      setLoading(false);
+    }
 
     try {
       console.log('usePropFirms: Fetching prop firms for market:', market);
-      setLoading(true);
+      if (!cached?.length) setLoading(true);
       setError(null);
 
-      // Check cache first
-      const cached = getCache(market, 'all');
-      if (cached && cached.length > 0) {
-        console.log('usePropFirms: Using cached data');
-        setPropFirms(cached);
-        setLoading(false);
-      }
-
-      // Create a timeout promise
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      const { data, error: dbError } = await fetchWithTimeout(async () => {
+        return supabase
+          .from('prop_firms')
+          .select('*')
+          .contains('market_type', [market])
+          .order('created_at', { ascending: false });
       });
-
-      // Create the fetch promise
-      const fetchPromise = supabase
-        .from('prop_firms')
-        .select('*')
-        .contains('market_type', [market])
-        .order('created_at', { ascending: false });
-
-      const { data, error: dbError } = await Promise.race([
-        fetchPromise,
-        timeoutPromise
-      ]) as Awaited<typeof fetchPromise>;
 
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
@@ -116,25 +125,42 @@ export const usePropFirms = () => {
         return;
       }
       console.error('usePropFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load prop firms');
+      // Only set error if we don't have cached data
+      if (!cached?.length) {
+        setError(err instanceof Error ? err.message : 'Failed to load prop firms');
+      }
     } finally {
       if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
         setLoading(false);
       }
     }
-  }, [market, isReady]);
+  }, [market, allReady, marketReady]);
 
   useEffect(() => {
     isMountedRef.current = true;
 
-    if (isReady) {
+    if (allReady && marketReady) {
       fetchPropFirms();
     }
 
     return () => {
       isMountedRef.current = false;
     };
-  }, [fetchPropFirms, isReady]);
+  }, [allReady, marketReady, market]);
+
+  // Ensure loading ends after timeout even if something goes wrong
+  useEffect(() => {
+    if (!allReady || !marketReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        console.log('usePropFirms: Fallback timer triggered, ending loading state');
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady, marketReady]);
 
   return { propFirms, loading, error, refetch: fetchPropFirms };
 };
@@ -143,30 +169,31 @@ export const useAllPropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { allReady } = useAppReady();
   const isMountedRef = useRef(true);
   const fetchIdRef = useRef(0);
+  const hasFetchedRef = useRef(false);
 
   const fetchPropFirms = useCallback(async () => {
+    if (!allReady) {
+      console.log('useAllPropFirms: Not ready yet, skipping fetch');
+      return;
+    }
+
     const currentFetchId = ++fetchIdRef.current;
+    hasFetchedRef.current = true;
 
     try {
       console.log('useAllPropFirms: Fetching all prop firms...');
       setLoading(true);
       setError(null);
 
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      const { data, error: dbError } = await fetchWithTimeout(async () => {
+        return supabase
+          .from('prop_firms')
+          .select('*')
+          .order('created_at', { ascending: false });
       });
-
-      const fetchPromise = supabase
-        .from('prop_firms')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      const { data, error: dbError } = await Promise.race([
-        fetchPromise,
-        timeoutPromise
-      ]) as Awaited<typeof fetchPromise>;
 
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
@@ -191,15 +218,30 @@ export const useAllPropFirms = () => {
         setLoading(false);
       }
     }
-  }, []);
+  }, [allReady]);
 
   useEffect(() => {
     isMountedRef.current = true;
-    fetchPropFirms();
+    if (allReady) {
+      fetchPropFirms();
+    }
     return () => {
       isMountedRef.current = false;
     };
-  }, [fetchPropFirms]);
+  }, [allReady]);
+
+  // Fallback timer
+  useEffect(() => {
+    if (!allReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady]);
 
   return { propFirms, loading, error, refetch: fetchPropFirms };
 };
@@ -208,51 +250,44 @@ export const useHomepagePropFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market, isReady } = useMarket();
+  const { market, isReady: marketReady } = useMarket();
+  const { allReady } = useAppReady();
   const isMountedRef = useRef(true);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const fetchIdRef = useRef(0);
+  const hasFetchedRef = useRef(false);
 
   const fetchHomepagePropFirms = useCallback(async () => {
-    // Don't fetch if market isn't ready
-    if (!isReady) {
-      console.log('useHomepagePropFirms: Waiting for market to be ready...');
+    // Guard: Don't fetch until ALL systems are ready
+    if (!allReady || !marketReady) {
+      console.log('useHomepagePropFirms: Not ready yet, skipping fetch');
       return;
     }
 
     const currentFetchId = ++fetchIdRef.current;
+    hasFetchedRef.current = true;
+
+    // Check cache first for instant display
+    const cached = getCache(market, 'homepage');
+    if (cached && cached.length > 0) {
+      console.log('useHomepagePropFirms: Using cached data', cached.length);
+      setPropFirms(cached);
+      setLoading(false);
+    }
 
     try {
       console.log('useHomepagePropFirms: Fetching for market:', market);
-      setLoading(true);
+      if (!cached?.length) setLoading(true);
       setError(null);
 
-      // Check cache first for instant display
-      const cached = getCache(market, 'homepage');
-      if (cached && cached.length > 0) {
-        console.log('useHomepagePropFirms: Using cached data', cached.length);
-        setPropFirms(cached);
-        setLoading(false);
-      }
-
-      // Create a timeout promise
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      const { data, error: dbError } = await fetchWithTimeout(async () => {
+        return supabase
+          .from('prop_firms')
+          .select('*')
+          .eq('show_on_homepage', true)
+          .contains('market_type', [market])
+          .order('created_at', { ascending: false });
       });
-
-      // Create the fetch promise
-      const fetchPromise = supabase
-        .from('prop_firms')
-        .select('*')
-        .eq('show_on_homepage', true)
-        .contains('market_type', [market])
-        .order('created_at', { ascending: false });
-
-      // Race between fetch and timeout
-      const { data, error: dbError } = await Promise.race([
-        fetchPromise,
-        timeoutPromise
-      ]) as Awaited<typeof fetchPromise>;
 
       // Check if this fetch is still relevant
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
@@ -276,18 +311,21 @@ export const useHomepagePropFirms = () => {
         return;
       }
       console.error('useHomepagePropFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load prop firms');
+      // Only set error if we don't have cached data
+      if (!cached?.length) {
+        setError(err instanceof Error ? err.message : 'Failed to load prop firms');
+      }
     } finally {
       if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
         setLoading(false);
       }
     }
-  }, [market, isReady]);
+  }, [market, allReady, marketReady]);
 
   useEffect(() => {
     isMountedRef.current = true;
 
-    if (!isReady) {
+    if (!allReady || !marketReady) {
       return;
     }
 
@@ -322,7 +360,21 @@ export const useHomepagePropFirms = () => {
         supabase.removeChannel(channelRef.current);
       }
     };
-  }, [fetchHomepagePropFirms, isReady, market]);
+  }, [allReady, marketReady, market]);
+
+  // Fallback timer to ensure loading always ends
+  useEffect(() => {
+    if (!allReady || !marketReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        console.log('useHomepagePropFirms: Fallback timer triggered, ending loading state');
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady, marketReady]);
 
   return { propFirms, loading, error, refetch: fetchHomepagePropFirms };
 };
@@ -331,44 +383,40 @@ export const useTopRatedFirms = () => {
   const [propFirms, setPropFirms] = useState<PropFirm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market, isReady } = useMarket();
+  const { market, isReady: marketReady } = useMarket();
+  const { allReady } = useAppReady();
   const isMountedRef = useRef(true);
   const fetchIdRef = useRef(0);
+  const hasFetchedRef = useRef(false);
 
   const fetchTopRatedFirms = useCallback(async () => {
-    if (!isReady) {
-      console.log('useTopRatedFirms: Waiting for market to be ready...');
+    if (!allReady || !marketReady) {
+      console.log('useTopRatedFirms: Not ready yet, skipping fetch');
       return;
     }
 
     const currentFetchId = ++fetchIdRef.current;
+    hasFetchedRef.current = true;
+
+    const cached = getCache(market, 'toprated');
+    if (cached && cached.length > 0) {
+      setPropFirms(cached);
+      setLoading(false);
+    }
 
     try {
       console.log('useTopRatedFirms: Fetching for market:', market);
-      setLoading(true);
+      if (!cached?.length) setLoading(true);
       setError(null);
 
-      const cached = getCache(market, 'toprated');
-      if (cached && cached.length > 0) {
-        setPropFirms(cached);
-        setLoading(false);
-      }
-
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
+      const { data, error: dbError } = await fetchWithTimeout(async () => {
+        return supabase
+          .from('prop_firms')
+          .select('*')
+          .contains('market_type', [market])
+          .order('review_score', { ascending: false })
+          .limit(10);
       });
-
-      const fetchPromise = supabase
-        .from('prop_firms')
-        .select('*')
-        .contains('market_type', [market])
-        .order('review_score', { ascending: false })
-        .limit(10);
-
-      const { data, error: dbError } = await Promise.race([
-        fetchPromise,
-        timeoutPromise
-      ]) as Awaited<typeof fetchPromise>;
 
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
         return;
@@ -390,25 +438,40 @@ export const useTopRatedFirms = () => {
         return;
       }
       console.error('useTopRatedFirms: Fetch error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load top rated firms');
+      if (!cached?.length) {
+        setError(err instanceof Error ? err.message : 'Failed to load top rated firms');
+      }
     } finally {
       if (currentFetchId === fetchIdRef.current && isMountedRef.current) {
         setLoading(false);
       }
     }
-  }, [market, isReady]);
+  }, [market, allReady, marketReady]);
 
   useEffect(() => {
     isMountedRef.current = true;
 
-    if (isReady) {
+    if (allReady && marketReady) {
       fetchTopRatedFirms();
     }
 
     return () => {
       isMountedRef.current = false;
     };
-  }, [fetchTopRatedFirms, isReady]);
+  }, [allReady, marketReady, market]);
+
+  // Fallback timer
+  useEffect(() => {
+    if (!allReady || !marketReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady, marketReady]);
 
   return { propFirms, loading, error, refetch: fetchTopRatedFirms };
 };
@@ -417,61 +480,59 @@ export const useReviews = (firmId?: string) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { market, isReady } = useMarket();
+  const { market, isReady: marketReady } = useMarket();
+  const { allReady } = useAppReady();
   const isMountedRef = useRef(true);
   const fetchIdRef = useRef(0);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     isMountedRef.current = true;
 
-    if (!isReady) {
+    if (!allReady || !marketReady) {
       return;
     }
 
     const currentFetchId = ++fetchIdRef.current;
+    hasFetchedRef.current = true;
 
     const fetchReviews = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
-        });
-
-        let query = supabase
-          .from('reviews')
-          .select(`
-            id,
-            firm_id,
-            user_id,
-            reviewer_name,
-            rating,
-            title,
-            content,
-            images,
-            is_verified,
-            helpful_count,
-            created_at,
-            updated_at,
-            market_type,
-            prop_firms:firm_id (
+        const { data, error: dbError } = await fetchWithTimeout(async () => {
+          let query = supabase
+            .from('reviews')
+            .select(`
               id,
-              name,
-              slug
-            )
-          `)
-          .eq('market_type', market)
-          .order('created_at', { ascending: false });
+              firm_id,
+              user_id,
+              reviewer_name,
+              rating,
+              title,
+              content,
+              images,
+              is_verified,
+              helpful_count,
+              created_at,
+              updated_at,
+              market_type,
+              prop_firms:firm_id (
+                id,
+                name,
+                slug
+              )
+            `)
+            .eq('market_type', market)
+            .order('created_at', { ascending: false });
 
-        if (firmId) {
-          query = query.eq('firm_id', firmId);
-        }
+          if (firmId) {
+            query = query.eq('firm_id', firmId);
+          }
 
-        const { data, error: dbError } = await Promise.race([
-          query,
-          timeoutPromise
-        ]) as Awaited<typeof query>;
+          return query;
+        });
 
         if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
           return;
@@ -497,10 +558,156 @@ export const useReviews = (firmId?: string) => {
     return () => {
       isMountedRef.current = false;
     };
-  }, [firmId, market, isReady]);
+  }, [firmId, market, allReady, marketReady]);
+
+  // Fallback timer
+  useEffect(() => {
+    if (!allReady || !marketReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady, marketReady]);
 
   return { reviews, loading, error };
 };
 
-// Export the helper for use in other components
-export { filterByMarket };
+export const usePropFirmBySlug = (slug: string) => {
+  const [propFirm, setPropFirm] = useState<PropFirm | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { allReady } = useAppReady();
+  const isMountedRef = useRef(true);
+  const hasFetchedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    if (!allReady || !slug) {
+      return;
+    }
+
+    hasFetchedRef.current = true;
+
+    const fetchPropFirm = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const { data, error: dbError } = await fetchWithTimeout(async () => {
+          return supabase
+            .from('prop_firms')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+        });
+
+        if (!isMountedRef.current) return;
+
+        if (dbError) throw dbError;
+        setPropFirm(data as PropFirm);
+        setError(null);
+      } catch (err) {
+        if (!isMountedRef.current) return;
+        setError(err instanceof Error ? err.message : 'Failed to load prop firm');
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchPropFirm();
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [slug, allReady]);
+
+  // Fallback timer
+  useEffect(() => {
+    if (!allReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady]);
+
+  return { propFirm, loading, error };
+};
+
+export const usePropFirmById = (id: string) => {
+  const [propFirm, setPropFirm] = useState<PropFirm | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { allReady } = useAppReady();
+  const isMountedRef = useRef(true);
+  const hasFetchedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    if (!allReady || !id) {
+      return;
+    }
+
+    hasFetchedRef.current = true;
+
+    const fetchPropFirm = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const { data, error: dbError } = await fetchWithTimeout(async () => {
+          return supabase
+            .from('prop_firms')
+            .select('*')
+            .eq('id', id)
+            .single();
+        });
+
+        if (!isMountedRef.current) return;
+
+        if (dbError) throw dbError;
+        setPropFirm(data as PropFirm);
+        setError(null);
+      } catch (err) {
+        if (!isMountedRef.current) return;
+        setError(err instanceof Error ? err.message : 'Failed to load prop firm');
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchPropFirm();
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [id, allReady]);
+
+  // Fallback timer
+  useEffect(() => {
+    if (!allReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current) {
+        setLoading(false);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady]);
+
+  return { propFirm, loading, error };
+};

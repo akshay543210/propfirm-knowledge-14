@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PropFirm } from '@/types/supabase';
 import { useMarket, MarketType } from '@/contexts/MarketContext';
+import { useAppReady } from '@/contexts/AppReadyContext';
 
 interface SectionFirm extends PropFirm {
   membership_id: string;
   sort_priority?: number;
 }
+
+// Timeout for failsafe
+const FETCH_TIMEOUT = 6000;
 
 // Helper function to filter firms by market
 const filterByMarket = (firms: SectionFirm[], market: MarketType): SectionFirm[] => {
@@ -25,8 +29,19 @@ export const useSectionMemberships = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const { allReady } = useAppReady();
+  const isMountedRef = useRef(true);
+  const hasFetchedRef = useRef(false);
 
   const fetchMemberships = useCallback(async () => {
+    // Guard: Don't fetch until app is ready
+    if (!allReady) {
+      console.log('useSectionMemberships: Not ready yet, skipping fetch');
+      return;
+    }
+
+    hasFetchedRef.current = true;
+
     try {
       setLoading(true);
       setError(null);
@@ -370,10 +385,31 @@ export const useSectionMemberships = () => {
   };
 
   useEffect(() => {
-    if (!hasInitialized) {
+    isMountedRef.current = true;
+    
+    if (allReady && !hasInitialized) {
       fetchMemberships();
     }
-  }, [fetchMemberships, hasInitialized]);
+    
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [allReady, hasInitialized]);
+
+  // Fallback timer to ensure loading always ends
+  useEffect(() => {
+    if (!allReady) return;
+    
+    const fallbackTimer = setTimeout(() => {
+      if (loading && hasFetchedRef.current && isMountedRef.current) {
+        console.log('useSectionMemberships: Fallback timer triggered, ending loading state');
+        setLoading(false);
+        setHasInitialized(true);
+      }
+    }, FETCH_TIMEOUT + 1000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [loading, allReady]);
 
   // Get market from context
   const { market } = useMarket();
