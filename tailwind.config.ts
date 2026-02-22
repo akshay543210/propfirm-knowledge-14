@@ -20,6 +20,8 @@ export default {
 		extend: {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
+				'heading': ['"Space Grotesk"', 'sans-serif'],
+				'body': ['Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -81,25 +83,40 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'glow-pulse': {
+					'0%, 100%': { opacity: '0.4', filter: 'blur(40px)' },
+					'50%': { opacity: '0.7', filter: 'blur(50px)' }
+				},
+				'float-orb': {
+					'0%': { transform: 'translate(0, 0) scale(1)' },
+					'33%': { transform: 'translate(30px, -20px) scale(1.05)' },
+					'66%': { transform: 'translate(-20px, 15px) scale(0.95)' },
+					'100%': { transform: 'translate(0, 0) scale(1)' }
+				},
+				'shimmer-sweep': {
+					'0%': { transform: 'translateX(-100%)' },
+					'100%': { transform: 'translateX(100%)' }
+				},
+				'gradient-shift': {
+					'0%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' },
+					'100%': { backgroundPosition: '0% 50%' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'glow-pulse': 'glow-pulse 4s ease-in-out infinite',
+				'float-orb': 'float-orb 8s ease-in-out infinite',
+				'shimmer-sweep': 'shimmer-sweep 2s ease-in-out infinite',
+				'gradient-shift': 'gradient-shift 6s ease infinite'
 			}
 		}
 	},

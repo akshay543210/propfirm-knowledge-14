@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PropFirm } from "@/types/supabase";
 import { motion } from "framer-motion";
 import { useImageLazyLoad } from "@/hooks/useImageLazyLoad";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 import { memo } from "react";
 
 interface PropFirmCardProps {
@@ -17,8 +17,7 @@ const PropFirmCard = memo(({ firm, index = 0 }: PropFirmCardProps) => {
   const { imgRef, imageSrc, isLoading } = useImageLazyLoad(firm.logo_url || '');
 
   const discountPercentage = Math.round(((firm.original_price - firm.price) / firm.original_price) * 100);
-  
-  // Normalize data with fallbacks for consistent display
+
   const normalizedFirm = {
     ...firm,
     review_score: firm.review_score || 0,
@@ -29,152 +28,130 @@ const PropFirmCard = memo(({ firm, index = 0 }: PropFirmCardProps) => {
   };
 
   const handleBuyNow = () => {
-    if (firm.affiliate_url) {
-      window.open(firm.affiliate_url, '_blank');
-    }
-  };
-
-  const handleViewReview = () => {
-    navigate(`/firm-reviews/${firm.id}`);
-  };
-
-  const handleWriteReview = () => {
-    navigate(`/write-review/${firm.id}`);
+    if (firm.affiliate_url) window.open(firm.affiliate_url, '_blank');
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover={{ scale: 1.03, y: -5 }}
+      transition={{ duration: 0.4, delay: index * 0.06 }}
       className="h-full"
     >
-      <Card className="h-full flex flex-col glass-card hover-glow border-primary/20 hover:border-primary/40 transition-all duration-300">
-        <CardHeader className="min-h-[120px]">
-          <div className="flex justify-between items-start mb-4">
+      <div className="h-full flex flex-col glass-card-premium light-sweep rounded-xl">
+        {/* Header zone */}
+        <div className="p-5 pb-3">
+          <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-3">
               {firm.logo_url && (
-                <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-slate-700">
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-muted/30 shrink-0">
                   <img
                     ref={imgRef}
                     src={imageSrc}
                     alt={`${firm.name} logo`}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${
-                      isLoading ? 'opacity-0' : 'opacity-100'
-                    }`}
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
                     loading="lazy"
                   />
-                  {isLoading && (
-                    <div className="absolute inset-0 bg-slate-600 animate-pulse" />
-                  )}
+                  {isLoading && <div className="absolute inset-0 bg-muted/30 animate-pulse" />}
                 </div>
               )}
-              <h3 className="text-xl font-bold text-foreground line-clamp-2 leading-tight">{firm.name}</h3>
+              <div>
+                <h3 className="text-lg font-bold text-foreground line-clamp-1 font-heading">{firm.name}</h3>
+                {normalizedFirm.trust_rating >= 8 && <VerifiedBadge className="mt-1" />}
+              </div>
             </div>
             {firm.brand && (
-              <Badge className="bg-primary/20 text-primary border-primary/30 shrink-0">
+              <Badge className="bg-primary/15 text-primary border-primary/25 text-[10px] shrink-0">
                 {firm.brand}
               </Badge>
             )}
           </div>
-        
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-success">${firm.price}</span>
-              <span className="text-lg text-muted-foreground line-through">${firm.original_price}</span>
-              <Badge className="bg-destructive/20 text-destructive border-destructive/30">
-                -{discountPercentage}%
-              </Badge>
-            </div>
-            
-            <div className="h-[60px] flex items-center">
-              {normalizedFirm.coupon_code !== 'No coupon' ? (
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 w-full">
-                  <div className="text-sm text-primary font-medium">Coupon Code</div>
-                  <div className="text-lg font-bold text-foreground line-clamp-1">{normalizedFirm.coupon_code}</div>
-                </div>
-              ) : (
-                <div className="bg-muted/10 border border-muted/20 rounded-lg p-3 w-full">
-                  <div className="text-sm text-muted-foreground font-medium">No coupon available</div>
-                </div>
-              )}
-            </div>
-          </div>
-      </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col">
-          <p className="text-muted-foreground mb-4 line-clamp-2 min-h-[48px]">{firm.description || 'No description available'}</p>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Review Score</span>
-              <div className="flex items-center gap-1">
-                <span className="text-warning text-lg">★</span>
-                <span className="text-foreground font-semibold">{normalizedFirm.review_score}</span>
+          {/* Price row */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl font-bold text-success tabular-nums">${firm.price}</span>
+            <span className="text-base text-muted-foreground line-through tabular-nums">${firm.original_price}</span>
+            <Badge className="bg-destructive/15 text-destructive border-destructive/25 text-[10px]">
+              -{discountPercentage}%
+            </Badge>
+          </div>
+
+          {/* Coupon */}
+          <div className="h-[52px]">
+            {normalizedFirm.coupon_code !== 'No coupon' ? (
+              <div className="bg-primary/8 border border-primary/15 rounded-lg p-2.5 w-full">
+                <div className="text-[10px] text-primary font-medium uppercase tracking-wider">Coupon Code</div>
+                <div className="text-sm font-bold text-foreground line-clamp-1 tabular-nums">{normalizedFirm.coupon_code}</div>
               </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Trust Rating</span>
-              <span className="text-success font-semibold">{normalizedFirm.trust_rating}/10</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Profit Split</span>
-              <span className="text-primary font-semibold">{firm.profit_split}%</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Payout Rate</span>
-              <span className="text-accent font-semibold">{firm.payout_rate}%</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Platform</span>
-              <span className="text-foreground font-semibold">{normalizedFirm.platform}</span>
-            </div>
+            ) : (
+              <div className="bg-muted/20 border border-border rounded-lg p-2.5 w-full">
+                <div className="text-[10px] text-muted-foreground">No coupon available</div>
+              </div>
+            )}
           </div>
-        
-          <div className="mt-4 flex-1">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Key Features:</h4>
-            <ul className="space-y-1 min-h-[72px]">
+        </div>
+
+        {/* Content zone */}
+        <div className="px-5 flex-1 flex flex-col">
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2 min-h-[40px]">{firm.description || 'No description available'}</p>
+
+          <div className="space-y-2.5 text-sm">
+            {[
+              { label: "Review Score", value: <><span className="text-warning">★</span> {normalizedFirm.review_score}</>, className: "text-foreground" },
+              { label: "Trust Rating", value: `${normalizedFirm.trust_rating}/10`, className: "text-success" },
+              { label: "Profit Split", value: `${firm.profit_split}%`, className: "text-primary" },
+              { label: "Payout Rate", value: `${firm.payout_rate}%`, className: "text-accent" },
+              { label: "Platform", value: normalizedFirm.platform, className: "text-foreground" },
+            ].map((row, i) => (
+              <div key={i} className="flex justify-between items-center">
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className={`font-semibold tabular-nums ${row.className}`}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 flex-1">
+            <h4 className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Key Features</h4>
+            <ul className="space-y-1 min-h-[60px]">
               {normalizedFirm.features.map((feature, idx) => (
-                <li key={idx} className="text-sm text-muted-foreground flex items-center">
-                  <span className="text-primary mr-2">•</span>
+                <li key={idx} className="text-xs text-muted-foreground flex items-center">
+                  <span className="text-primary mr-2 text-[8px]">●</span>
                   <span className="line-clamp-1">{feature}</span>
                 </li>
               ))}
             </ul>
           </div>
-        </CardContent>
+        </div>
 
-        <CardFooter className="gap-2 flex-col mt-auto">
-          <div className="flex gap-2 w-full">
-            <Button 
-              variant="gradient"
-              className="flex-1"
+        {/* Footer zone */}
+        <div className="p-5 pt-3 mt-auto space-y-2">
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium"
               onClick={handleBuyNow}
             >
               Buy Now
             </Button>
-            <Button 
+            <Button
+              size="sm"
               variant="outline"
-              className="flex-1"
-              onClick={handleViewReview}
+              className="flex-1 border-border text-foreground hover:bg-muted/50 text-xs"
+              onClick={() => navigate(`/firm-reviews/${firm.id}`)}
             >
-              Read Full Review
+              Full Review
             </Button>
           </div>
-          <Button 
-            variant="secondary"
-            className="w-full"
-            onClick={handleWriteReview}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => navigate(`/write-review/${firm.id}`)}
           >
             Write Review
           </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   );
 });
