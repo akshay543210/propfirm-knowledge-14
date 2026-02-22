@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, User, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,130 +19,129 @@ interface NavbarProps {
   setIsAdminMode: (mode: boolean) => void;
 }
 
+const navLinks = [
+  { to: "/", label: "Home" },
+  { to: "/propfirms", label: "All Firms" },
+  { to: "/reviews", label: "Reviews" },
+  { to: "/drama-tracker", label: "Drama Tracker" },
+  { to: "/compare", label: "Compare" },
+];
+
 const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAdmin, signOut } = useAuth();
-
-  const propFirms = location.state?.propFirms || [];
+  const { direction, atTop } = useScrollDirection();
 
   const handleLogout = async () => {
     await signOut();
     navigate("/");
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <nav className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-md border-b border-gradient-to-r from-blue-500/30 via-purple-500/20 to-blue-500/30 sticky top-0 z-50 shadow-xl shadow-blue-900/20">
+    <motion.nav
+      initial={{ y: 0 }}
+      animate={{ y: direction === "down" && !atTop ? -100 : 0 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        atTop
+          ? "bg-background/60 backdrop-blur-xl border-b border-border/0"
+          : "bg-background/80 backdrop-blur-2xl border-b border-border/50 shadow-lg shadow-black/20"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20">
+        <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center gap-3">
-              <Link to="/" className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent hover:from-blue-300 hover:via-purple-300 hover:to-cyan-300 transition-all duration-300">
-                PropFirm Knowledge
-              </Link>
-              {isAdmin && (
-                <span className="hidden md:inline-flex text-xs px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 text-blue-200 border border-blue-400/40 backdrop-blur-sm">
-                  Admin
-                </span>
-              )}
-            </div>
-            
-            <div className="hidden md:ml-12 md:flex md:space-x-1">
-              <Link to="/" className="relative group text-gray-200 hover:text-white px-4 py-3 text-sm font-semibold transition-all duration-300 rounded-lg hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 hover:shadow-lg">
-                <span className="relative z-10">Home</span>
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-              </Link>
-              <Link 
-                to="/propfirms" 
-                state={{ propFirms }}
-                className="relative group text-gray-200 hover:text-white px-4 py-3 text-sm font-semibold transition-all duration-300 rounded-lg hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 hover:shadow-lg"
+            <Link to="/" className="text-xl md:text-2xl font-bold font-heading gradient-text-primary hover:opacity-80 transition-opacity">
+              PropFirm Knowledge
+            </Link>
+            {isAdmin && (
+              <span className="hidden md:inline-flex ml-3 text-[10px] px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 font-medium animate-glow-pulse">
+                Admin
+              </span>
+            )}
+
+            <div className="hidden md:flex md:ml-10 md:gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="relative px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {link.label}
+                  {isActive(link.to) && (
+                    <motion.div
+                      layoutId="nav-underline"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              ))}
+              <Link
+                to="/table-review"
+                className="relative px-3 py-2 text-sm font-semibold"
               >
-                <span className="relative z-10">All Firms</span>
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-              </Link>
-              <Link 
-                to="/reviews" 
-                className="relative group text-gray-200 hover:text-white px-4 py-3 text-sm font-semibold transition-all duration-300 rounded-lg hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 hover:shadow-lg"
-              >
-                <span className="relative z-10">Reviews</span>
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-              </Link>
-              <Link 
-                to="/drama-tracker" 
-                className="relative group text-gray-200 hover:text-white px-4 py-3 text-sm font-semibold transition-all duration-300 rounded-lg hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 hover:shadow-lg"
-              >
-                <span className="relative z-10">Drama Tracker</span>
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-              </Link>
-              <Link 
-                to="/compare" 
-                state={{ propFirms }}
-                className="relative group text-gray-200 hover:text-white px-4 py-3 text-sm font-semibold transition-all duration-300 rounded-lg hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 hover:shadow-lg"
-              >
-                <span className="relative z-10">Compare</span>
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-              </Link>
-              <Link 
-                to="/table-review" 
-                className="relative group text-yellow-300 hover:text-yellow-100 px-4 py-3 text-sm font-bold transition-all duration-300 rounded-lg hover:bg-gradient-to-r hover:from-yellow-600/20 hover:to-orange-600/20 hover:shadow-lg border border-yellow-500/30 hover:border-yellow-400/50"
-              >
-                <span className="relative z-10">✨ Table Review</span>
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-yellow-500/0 to-orange-500/0 group-hover:from-yellow-500/10 group-hover:to-orange-500/10 transition-all duration-300"></div>
+                <span className="relative z-10 gradient-text-primary">✨ Table Review</span>
+                {isActive("/table-review") && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
               </Link>
             </div>
           </div>
 
-          <div className="hidden md:flex md:items-center md:space-x-4">
+          <div className="hidden md:flex md:items-center md:gap-3">
             {isAdmin && (
               <Link to="/admin-dashboard-2024">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-purple-500/30">
-                  Admin Dashboard
+                <Button size="sm" className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 font-medium text-xs">
+                  <Shield className="h-3.5 w-3.5 mr-1.5" />
+                  Admin
                 </Button>
               </Link>
             )}
-            {!user && (
+            {!user ? (
               <>
                 <Link to="/login">
-                  <Button
-                    variant="outline"
-                    className="border-2 border-blue-400/50 text-blue-200 hover:bg-blue-600/20 hover:text-white hover:border-blue-300 font-semibold transition-all duration-300 backdrop-blur-sm"
-                  >
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
                     Login
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium">
                     Sign Up
                   </Button>
                 </Link>
               </>
-            )}
-            {user && (
+            ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg border border-transparent hover:border-blue-500/30">
-                    <User className="h-4 w-4 mr-2" />
-                    {user.email ? user.email.split('@')[0] : 'Account'}
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <User className="h-4 w-4 mr-1.5" />
+                    {user.email ? user.email.split("@")[0] : "Account"}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-slate-800/95 backdrop-blur-md text-gray-200 border border-blue-500/30 shadow-2xl">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-border">
+                  <DropdownMenuLabel className="text-foreground">My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/reviews')}>
-                    My Reviews
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/reviews")}>My Reviews</DropdownMenuItem>
                   {isAdmin && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate('/admin-dashboard-2024')} className="flex items-center">
+                      <DropdownMenuItem onClick={() => navigate("/admin-dashboard-2024")}>
                         <Shield className="h-4 w-4 mr-2" />
                         Admin Panel
                       </DropdownMenuItem>
                     </>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400">
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                     <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
@@ -150,126 +151,92 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
           </div>
 
           <div className="md:hidden flex items-center">
-            <Button
-              variant="ghost"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg p-2"
-            >
-              <Menu className="h-6 w-6" />
+            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-foreground">
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
       </div>
 
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-gradient-to-b from-slate-800/98 to-slate-900/98 backdrop-blur-md border-t border-gradient-to-r from-blue-500/30 to-purple-500/30 shadow-2xl">
-          <div className="px-4 pt-4 pb-6 space-y-2">
-            <Link to="/" className="block px-4 py-3 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg font-medium">
-              🏠 Home
-            </Link>
-            <Link 
-              to="/propfirms" 
-              state={{ propFirms }}
-              className="block px-4 py-3 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg font-medium"
+      {/* Mobile slide-in menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="fixed top-0 right-0 bottom-0 w-72 bg-card/95 backdrop-blur-2xl border-l border-border z-50 md:hidden"
             >
-              🏢 All Firms
-            </Link>
-            <Link 
-              to="/reviews" 
-              className="block px-4 py-3 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg font-medium"
-            >
-              ⭐ Reviews
-            </Link>
-            <Link 
-              to="/drama-tracker" 
-              className="block px-4 py-3 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg font-medium"
-            >
-              🎭 Drama Tracker
-            </Link>
-            <Link 
-              to="/compare" 
-              state={{ propFirms }}
-              className="block px-4 py-3 text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 transition-all duration-300 rounded-lg font-medium"
-            >
-              ⚖️ Compare
-            </Link>
-            <Link 
-              to="/table-review" 
-              className="block px-4 py-3 text-yellow-200 hover:text-yellow-100 hover:bg-gradient-to-r hover:from-yellow-600/20 hover:to-orange-600/20 transition-all duration-300 rounded-lg font-bold border border-yellow-500/30 hover:border-yellow-400/50"
-            >
-              ✨ Table Review
-            </Link>
-            {isAdmin && (
-              <Link 
-                to="/admin-dashboard-2024"
-                className="block px-4 py-3 text-purple-200 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-300 rounded-lg font-bold border border-purple-500/30 hover:border-purple-400/50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                👑 Admin Dashboard
-              </Link>
-            )}
-            {!user && (
-              <div className="border-t border-gradient-to-r from-blue-500/30 to-purple-500/30 pt-4 mt-4 grid grid-cols-2 gap-3">
-                <Link to="/login" className="block">
-                  <Button
-                    variant="ghost"
-                    className="w-full text-left text-blue-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/30 hover:to-purple-600/30 justify-start font-semibold border border-blue-500/30 hover:border-blue-400/50 transition-all duration-300"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    🔐 Login
-                  </Button>
-                </Link>
-                <Link to="/signup" className="block">
-                  <Button
-                    variant="ghost"
-                    className="w-full text-left text-cyan-200 hover:text-white hover:bg-gradient-to-r hover:from-cyan-600/30 hover:to-blue-600/30 justify-start font-semibold border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    🚀 Sign Up
-                  </Button>
-                </Link>
-              </div>
-            )}
-            {user && (
-              <div className="border-t border-gradient-to-r from-blue-500/30 to-purple-500/30 pt-4 mt-4 space-y-2">
-                <Button
-                  variant="ghost"
-                  className="w-full text-left text-gray-200 hover:text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 justify-start font-medium transition-all duration-300 rounded-lg"
-                  onClick={() => {
-                    navigate('/reviews');
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  📝 My Reviews
+              <div className="flex justify-end p-4">
+                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                  <X className="h-5 w-5" />
                 </Button>
+              </div>
+              <div className="px-4 space-y-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(link.to) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Link
+                  to="/table-review"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-3 rounded-lg text-sm font-semibold gradient-text-primary"
+                >
+                  ✨ Table Review
+                </Link>
                 {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    className="w-full text-left text-purple-200 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 justify-start font-medium transition-all duration-300 rounded-lg border border-purple-500/30"
-                    onClick={() => {
-                      navigate('/admin-dashboard-2024');
-                      setIsMobileMenuOpen(false);
-                    }}
+                  <Link
+                    to="/admin-dashboard-2024"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block px-4 py-3 rounded-lg text-sm font-medium text-primary hover:bg-primary/10"
                   >
-                    👑 Admin Panel
-                  </Button>
+                    <Shield className="inline h-4 w-4 mr-2" />
+                    Admin Dashboard
+                  </Link>
                 )}
-                <Button
-                  variant="ghost"
-                  className="w-full text-left text-red-300 hover:text-red-200 hover:bg-gradient-to-r hover:from-red-600/20 hover:to-pink-600/20 justify-start font-medium transition-all duration-300 rounded-lg"
-                  onClick={async () => { 
-                    await handleLogout(); 
-                    setIsMobileMenuOpen(false); 
-                  }}
-                >
-                  🚪 Logout
-                </Button>
+                <div className="gradient-divider my-4" />
+                {!user ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full text-sm border-border">Login</Button>
+                    </Link>
+                    <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button className="w-full text-sm bg-primary text-primary-foreground">Sign Up</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground" onClick={() => { navigate("/reviews"); setIsMobileMenuOpen(false); }}>
+                      My Reviews
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-sm text-destructive" onClick={async () => { await handleLogout(); setIsMobileMenuOpen(false); }}>
+                      <LogOut className="h-4 w-4 mr-2" />Logout
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-      )}
-    </nav>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 };
 
