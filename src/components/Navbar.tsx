@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, User, LogOut, Shield, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { motion, AnimatePresence } from "framer-motion";
+import PayoutSupportBanner from "@/components/PayoutSupportBanner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,36 +41,56 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
   };
 
   const isActive = (path: string) => location.pathname === path;
+  const isSubPage = location.pathname !== "/";
 
   return (
-    <motion.nav
-      initial={{ y: 0 }}
-      animate={{ y: direction === "down" && !atTop ? -100 : 0 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        atTop
-          ? "bg-background/60 backdrop-blur-xl border-b border-border/0"
-          : "bg-background/80 backdrop-blur-2xl border-b border-border/50 shadow-lg shadow-black/20"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-xl md:text-2xl font-bold font-heading gradient-text-primary hover:opacity-80 transition-opacity">
-              PropFirm Knowledge
-            </Link>
-            {isAdmin && (
-              <span className="hidden md:inline-flex ml-3 text-[10px] px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 font-medium animate-glow-pulse">
-                Admin
-              </span>
-            )}
+    <div className="fixed top-0 left-0 right-0 z-50">
+      {/* Banner ABOVE navbar */}
+      <PayoutSupportBanner />
 
-            <div className="hidden md:flex md:ml-10 md:gap-1">
+      {/* Navbar BELOW banner */}
+      <motion.nav
+        initial={{ y: 0 }}
+        animate={{ y: direction === "down" && !atTop ? -100 : 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className={`w-full transition-all duration-300 ${
+          atTop
+            ? "bg-background/60 backdrop-blur-xl border-b border-border/0"
+            : "bg-background/80 backdrop-blur-2xl border-b border-border/50 shadow-lg shadow-black/20"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Back button (sub-pages) + Logo */}
+            <div className="flex items-center gap-2 min-w-0 shrink-0">
+              {isSubPage && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate(-1)}
+                  className="text-muted-foreground hover:text-foreground h-8 w-8 shrink-0"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <Link to="/" className="text-lg md:text-xl font-bold font-heading gradient-text-primary hover:opacity-80 transition-opacity whitespace-nowrap">
+                PropFirm Knowledge
+              </Link>
+              {isAdmin && (
+                <span className="hidden md:inline-flex ml-2 text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 font-medium animate-glow-pulse">
+                  Admin
+                </span>
+              )}
+            </div>
+
+            {/* Center: Nav links */}
+            <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="relative px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="relative px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   {link.label}
                   {isActive(link.to) && (
@@ -83,7 +104,7 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               ))}
               <Link
                 to="/table-review"
-                className="relative px-3 py-2 text-sm font-semibold"
+                className="relative px-3 py-2 text-sm font-semibold whitespace-nowrap"
               >
                 <span className="relative z-10 gradient-text-primary">✨ Table Review</span>
                 {isActive("/table-review") && (
@@ -95,70 +116,72 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
                 )}
               </Link>
             </div>
-          </div>
 
-          <div className="hidden md:flex md:items-center md:gap-3">
-            {isAdmin && (
-              <Link to="/admin-dashboard-2024">
-                <Button size="sm" className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 font-medium text-xs">
-                  <Shield className="h-3.5 w-3.5 mr-1.5" />
-                  Admin
-                </Button>
-              </Link>
-            )}
-            {!user ? (
-              <>
-                <Link to="/login">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
-                    Login
+            {/* Right: Auth actions */}
+            <div className="hidden md:flex items-center gap-2 shrink-0">
+              {isAdmin && (
+                <Link to="/admin-dashboard-2024">
+                  <Button size="sm" className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 font-medium text-xs">
+                    <Shield className="h-3.5 w-3.5 mr-1.5" />
+                    Admin
                   </Button>
                 </Link>
-                <Link to="/signup">
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                    <User className="h-4 w-4 mr-1.5" />
-                    {user.email ? user.email.split("@")[0] : "Account"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-border">
-                  <DropdownMenuLabel className="text-foreground">My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/reviews")}>My Reviews</DropdownMenuItem>
-                  {isAdmin && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate("/admin-dashboard-2024")}>
-                        <Shield className="h-4 w-4 mr-2" />
-                        Admin Panel
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+              )}
+              {!user ? (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                      <User className="h-4 w-4 mr-1.5" />
+                      {user.email ? user.email.split("@")[0] : "Account"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-border">
+                    <DropdownMenuLabel className="text-foreground">My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/reviews")}>My Reviews</DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate("/admin-dashboard-2024")}>
+                          <Shield className="h-4 w-4 mr-2" />
+                          Admin Panel
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
 
-          <div className="md:hidden flex items-center">
-            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-foreground">
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            {/* Mobile: burger */}
+            <div className="md:hidden flex items-center">
+              <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-foreground">
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      </motion.nav>
 
-      {/* Mobile slide-in menu */}
+      {/* Mobile slide-in menu - OUTSIDE nav, at root z-index */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -166,7 +189,7 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[998] md:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <motion.div
@@ -174,10 +197,10 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 250 }}
-              className="fixed top-0 right-0 bottom-0 w-72 bg-card/95 backdrop-blur-2xl border-l border-border z-50 md:hidden"
+              className="fixed top-0 right-0 bottom-0 w-72 bg-card border-l border-border z-[999] md:hidden overflow-y-auto"
             >
               <div className="flex justify-end p-4">
-                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} className="text-foreground">
                   <X className="h-5 w-5" />
                 </Button>
               </div>
@@ -236,7 +259,7 @@ const Navbar = ({ isAdminMode, setIsAdminMode }: NavbarProps) => {
           </>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </div>
   );
 };
 
