@@ -51,7 +51,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <PayoutSupportBanner />
         <BrowserRouter>
           <Suspense fallback={<TradingLoader />}>
             <Routes>

@@ -23,7 +23,7 @@ const PayoutSupportBanner = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -20, opacity: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="w-full sticky top-0 z-[60]"
+          className="w-full"
         >
           <div className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
