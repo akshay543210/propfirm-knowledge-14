@@ -63,7 +63,7 @@ const Reviews = () => {
     <div className="min-h-screen bg-background font-body noise-overlay">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
 
-      <SectionWrapper divider={false} className="pt-24">
+      <SectionWrapper divider={false} className="pt-36">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-3 font-heading">Expert Reviews</h1>

@@ -3,17 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const PayoutSupportBanner = () => {
-  const [visible, setVisible] = useState(() => {
-    try {
-      return localStorage.getItem('payout_banner_dismissed') !== 'true';
-    } catch {
-      return true;
-    }
-  });
+  const [visible, setVisible] = useState(true);
 
   const handleClose = () => {
     setVisible(false);
-    localStorage.setItem('payout_banner_dismissed', 'true');
   };
 
   return (
