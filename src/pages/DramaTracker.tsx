@@ -63,7 +63,7 @@ const DramaTracker = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
-        <div className="container mx-auto px-4 py-20">
+        <div className="container mx-auto px-4 pt-36 py-20">
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
             <span className="ml-3 text-white text-lg">Loading drama reports...</span>
@@ -78,7 +78,7 @@ const DramaTracker = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
-        <div className="container mx-auto px-4 py-20">
+        <div className="container mx-auto px-4 pt-36 py-20">
           <div className="text-center py-20">
             <AlertTriangle className="h-16 w-16 text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Error Loading Reports</h2>
@@ -94,7 +94,7 @@ const DramaTracker = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
       
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 pt-36 py-20">
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
