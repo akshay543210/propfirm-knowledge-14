@@ -40,7 +40,7 @@ const Hero = ({ propFirms, onSearchResults }: HeroProps) => {
   return (
     <motion.section
       ref={heroRef}
-      className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-20 overflow-hidden"
+      className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-36 pb-20 overflow-hidden"
       style={{ y, opacity }}
     >
       {/* Background gradient */}
