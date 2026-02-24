@@ -90,7 +90,7 @@ const FirmReviewDetail = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 pt-44 sm:pt-36 pb-12">
+        <div className="container mx-auto px-4 pt-56 sm:pt-36 pb-12">
           <div className="text-center text-white">Loading...</div>
         </div>
         <Footer />
@@ -102,7 +102,7 @@ const FirmReviewDetail = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 pt-44 sm:pt-36 pb-12">
+        <div className="container mx-auto px-4 pt-56 sm:pt-36 pb-12">
           <div className="text-center text-red-400">Firm not found</div>
         </div>
         <Footer />
@@ -114,7 +114,7 @@ const FirmReviewDetail = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
       
-      <div className="container mx-auto px-4 pt-44 sm:pt-36 pb-6 md:pb-12 max-w-7xl">
+      <div className="container mx-auto px-4 pt-56 sm:pt-36 pb-6 md:pb-12 max-w-7xl">
         {/* Back Button */}
         <Link 
           to="/reviews"

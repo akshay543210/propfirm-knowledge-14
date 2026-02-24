@@ -38,7 +38,7 @@ const TopFirms = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 pt-44 sm:pt-36 py-8">
+        <div className="container mx-auto px-4 pt-56 sm:pt-36 py-8">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
             <div className="text-white text-lg">Loading top prop firms...</div>
@@ -53,7 +53,7 @@ const TopFirms = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 pt-44 sm:pt-36 py-8">
+        <div className="container mx-auto px-4 pt-56 sm:pt-36 py-8">
           <div className="text-center py-12">
             <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
             <div className="text-white text-lg mb-4">Failed to load top firms</div>
@@ -77,7 +77,7 @@ const TopFirms = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
       
-      <div className="container mx-auto px-4 pt-44 sm:pt-36 py-8">
+      <div className="container mx-auto px-4 pt-56 sm:pt-36 py-8">
         <div className="flex items-center mb-6">
           <Button
             variant="outline"
