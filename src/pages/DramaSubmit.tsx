@@ -143,7 +143,7 @@ const DramaSubmit = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
-        <div className="container mx-auto px-4 py-20">
+        <div className="container mx-auto px-4 pt-44 sm:pt-36 pb-20">
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
             <span className="ml-3 text-white text-lg">Loading...</span>
@@ -158,7 +158,7 @@ const DramaSubmit = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={false} setIsAdminMode={() => {}} />
       
-      <div className="container mx-auto px-4 py-20">
+      <div className="container mx-auto px-4 pt-44 sm:pt-36 pb-20">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">

@@ -111,7 +111,7 @@ const TableReview = () => {
     <div className="min-h-screen bg-background font-body noise-overlay">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
 
-      <SectionWrapper divider={false} className="pt-36">
+      <SectionWrapper divider={false} className="pt-44 sm:pt-36">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div className="flex items-center gap-4">
