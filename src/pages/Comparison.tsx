@@ -170,7 +170,7 @@ const Comparison = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
-        <div className="container mx-auto px-4 pt-36 py-12">
+        <div className="container mx-auto px-4 pt-44 sm:pt-36 py-12">
           <div className="text-center text-white">Loading comparison tool...</div>
         </div>
         <Footer />
@@ -182,7 +182,7 @@ const Comparison = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <Navbar isAdminMode={isAdminMode} setIsAdminMode={setIsAdminMode} />
       
-      <div className="container mx-auto px-4 pt-36 py-12">
+      <div className="container mx-auto px-4 pt-44 sm:pt-36 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">
             Compare PropFirms
