@@ -1,34 +1,108 @@
 
-# Fix Mobile Spacing for Banner + Navbar
 
-## Problem
-The fixed header (banner + navbar) is taller on mobile because the banner content stacks vertically. The current `pt-36` (144px) is not enough on mobile screens, causing content to be hidden behind the header. Additionally, several pages are completely missing the top padding fix.
+# SEO-Friendly Slug-Based URLs for All Prop Firm Pages
 
-## Solution
-1. Increase mobile top padding from `pt-36` to `pt-44` (on mobile) while keeping `pt-36` on desktop using responsive classes: `pt-44 sm:pt-36`
-2. Add the missing padding to pages that were never fixed: DramaSubmit, WriteReview, ReviewDetail, FirmReviewDetail
+## Overview
+Replace all UUID-based URLs with clean, slug-based URLs across the entire site. The `slug` column already exists in the `prop_firms` table, so no database migration is needed. The work is primarily routing and link updates.
+
+## Current State
+- `slug` column already exists in `prop_firms` (TEXT, NOT NULL)
+- `PropFirmDetail` already fetches by slug (`eq('slug', id)`)
+- But `FirmReviewDetail` and `WriteReview` still fetch by UUID (`eq('id', firmId)`)
+- All links in cards/reviews point to UUID-based routes (`/firm-reviews/{id}`, `/write-review/{id}`)
+
+## New URL Structure
+
+```text
+OLD                          NEW
+/firms/:id                   /:slug
+/firm-reviews/:firmId         /:slug/reviews
+/write-review/:firmId         /:slug/write-review
+```
+
+Static pages remain unchanged: `/propfirms`, `/compare`, `/reviews`, `/table-review`, etc.
+
+---
+
+## Implementation Steps
+
+### Step 1 -- Update Routes in App.tsx
+
+Replace the three ID-based routes with slug-based equivalents:
+
+```text
+/firms/:id           -->  /:slug
+/firm-reviews/:firmId -->  /:slug/reviews
+/write-review/:firmId -->  /:slug/write-review
+```
+
+The `/:slug` route must be placed AFTER all static routes to avoid conflicts (e.g., `/propfirms`, `/compare`, `/login` must match before the catch-all `/:slug`).
+
+### Step 2 -- Update PropFirmDetail Page
+
+- Change `useParams` from `{ id }` to `{ slug }`
+- Already fetches by slug -- just rename the param variable
+
+### Step 3 -- Update FirmReviewDetail Page
+
+- Change `useParams` from `{ firmId }` to `{ slug }`
+- Change query from `.eq('id', firmId)` to `.eq('slug', slug)`
+- Update the `useReviews` hook call: first fetch firm by slug, then use `firm.id` for reviews
+- Update realtime subscription to use `firm.id` (after fetching)
+
+### Step 4 -- Update WriteReview Page
+
+- Change `useParams` from `{ firmId }` to `{ slug }`
+- Change query from `.eq('id', firmId)` to `.eq('slug', slug)`
+- Update navigation on submit: `navigate(`/${slug}/reviews`)`
+- Update back link: `to={`/${slug}/reviews`}`
+
+### Step 5 -- Update All Internal Links
+
+**PropFirmCard.tsx** (used everywhere -- cards on home, all firms, top firms, cheap firms, table review):
+- `navigate(`/firm-reviews/${firm.id}`)` --> `navigate(`/${firm.slug}/reviews`)`
+- `navigate(`/write-review/${firm.id}`)` --> `navigate(`/${firm.slug}/write-review`)`
+
+**Reviews.tsx** (firm review cards):
+- `to={`/firm-reviews/${firm.id}`}` --> `to={`/${firm.slug}/reviews`}`
+- `to={`/write-review/${firm.id}`}` --> `to={`/${firm.slug}/write-review`}`
+
+**FirmReviewDetail.tsx** (back link):
+- `to="/reviews"` stays the same (goes to reviews listing)
+
+### Step 6 -- Legacy Redirect Support
+
+Add a small component/logic in the `/:slug` route to detect if the param looks like a UUID. If so, fetch the firm by ID, get its slug, and redirect to `/${slug}` with `replace`.
+
+Same logic for `/:slug/reviews` -- if slug looks like a UUID, fetch and redirect.
+
+### Step 7 -- Improve 404 Page
+
+Update `NotFound.tsx` to match the site's dark theme and include a link back to `/propfirms` (All Firms).
+
+### Step 8 -- SEO Meta Tags
+
+Add a reusable `useDocumentTitle` hook or inline `document.title` updates in:
+- `PropFirmDetail`: `{firm.name} | PropFirm Knowledge`
+- `FirmReviewDetail`: `{firm.name} Reviews | PropFirm Knowledge`
+- `WriteReview`: `Write Review for {firm.name} | PropFirm Knowledge`
+
+---
 
 ## Files to Modify
 
-### Pages already using `pt-36` -- change to `pt-44 sm:pt-36`:
-- `src/components/Hero.tsx` (line 43)
-- `src/pages/AllPropFirms.tsx` (line 25)
-- `src/pages/Reviews.tsx` (line 66)
-- `src/pages/TableReview.tsx` (line 114)
-- `src/pages/Comparison.tsx` (2 occurrences)
-- `src/pages/CheapFirms.tsx` (3 occurrences)
-- `src/pages/DramaTracker.tsx` (3 occurrences)
-- `src/pages/PropFirmDetail.tsx`
-- `src/pages/TopFirms.tsx` (3 occurrences)
+| File | Change |
+|------|--------|
+| `src/App.tsx` | Update route paths |
+| `src/pages/PropFirmDetail.tsx` | Rename param to `slug` |
+| `src/pages/FirmReviewDetail.tsx` | Fetch by slug, fix useReviews |
+| `src/pages/WriteReview.tsx` | Fetch by slug, update links |
+| `src/components/PropFirmCard.tsx` | Update nav links to slug |
+| `src/pages/Reviews.tsx` | Update link hrefs to slug |
+| `src/pages/NotFound.tsx` | Improve styling |
 
-### Pages missing padding entirely -- add `pt-44 sm:pt-36`:
-- `src/pages/DramaSubmit.tsx` -- change `py-20` to `pt-44 sm:pt-36 pb-20` on container divs (lines 146, 161)
-- `src/pages/WriteReview.tsx` -- change `py-12` to `pt-44 sm:pt-36 pb-12` on container divs (lines 51, 63, 75)
-- `src/pages/ReviewDetail.tsx` -- add padding to container divs
-- `src/pages/FirmReviewDetail.tsx` -- change `py-12`/`py-6` to include top padding on container divs (lines 93, 105, 117)
+## Risks and Mitigations
+- **Route conflict**: `/:slug` could match static routes like `/login`. Mitigation: place `/:slug` routes AFTER all static routes in the Routes list. React Router matches in order, so static routes take priority.
+- **Bookmarked UUID URLs**: Legacy redirect logic handles this gracefully.
+- **Reviews hook**: `useReviews` takes a `firm_id` (UUID). We still pass `firm.id` after fetching the firm by slug -- no hook changes needed.
 
-## Technical Approach
-- Use Tailwind responsive prefix: `pt-44 sm:pt-36`
-  - Mobile (default): `pt-44` = 176px (enough for stacked banner + navbar)
-  - Desktop (`sm:` and up): `pt-36` = 144px (banner is single row, needs less space)
-- This is a CSS-only fix with no structural changes
