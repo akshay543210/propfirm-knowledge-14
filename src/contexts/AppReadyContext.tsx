@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { healthCheck, recoverSession, clearServiceWorkerCaches } from '@/utils/sessionRecovery';
 
 interface AppReadyContextType {
   appReady: boolean;
@@ -11,29 +12,39 @@ interface AppReadyContextType {
 const AppReadyContext = createContext<AppReadyContextType | undefined>(undefined);
 
 export const AppReadyProvider = ({ children }: { children: ReactNode }) => {
-  // All states start true for immediate readiness - we don't want to block rendering
-  // The key insight: we should NOT wait for auth, just ensure Supabase client exists
   const [appReady] = useState(true);
   const [authReady, setAuthReady] = useState(false);
-  const [marketReady] = useState(true); // Market is sync from localStorage
+  const [marketReady] = useState(true);
 
-  // Check auth session once on mount - but don't block on it for too long
   useEffect(() => {
     let isMounted = true;
     let timeoutTriggered = false;
 
-    // Set a short timeout - if auth takes too long, proceed anyway
+    // Clear old service worker caches on mount
+    clearServiceWorkerCaches();
+
     const authTimeout = setTimeout(() => {
       if (isMounted && !timeoutTriggered) {
         console.log('AppReadyContext: Auth timeout, proceeding without waiting');
         timeoutTriggered = true;
         setAuthReady(true);
       }
-    }, 500); // 500ms max wait for auth
+    }, 500);
 
     const checkAuth = async () => {
       try {
-        await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        // If session exists but has auth errors, try to refresh
+        if (session && error) {
+          console.warn('AppReadyContext: Session error, attempting refresh');
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.warn('AppReadyContext: Refresh failed, recovering session');
+            await recoverSession();
+            return;
+          }
+        }
       } catch (error) {
         console.warn('Auth session check failed:', error);
       } finally {
@@ -44,12 +55,30 @@ export const AppReadyProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    // Start auth check immediately
     checkAuth();
+
+    // Listen for auth errors (expired JWT, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event) => {
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('AppReadyContext: Token refreshed successfully');
+        }
+        if (event === 'SIGNED_OUT') {
+          // Clear prop firm caches on sign out
+          for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const key = sessionStorage.key(i);
+            if (key?.startsWith('propfirm-cache')) {
+              sessionStorage.removeItem(key);
+            }
+          }
+        }
+      }
+    );
 
     return () => {
       isMounted = false;
       clearTimeout(authTimeout);
+      subscription.unsubscribe();
     };
   }, []);
 
