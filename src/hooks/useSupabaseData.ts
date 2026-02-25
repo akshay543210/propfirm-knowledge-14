@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { PropFirm, Review } from '@/types/supabase';
 import { useMarket, MarketType } from '@/contexts/MarketContext';
 import { useAppReady } from '@/contexts/AppReadyContext';
+import { recoverSession, clearRecoveryCounter } from '@/utils/sessionRecovery';
 
 // Cache for prop firms data
 const CACHE_KEY = 'propfirm-cache';
@@ -39,29 +40,55 @@ const setCache = (data: PropFirm[], market: MarketType, type: string): void => {
   }
 };
 
-// Timeout constant - reduced to 6 seconds for faster feedback
-const FETCH_TIMEOUT = 6000;
+// Timeout constant
+const FETCH_TIMEOUT = 10000;
 
-// Helper to create timeout-wrapped fetch
+// Track consecutive failures for global recovery
+let consecutiveFailures = 0;
+
+// Helper to create timeout-wrapped fetch with retry
 const fetchWithTimeout = async <T>(
   fetchFn: () => Promise<T>,
   timeoutMs: number = FETCH_TIMEOUT
 ): Promise<T> => {
-  return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-      reject(new Error('Request timeout'));
-    }, timeoutMs);
+  const attempt = async (): Promise<T> => {
+    return new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error('Request timeout'));
+      }, timeoutMs);
 
-    fetchFn()
-      .then((result) => {
-        clearTimeout(timeoutId);
-        resolve(result);
-      })
-      .catch((error) => {
-        clearTimeout(timeoutId);
-        reject(error);
-      });
-  });
+      fetchFn()
+        .then((result) => {
+          clearTimeout(timeoutId);
+          consecutiveFailures = 0;
+          clearRecoveryCounter();
+          resolve(result);
+        })
+        .catch((error) => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
+    });
+  };
+
+  try {
+    return await attempt();
+  } catch (firstError) {
+    // Retry once
+    console.warn('Fetch failed, retrying once...', firstError);
+    try {
+      return await attempt();
+    } catch (retryError) {
+      consecutiveFailures++;
+      // After 2 consecutive failures across hooks, trigger session recovery
+      if (consecutiveFailures >= 2) {
+        console.error('Multiple fetch failures detected, recovering session');
+        consecutiveFailures = 0;
+        await recoverSession();
+      }
+      throw retryError;
+    }
+  }
 };
 
 export const usePropFirms = () => {
