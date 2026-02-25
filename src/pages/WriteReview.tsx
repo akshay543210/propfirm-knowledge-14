@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import WriteReviewForm from "@/components/WriteReviewForm";
 
 const WriteReview = () => {
-  const { firmId } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [firm, setFirm] = useState<PropFirm | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,17 +18,18 @@ const WriteReview = () => {
 
   useEffect(() => {
     const fetchFirm = async () => {
-      if (!firmId) return;
+      if (!slug) return;
       
       try {
         const { data, error } = await supabase
           .from('prop_firms')
           .select('*')
-          .eq('id', firmId)
+          .eq('slug', slug)
           .single();
 
         if (error) throw error;
         setFirm(data as any);
+        document.title = `Write Review for ${data.name} | PropFirm Knowledge`;
       } catch (error) {
         console.error('Error fetching firm:', error);
         navigate('/reviews');
@@ -38,10 +39,10 @@ const WriteReview = () => {
     };
 
     fetchFirm();
-  }, [firmId, navigate]);
+  }, [slug, navigate]);
 
   const handleReviewSubmitted = () => {
-    navigate(`/firm-reviews/${firmId}`);
+    navigate(`/${slug}/reviews`);
   };
 
   if (loading) {
@@ -75,7 +76,7 @@ const WriteReview = () => {
       <div className="container mx-auto px-4 pt-56 sm:pt-36 pb-12">
         {/* Back Button */}
         <Link 
-          to={`/firm-reviews/${firmId}`}
+          to={`/${slug}/reviews`}
           className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

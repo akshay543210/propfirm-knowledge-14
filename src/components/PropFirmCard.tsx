@@ -137,7 +137,7 @@ const PropFirmCard = memo(({ firm, index = 0 }: PropFirmCardProps) => {
               size="sm"
               variant="outline"
               className="flex-1 border-border text-foreground hover:bg-muted/50 text-xs"
-              onClick={() => navigate(`/firm-reviews/${firm.id}`)}
+              onClick={() => navigate(`/${firm.slug}/reviews`)}
             >
               Full Review
             </Button>
@@ -146,7 +146,7 @@ const PropFirmCard = memo(({ firm, index = 0 }: PropFirmCardProps) => {
             size="sm"
             variant="ghost"
             className="w-full text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => navigate(`/write-review/${firm.id}`)}
+            onClick={() => navigate(`/${firm.slug}/write-review`)}
           >
             Write Review
           </Button>

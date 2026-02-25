@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,8 +13,11 @@ import WriteReviewForm from "@/components/WriteReviewForm";
 import AccountSizesTable from "@/components/AccountSizesTable";
 import { dummyAccountSizes } from "@/data/accountSizes";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const PropFirmDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const [firm, setFirm] = useState<PropFirm | null>(null);
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -23,17 +26,31 @@ const PropFirmDetail = () => {
 
   useEffect(() => {
     const fetchFirm = async () => {
-      if (!id) return;
+      if (!slug) return;
+
+      // Legacy UUID redirect
+      if (UUID_REGEX.test(slug)) {
+        const { data } = await supabase
+          .from('prop_firms')
+          .select('slug')
+          .eq('id', slug)
+          .single();
+        if (data?.slug) {
+          navigate(`/${data.slug}`, { replace: true });
+          return;
+        }
+      }
       
       try {
         const { data, error } = await supabase
           .from('prop_firms')
           .select('*')
-          .eq('slug', id)
+          .eq('slug', slug)
           .single();
 
         if (error) throw error;
         setFirm(data as any);
+        document.title = `${data.name} | PropFirm Knowledge`;
       } catch (error) {
         console.error('Error fetching firm:', error);
       } finally {
@@ -42,7 +59,7 @@ const PropFirmDetail = () => {
     };
 
     fetchFirm();
-  }, [id]);
+  }, [slug, navigate]);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
