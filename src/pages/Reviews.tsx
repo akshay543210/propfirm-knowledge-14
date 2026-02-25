@@ -122,10 +122,10 @@ const Reviews = () => {
                       <div><span className="text-muted-foreground text-xs">Payout:</span><div className="text-foreground font-semibold tabular-nums">{firm.payout_rate}%</div></div>
                     </div>
                     <div className="flex gap-2">
-                      <Link to={`/firm-reviews/${firm.id}`} className="flex-1">
+                      <Link to={`/${firm.slug}/reviews`} className="flex-1">
                         <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs">Read Full Review</Button>
                       </Link>
-                      <Link to={`/write-review/${firm.id}`} className="flex-1">
+                      <Link to={`/${firm.slug}/write-review`} className="flex-1">
                         <Button size="sm" variant="outline" className="w-full border-border text-foreground text-xs">Write Review</Button>
                       </Link>
                     </div>

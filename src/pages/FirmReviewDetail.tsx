@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,27 +11,44 @@ import Footer from "@/components/Footer";
 import WriteReviewForm from "@/components/WriteReviewForm";
 import { useReviews } from "@/hooks/useSupabaseData";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const FirmReviewDetail = () => {
-  const { firmId } = useParams();
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const [firm, setFirm] = useState<PropFirm | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showWriteReview, setShowWriteReview] = useState(false);
-  const { reviews, loading: reviewsLoading } = useReviews(firmId);
+  const { reviews, loading: reviewsLoading } = useReviews(firm?.id);
 
   useEffect(() => {
     const fetchFirm = async () => {
-      if (!firmId) return;
+      if (!slug) return;
+
+      // Legacy UUID redirect
+      if (UUID_REGEX.test(slug)) {
+        const { data } = await supabase
+          .from('prop_firms')
+          .select('slug')
+          .eq('id', slug)
+          .single();
+        if (data?.slug) {
+          navigate(`/${data.slug}/reviews`, { replace: true });
+          return;
+        }
+      }
       
       try {
         const { data, error } = await supabase
           .from('prop_firms')
           .select('*')
-          .eq('id', firmId)
+          .eq('slug', slug)
           .single();
 
         if (error) throw error;
         setFirm(data as any);
+        document.title = `${data.name} Reviews | PropFirm Knowledge`;
       } catch (error) {
         console.error('Error fetching firm:', error);
       } finally {
@@ -40,11 +57,11 @@ const FirmReviewDetail = () => {
     };
 
     fetchFirm();
-  }, [firmId]);
+  }, [slug]);
 
   // Real-time subscription for new reviews
   useEffect(() => {
-    if (!firmId) return;
+    if (!firm?.id) return;
 
     const channel = supabase
       .channel('firm-reviews')
@@ -54,11 +71,10 @@ const FirmReviewDetail = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'reviews',
-          filter: `firm_id=eq.${firmId}`
+          filter: `firm_id=eq.${firm.id}`
         },
         (payload) => {
           console.log('New review added:', payload);
-          // The useReviews hook will handle the update
           window.location.reload();
         }
       )
@@ -67,7 +83,7 @@ const FirmReviewDetail = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [firmId]);
+  }, [firm?.id]);
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (

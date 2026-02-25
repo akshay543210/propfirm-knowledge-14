@@ -61,11 +61,8 @@ const App = () => (
               <Route path="/drama-tracker" element={<DramaTracker />} />
               <Route path="/drama-tracker/submit" element={<DramaSubmit />} />
               <Route path="/top-firms" element={<TopFirms />} />
-              <Route path="/firms/:id" element={<PropFirmDetail />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/reviews/:slug" element={<ReviewDetail />} />
-              <Route path="/firm-reviews/:firmId" element={<FirmReviewDetail />} />
-              <Route path="/write-review/:firmId" element={<WriteReview />} />
               <Route path="/table-review" element={<TableReview />} />
 
               {/* Public auth routes */}
@@ -82,6 +79,11 @@ const App = () => (
               <Route element={<AdminRoute />}>
                 <Route path="/admin-dashboard-2024" element={<AdminDashboard />} />
               </Route>
+
+              {/* Slug-based firm routes (must be after all static routes) */}
+              <Route path="/:slug" element={<PropFirmDetail />} />
+              <Route path="/:slug/reviews" element={<FirmReviewDetail />} />
+              <Route path="/:slug/write-review" element={<WriteReview />} />
 
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
