@@ -46,41 +46,41 @@ const FETCH_TIMEOUT = 10000;
 // Track consecutive failures for global recovery
 let consecutiveFailures = 0;
 
-// Helper to create timeout-wrapped fetch with retry
+/**
+ * Resilient fetch helper:
+ *  - Uses AbortController to actually cancel hanging requests
+ *  - 10s timeout
+ *  - Retries exactly once on failure
+ *  - After 2 consecutive final failures, triggers session recovery
+ */
 const fetchWithTimeout = async <T>(
-  fetchFn: () => Promise<T>,
+  fetchFn: (signal: AbortSignal) => Promise<T>,
   timeoutMs: number = FETCH_TIMEOUT
 ): Promise<T> => {
   const attempt = async (): Promise<T> => {
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        reject(new Error('Request timeout'));
-      }, timeoutMs);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-      fetchFn()
-        .then((result) => {
-          clearTimeout(timeoutId);
-          consecutiveFailures = 0;
-          clearRecoveryCounter();
-          resolve(result);
-        })
-        .catch((error) => {
-          clearTimeout(timeoutId);
-          reject(error);
-        });
-    });
+    try {
+      const result = await fetchFn(controller.signal);
+      clearTimeout(timeoutId);
+      consecutiveFailures = 0;
+      clearRecoveryCounter();
+      return result;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      throw err;
+    }
   };
 
   try {
     return await attempt();
   } catch (firstError) {
-    // Retry once
     console.warn('Fetch failed, retrying once...', firstError);
     try {
       return await attempt();
     } catch (retryError) {
       consecutiveFailures++;
-      // After 2 consecutive failures across hooks, trigger session recovery
       if (consecutiveFailures >= 2) {
         console.error('Multiple fetch failures detected, recovering session');
         consecutiveFailures = 0;
@@ -124,12 +124,13 @@ export const usePropFirms = () => {
       if (!cached?.length) setLoading(true);
       setError(null);
 
-      const { data, error: dbError } = await fetchWithTimeout(async () => {
+      const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
         return supabase
           .from('prop_firms')
           .select('*')
           .contains('market_type', [market])
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .abortSignal(signal);
       });
 
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
@@ -215,11 +216,12 @@ export const useAllPropFirms = () => {
       setLoading(true);
       setError(null);
 
-      const { data, error: dbError } = await fetchWithTimeout(async () => {
+      const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
         return supabase
           .from('prop_firms')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .abortSignal(signal);
       });
 
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
@@ -307,13 +309,14 @@ export const useHomepagePropFirms = () => {
       if (!cached?.length) setLoading(true);
       setError(null);
 
-      const { data, error: dbError } = await fetchWithTimeout(async () => {
+      const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
         return supabase
           .from('prop_firms')
           .select('*')
           .eq('show_on_homepage', true)
           .contains('market_type', [market])
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .abortSignal(signal);
       });
 
       // Check if this fetch is still relevant
@@ -436,13 +439,14 @@ export const useTopRatedFirms = () => {
       if (!cached?.length) setLoading(true);
       setError(null);
 
-      const { data, error: dbError } = await fetchWithTimeout(async () => {
+      const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
         return supabase
           .from('prop_firms')
           .select('*')
           .contains('market_type', [market])
           .order('review_score', { ascending: false })
-          .limit(10);
+          .limit(10)
+          .abortSignal(signal);
       });
 
       if (currentFetchId !== fetchIdRef.current || !isMountedRef.current) {
@@ -528,7 +532,7 @@ export const useReviews = (firmId?: string) => {
         setLoading(true);
         setError(null);
 
-        const { data, error: dbError } = await fetchWithTimeout(async () => {
+        const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
           let query = supabase
             .from('reviews')
             .select(`
@@ -552,7 +556,8 @@ export const useReviews = (firmId?: string) => {
               )
             `)
             .eq('market_type', market)
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false })
+            .abortSignal(signal);
 
           if (firmId) {
             query = query.eq('firm_id', firmId);
@@ -625,11 +630,12 @@ export const usePropFirmBySlug = (slug: string) => {
         setLoading(true);
         setError(null);
 
-        const { data, error: dbError } = await fetchWithTimeout(async () => {
+        const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
           return supabase
             .from('prop_firms')
             .select('*')
             .eq('slug', slug)
+            .abortSignal(signal)
             .single();
         });
 
@@ -693,11 +699,12 @@ export const usePropFirmById = (id: string) => {
         setLoading(true);
         setError(null);
 
-        const { data, error: dbError } = await fetchWithTimeout(async () => {
+        const { data, error: dbError } = await fetchWithTimeout(async (signal) => {
           return supabase
             .from('prop_firms')
             .select('*')
             .eq('id', id)
+            .abortSignal(signal)
             .single();
         });
 

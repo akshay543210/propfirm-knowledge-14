@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { PropFirm } from '@/types/supabase';
 import { useAppReady } from '@/contexts/AppReadyContext';
+import { recoverSession, clearRecoveryCounter } from '@/utils/sessionRecovery';
 
-const FETCH_TIMEOUT = 6000;
+const FETCH_TIMEOUT = 10000;
 
 export const useTableReviewFirms = () => {
   const [firms, setFirms] = useState<PropFirm[]>([]);
@@ -23,65 +24,74 @@ export const useTableReviewFirms = () => {
     hasFetchedRef.current = true;
 
     const fetchTableReviewFirms = async () => {
+      const attempt = async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+        
+        try {
+          const { data, error } = await supabase
+            .from('section_memberships')
+            .select(`
+              id,
+              firm_id,
+              rank,
+              prop_firms:firm_id (
+                id,
+                name,
+                slug,
+                category_id,
+                price,
+                original_price,
+                coupon_code,
+                review_score,
+                trust_rating,
+                description,
+                features,
+                logo_url,
+                profit_split,
+                payout_rate,
+                funding_amount,
+                user_review_count,
+                pros,
+                cons,
+                affiliate_url,
+                brand,
+                platform,
+                max_funding,
+                evaluation_model,
+                starting_fee,
+                regulation,
+                show_on_homepage,
+                created_at,
+                updated_at
+              )
+            `)
+            .eq('section_type', 'table-review')
+            .order('rank', { ascending: true })
+            .abortSignal(controller.signal);
+
+          clearTimeout(timeoutId);
+          if (error) throw error;
+          return data;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      };
+
       try {
         setLoading(true);
-        
-        // Create timeout promise
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), FETCH_TIMEOUT);
-        });
-        
-        // Create fetch promise
-        const fetchPromise = supabase
-          .from('section_memberships')
-          .select(`
-            id,
-            firm_id,
-            rank,
-            prop_firms:firm_id (
-              id,
-              name,
-              slug,
-              category_id,
-              price,
-              original_price,
-              coupon_code,
-              review_score,
-              trust_rating,
-              description,
-              features,
-              logo_url,
-              profit_split,
-              payout_rate,
-              funding_amount,
-              user_review_count,
-              pros,
-              cons,
-              affiliate_url,
-              brand,
-              platform,
-              max_funding,
-              evaluation_model,
-              starting_fee,
-              regulation,
-              show_on_homepage,
-              created_at,
-              updated_at
-            )
-          `)
-          .eq('section_type', 'table-review')
-          .order('rank', { ascending: true });
 
-        const { data, error } = await Promise.race([
-          fetchPromise,
-          timeoutPromise
-        ]) as Awaited<typeof fetchPromise>;
+        let data: any;
+        try {
+          data = await attempt();
+        } catch (firstError) {
+          console.warn('useTableReviewFirms: First attempt failed, retrying...', firstError);
+          data = await attempt();
+        }
 
         if (!isMountedRef.current) return;
-
-        if (error) throw error;
         
-        // Extract the prop_firms data from the section_memberships result
         const firms = data
           .map((item: any) => ({
             ...item.prop_firms,
@@ -91,6 +101,7 @@ export const useTableReviewFirms = () => {
         
         setFirms(firms);
         setError(null);
+        clearRecoveryCounter();
       } catch (err) {
         if (!isMountedRef.current) return;
         setError(err instanceof Error ? err.message : 'An error occurred');

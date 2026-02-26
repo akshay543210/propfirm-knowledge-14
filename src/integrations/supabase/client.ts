@@ -5,6 +5,18 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jkiblofuayvdrrxbbhuu.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWJsb2Z1YXl2ZHJyeGJiaHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExODE0MjAsImV4cCI6MjA2Njc1NzQyMH0.p18BeXmlbh_5RPF54KF0yahyJ0fCC17GOOHk4bE2wLg";
 
+// Cache-busting fetch wrapper — forces no-store on every Supabase request
+const noCacheFetch: typeof fetch = (input, init) => {
+  const headers = new Headers(init?.headers);
+  headers.set('Cache-Control', 'no-cache, no-store, max-age=0');
+  headers.set('Pragma', 'no-cache');
+  return fetch(input, {
+    ...init,
+    headers,
+    cache: 'no-store' as RequestCache,
+  });
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -13,5 +25,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-  }
+  },
+  global: {
+    fetch: noCacheFetch,
+  },
 });
