@@ -23,6 +23,7 @@ export const AppReadyProvider = ({ children }: { children: ReactNode }) => {
     // Clear old service worker caches on mount
     clearServiceWorkerCaches();
 
+    // Fast-boot timeout – never wait longer than 500ms for auth
     const authTimeout = setTimeout(() => {
       if (isMounted && !timeoutTriggered) {
         console.log('AppReadyContext: Auth timeout, proceeding without waiting');
@@ -45,6 +46,14 @@ export const AppReadyProvider = ({ children }: { children: ReactNode }) => {
             return;
           }
         }
+
+        // Run a lightweight health check to confirm DB connectivity
+        const healthy = await healthCheck();
+        if (!healthy && session) {
+          console.warn('AppReadyContext: Health check failed with existing session, recovering');
+          await recoverSession();
+          return;
+        }
       } catch (error) {
         console.warn('Auth session check failed:', error);
       } finally {
@@ -57,20 +66,25 @@ export const AppReadyProvider = ({ children }: { children: ReactNode }) => {
 
     checkAuth();
 
-    // Listen for auth errors (expired JWT, etc.)
+    // Listen for auth state changes and actively clean stale sessions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event) => {
+      async (event, session) => {
         if (event === 'TOKEN_REFRESHED') {
           console.log('AppReadyContext: Token refreshed successfully');
         }
         if (event === 'SIGNED_OUT') {
-          // Clear prop firm caches on sign out
+          // Full cache purge on sign-out
           for (let i = sessionStorage.length - 1; i >= 0; i--) {
             const key = sessionStorage.key(i);
             if (key?.startsWith('propfirm-cache')) {
               sessionStorage.removeItem(key);
             }
           }
+        }
+        // If we get a SIGNED_IN event with no valid session, something is stale
+        if (event === 'SIGNED_IN' && !session) {
+          console.warn('AppReadyContext: SIGNED_IN with null session, recovering');
+          await recoverSession();
         }
       }
     );
@@ -82,7 +96,6 @@ export const AppReadyProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  // All systems ready when all three are true
   const allReady = appReady && authReady && marketReady;
 
   const contextValue = useMemo(() => ({

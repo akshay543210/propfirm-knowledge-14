@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { PropFirm } from '@/types/supabase';
 import { useMarket, MarketType } from '@/contexts/MarketContext';
 import { useAppReady } from '@/contexts/AppReadyContext';
+import { clearRecoveryCounter } from '@/utils/sessionRecovery';
 
 interface SectionFirm extends PropFirm {
   membership_id: string;
@@ -11,7 +12,7 @@ interface SectionFirm extends PropFirm {
 }
 
 // Timeout for failsafe
-const FETCH_TIMEOUT = 6000;
+const FETCH_TIMEOUT = 10000;
 
 // Helper function to filter firms by market
 const filterByMarket = (firms: SectionFirm[], market: MarketType): SectionFirm[] => {
@@ -47,115 +48,62 @@ export const useSectionMemberships = () => {
       setError(null);
       
       console.log('useSectionMemberships: Starting to fetch memberships...');
-      
-      // Fetch budget firms from section_memberships
-      console.log('useSectionMemberships: Fetching budget firms...');
-      const { data: budgetData, error: budgetError } = await supabase
-        .from('section_memberships')
-        .select(`
-          id,
-          firm_id,
-          rank,
-          prop_firms:firm_id (*)
-        `)
-        .eq('section_type', 'budget-firms')
-        .order('rank', { ascending: true });
 
-      if (budgetError) {
-        console.error('Budget firms fetch error:', budgetError);
-        setError(`Budget firms error: ${budgetError.message}`);
-      }
-      
-      const budgetFirms = budgetData
-        ?.map((item: any) => ({
-          ...(item.prop_firms || {}),
-          membership_id: item.id
-        }))
-        .filter((firm: any) => firm && firm.id) || [];
-      
-      console.log('useSectionMemberships: Budget firms found:', budgetFirms.length);
-      setBudgetFirms(budgetFirms);
+      const fetchSection = async (sectionType: string) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+        try {
+          const { data, error } = await supabase
+            .from('section_memberships')
+            .select(`
+              id,
+              firm_id,
+              rank,
+              prop_firms:firm_id (*)
+            `)
+            .eq('section_type', sectionType)
+            .order('rank', { ascending: true })
+            .abortSignal(controller.signal);
+          clearTimeout(timeoutId);
+          if (error) throw error;
+          return data;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      };
 
-      // Fetch top firms from section_memberships
-      console.log('useSectionMemberships: Fetching top firms...');
-      const { data: topData, error: topError } = await supabase
-        .from('section_memberships')
-        .select(`
-          id,
-          firm_id,
-          rank,
-          prop_firms:firm_id (*)
-        `)
-        .eq('section_type', 'top-firms')
-        .order('rank', { ascending: true });
+      // Fetch all four sections in parallel with retry
+      const fetchWithRetry = async (sectionType: string) => {
+        try {
+          return await fetchSection(sectionType);
+        } catch (firstErr) {
+          console.warn(`useSectionMemberships: ${sectionType} first attempt failed, retrying...`);
+          return await fetchSection(sectionType);
+        }
+      };
 
-      if (topError) {
-        console.error('Top firms fetch error:', topError);
-        setError(`Top firms error: ${topError.message}`);
-      }
-      
-      const topFirms = topData
-        ?.map((item: any) => ({
-          ...(item.prop_firms || {}),
-          membership_id: item.id
-        }))
-        .filter((firm: any) => firm && firm.id) || [];
-      
-      console.log('useSectionMemberships: Top firms found:', topFirms.length);
-      setTopFirms(topFirms);
+      const [budgetData, topData, tableData, exploreData] = await Promise.all([
+        fetchWithRetry('budget-firms').catch(e => { console.error('Budget firms fetch error:', e); return null; }),
+        fetchWithRetry('top-firms').catch(e => { console.error('Top firms fetch error:', e); return null; }),
+        fetchWithRetry('table-review').catch(e => { console.error('Table review fetch error:', e); return null; }),
+        fetchWithRetry('explore-firms').catch(e => { console.error('Explore firms fetch error:', e); return null; }),
+      ]);
 
-      // Fetch table review firms from section_memberships
-      const { data: tableData, error: tableError } = await supabase
-        .from('section_memberships')
-        .select(`
-          id,
-          firm_id,
-          rank,
-          prop_firms:firm_id (*)
-        `)
-        .eq('section_type', 'table-review')
-        .order('rank', { ascending: true });
+      const mapFirms = (data: any[] | null, withRank = false) =>
+        (data || [])
+          .map((item: any) => ({
+            ...(item.prop_firms || {}),
+            membership_id: item.id,
+            ...(withRank ? { sort_priority: item.rank } : {}),
+          }))
+          .filter((firm: any) => firm && firm.id);
 
-      if (tableError) {
-        console.error('Table review firms fetch error:', tableError);
-        setError(`Table review error: ${tableError.message}`);
-      }
-      
-      const tableReviewFirms = tableData
-        ?.map((item: any) => ({
-          ...(item.prop_firms || {}),
-          membership_id: item.id,
-          sort_priority: item.rank
-        }))
-        .filter((firm: any) => firm && firm.id) || [];
-      
-      setTableReviewFirms(tableReviewFirms);
-      
-      // Fetch explore firms from section_memberships
-      const { data: exploreData, error: exploreError } = await supabase
-        .from('section_memberships')
-        .select(`
-          id,
-          firm_id,
-          rank,
-          prop_firms:firm_id (*)
-        `)
-        .eq('section_type', 'explore-firms')
-        .order('rank', { ascending: true });
-      
-      if (exploreError) {
-        console.error('Explore firms fetch error:', exploreError);
-        setError(`Explore firms error: ${exploreError.message}`);
-      }
-      
-      const exploreFirms = exploreData
-        ?.map((item: any) => ({
-          ...(item.prop_firms || {}),
-          membership_id: item.id
-        }))
-        .filter((firm: any) => firm && firm.id) || [];
-      
-      setExploreFirms(exploreFirms);
+      setBudgetFirms(mapFirms(budgetData));
+      setTopFirms(mapFirms(topData));
+      setTableReviewFirms(mapFirms(tableData, true));
+      setExploreFirms(mapFirms(exploreData));
+      clearRecoveryCounter();
     } catch (error: any) {
       console.error('Error fetching section memberships:', error);
       setError(error.message || 'Failed to fetch section memberships');
