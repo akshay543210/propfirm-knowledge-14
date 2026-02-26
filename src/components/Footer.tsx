@@ -1,4 +1,4 @@
-import { Facebook, Linkedin, Youtube } from "lucide-react";
+import { MessageCircle, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -22,12 +22,12 @@ const Footer = () => {
             </p>
             <div className="flex space-x-3">
               {[
-                { href: "https://facebook.com", icon: Facebook },
-                { href: "https://linkedin.com", icon: Linkedin },
-                { href: "https://youtube.com", icon: Youtube },
-              ].map(({ href, icon: Icon }) => (
+                { href: "https://x.com/free_propfirm?s=09", icon: () => <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>, label: "Twitter" },
+                { href: "https://telegram.dog/free_propfirm_accounts", icon: Send, label: "Telegram" },
+                { href: "https://discord.gg/7MRsuqqT3n", icon: MessageCircle, label: "Discord" },
+              ].map(({ href, icon: Icon, label }) => (
                 <a
-                  key={href}
+                  key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
