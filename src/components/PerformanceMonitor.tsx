@@ -34,7 +34,7 @@ const PerformanceMonitor = () => {
 
   // Show performance monitor only in development
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       setIsVisible(true);
     }
   }, []);
