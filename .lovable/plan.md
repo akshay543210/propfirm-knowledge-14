@@ -1,75 +1,172 @@
+# PropFirm Knowledge — Advanced Search & Filtering
 
-Goal: permanently stabilize prop-firm loading without changing UI layout/components, by hardening session handling + fetch behavior.
+Adapted to this project's stack: **Vite + React + Supabase** (no Next.js). Server-side work runs in **Supabase Edge Functions**. SEO via `react-helmet-async` + a generated `sitemap.xml`. Meta Pixel client-side only (no CAPI).
 
-What I found from your current code/logs:
-- `persistSession` and `autoRefreshToken` are already enabled in `src/integrations/supabase/client.ts`.
-- Repeated timeouts are happening in `useSupabaseData.ts` even when Supabase later returns data; the timeout wrapper currently rejects after 10s but does not abort the underlying request.
-- Recovery exists, but storage clearing is selective (not full), and health checks are defined but not consistently used before data fetches.
-- Some prop-firm related hooks still use separate timeout logic (6s, no retry standardization), which creates inconsistent behavior across pages.
+---
 
-Implementation plan (no UI breakage, logic-only changes):
+## Phase 1 — Schema upgrades & slug hardening
 
-1) Harden Supabase client fetch behavior (cache busting globally)
-- File: `src/integrations/supabase/client.ts`
-- Keep auth config as-is (`persistSession: true`, `autoRefreshToken: true`).
-- Add `global.fetch` wrapper to force `cache: 'no-store'` on all Supabase HTTP calls.
-- Add `Cache-Control: no-cache, no-store, max-age=0` and `Pragma: no-cache` headers in the wrapper for stronger browser/proxy bypass.
+`prop_firms` already has `slug`. We will add the missing search/filter columns and indexes via one migration.
 
-2) Strengthen invalid-session reset behavior
-- File: `src/utils/sessionRecovery.ts`
-- Expand recovery to clear both `localStorage` and `sessionStorage` when session is invalid, while safely preserving only the internal recovery-attempt guard key.
-- Add a recovery lock (module-level flag/promise) so multiple hooks cannot trigger overlapping recoveries/reloads.
-- Ensure recovery path also clears service worker caches before reload.
-- Keep max-attempt protection (2) to prevent infinite reload loops.
+New columns on `prop_firms`:
+- `platforms text[]` (e.g. `{MT4,MT5,cTrader,DXtrade}`)
+- `asset_classes text[]` (e.g. `{Forex,Futures,Crypto,Indices}`)
+- `feature_tags text[]` (e.g. `{scaling,lifetime,no-time-limit}`)
+- `countries text[]` (ISO codes; empty = global)
+- `fee_min numeric`, `fee_max numeric`
+- `account_min numeric`, `account_max numeric`
+- `profit_split_min numeric`, `profit_split_max numeric`
+- `year_established int`
+- `verified boolean default false`
+- `rating_avg numeric(2,1)` (mirror of `review_score` for sort/filter)
+- `tsv tsvector` (generated from name + brand + description)
 
-3) Make auth-state listener actively clean stale sessions
-- File: `src/contexts/AppReadyContext.tsx`
-- Update `onAuthStateChange` callback signature to use both `event` and `session`.
-- On invalid states (e.g., signed out unexpectedly with stale auth artifacts), trigger the hardened recovery reset once.
-- Keep fast boot timeout behavior so app never hangs waiting for auth readiness.
-- Use existing health check as part of startup readiness gate before data-heavy operations proceed.
+Indexes:
+- `GIN` on `platforms`, `asset_classes`, `feature_tags`, `countries`, `tsv`
+- `pg_trgm` extension + trigram GIN on `name` and `slug` (fuzzy match)
+- B-tree on `fee_min`, `fee_max`, `rating_avg`, `year_established`, `verified`
 
-4) Replace timeout helper with abortable resilient query runner
-- File: `src/hooks/useSupabaseData.ts`
-- Refactor `fetchWithTimeout` to:
-  - use `AbortController`,
-  - pass `.abortSignal(signal)` into every Supabase query,
-  - timeout at 10s,
-  - retry exactly once,
-  - increment a shared consecutive-failure counter only after final failure.
-- Add pre-fetch health check (lightweight) before main prop-firm queries; if unhealthy, run recovery path early instead of waiting for hanging queries.
-- On 2 consecutive final failures, trigger safe app recovery/reload once.
-- Keep all existing `finally { setLoading(false) }` guards and mounted checks to avoid UI regressions.
+Triggers:
+- BEFORE INSERT/UPDATE trigger maintains `tsv = to_tsvector('english', coalesce(name,'')||' '||coalesce(brand,'')||' '||coalesce(description,''))`
+- BEFORE INSERT trigger auto-fills `slug` from `name` if null, ensuring uniqueness with `-2`, `-3` suffixes
 
-5) Standardize all prop-firm related hooks to same resilient logic
-- Files:
-  - `src/hooks/useSupabaseData.ts` (all prop firm/review fetches),
-  - `src/hooks/useSectionMemberships.ts`,
-  - `src/hooks/useTableReviewFirms.ts`.
-- Move 6s custom timeout flows to the shared 10s + one retry + abort-signal pattern.
-- Ensure each async fetch path always ends loading state in `finally`.
-- Keep current data shape/state contracts unchanged so components render exactly as now.
+Backfill:
+- Populate `slug` for any null rows
+- Default `platforms` from existing single `platform` text column where present
+- Default `fee_min/fee_max` from `price`/`starting_fee`
+- Default `rating_avg` from `review_score`
 
-6) Remove loop risks while keeping existing behavior
-- Audit effect dependencies in touched hooks:
-  - ensure fetch callbacks are stable,
-  - avoid re-trigger loops from state updates inside same effect chain,
-  - keep one-time initialization guards where needed.
-- Do not alter navigation/routes/UI structure.
+RLS: keep existing public-read / admin-write policies (no change).
 
-Validation checklist (end-to-end):
-- Normal browser with stale old session: app recovers and loads firms automatically.
-- Incognito and normal both load consistently.
-- Direct open and hard refresh on `/propfirms`, `/`, `/top-firms`, `/cheap-firms`, `/table-review`.
-- Network throttling: request aborts at ~10s, retries once, loading ends.
-- After 2 consecutive failures: safe recovery + reload happens once (no loop).
-- Auth events (sign out/token refresh) do not leave app stuck in loading.
-- Mobile and desktop flows unchanged visually.
+Acceptance: every firm has a unique slug, `tsv` populated, all GIN/trgm/B-tree indexes exist, admin form can edit the new fields.
 
-Files to modify:
-- `src/integrations/supabase/client.ts`
-- `src/utils/sessionRecovery.ts`
-- `src/contexts/AppReadyContext.tsx`
-- `src/hooks/useSupabaseData.ts`
-- `src/hooks/useSectionMemberships.ts`
-- `src/hooks/useTableReviewFirms.ts`
+---
+
+## Phase 2 — Search Edge Function
+
+Create `supabase/functions/search-firms/index.ts`.
+
+Inputs (POST JSON):
+```
+{
+  search?: string,
+  platforms?: string[],
+  asset_classes?: string[],
+  feature_tags?: string[],
+  countries?: string[],
+  market_type?: string[],
+  min_fee?: number, max_fee?: number,
+  min_account?: number, max_account?: number,
+  min_profit_split?: number,
+  min_rating?: number,
+  verified?: boolean,
+  year_from?: number,
+  sort?: 'rating'|'price_asc'|'price_desc'|'newest'|'relevance',
+  page?: number, page_size?: number  // default 20, max 60
+}
+```
+
+Implementation:
+- Zod-validate body, return 400 on bad input
+- Build a `supabase.from('prop_firms').select('*', { count: 'exact', head: false })`
+- Apply: `.textSearch('tsv', q, { type: 'websearch', config: 'english' })` when `search` present; fallback to trigram `ilike` if short query
+- `.contains('platforms', platforms)` etc. for arrays
+- `.gte`/`.lte` for numeric ranges, `.eq('verified', true)` when set
+- `.order(...)` for sort, `.range(from, to)` for pagination
+- Return `{ firms, total, page, page_size }` with CORS headers
+- Public anon-key callable (read-only), no JWT required
+
+Acceptance: function returns correct filtered results + accurate `total`; covered by a Deno test that exercises 3 filter combos.
+
+---
+
+## Phase 3 — Frontend hook + filter UI (Vite)
+
+New files:
+- `src/hooks/usePropFirmsSearch.ts` — wraps `supabase.functions.invoke('search-firms', { body })` with:
+  - 300ms debounce on `search`
+  - `AbortController` + 10s timeout (reuses pattern from `useSupabaseData`)
+  - one retry on failure
+  - `loading` always cleared in `finally`
+  - returns `{ firms, total, page, setPage, loading, error, retry }`
+- `src/components/search/FilterPanel.tsx` — sidebar with:
+  - search input (icon + clear)
+  - multi-select chips: platforms, asset classes, feature tags, market types, countries
+  - dual-handle slider for fee range and account size (shadcn `Slider`)
+  - star selector for min rating
+  - toggle for "Verified only"
+  - "Clear all" button + active-filter count badge
+- `src/components/search/SearchResults.tsx` — grid of `PropFirmCard` with framer-motion `layout` reorder, skeletons while loading, empty + error states with retry, pagination footer
+- `src/pages/AllPropFirms.tsx` — refactored to host `FilterPanel` + `SearchResults`; mobile shows filter as a `Sheet` drawer
+
+State lives in the page; URL is kept in sync via `useSearchParams` so filters are shareable/bookmarkable.
+
+Acceptance: every filter works individually and in combination; URL reflects state; mobile drawer works; no infinite loaders; live-updating result count.
+
+---
+
+## Phase 4 — Caching, timeouts, error recovery
+
+- All search calls go through a shared `withTimeout(promise, 10_000)` + 1 retry helper (already exists in `useSupabaseData.ts` — extract to `src/utils/resilientFetch.ts` and reuse)
+- `loading=false` enforced in `finally`
+- Edge function responses sent with `Cache-Control: no-store`
+- Client query includes `ts` cache-buster only on retry (not first call) to avoid CDN cache hit on stale errors
+- On 2 consecutive total failures, trigger existing `recoverSession()` — do NOT loop
+- Stale-while-revalidate: cache last result set in `sessionStorage` keyed by filter hash so the UI shows previous results instantly while fresh ones load
+
+Acceptance: throttled network → request aborts at ~10s → retries once → either succeeds or shows error+retry; no infinite spinner.
+
+---
+
+## Phase 5 — SEO + Meta Pixel (no CAPI)
+
+SEO:
+- Install `react-helmet-async`, wrap `<App>` in `HelmetProvider`
+- Add `<SEO>` component used on `Index`, `AllPropFirms`, `PropFirmDetail`, `FirmReviewDetail`, `TopFirms`, `CheapFirms`, `TableReview`, `Reviews` with: dynamic title (<60 chars), meta description (<160), canonical, `og:` and `twitter:` tags, and JSON-LD (`Organization`, `Product` for firms with `aggregateRating`, `BreadcrumbList`)
+- Generate `public/sitemap.xml` at build time via `scripts/generate-sitemap.mjs` (reads slugs from Supabase using anon key); add as a `prebuild` npm script
+- Existing `public/robots.txt` updated to reference sitemap
+
+Meta Pixel (client only):
+- Inject Pixel base snippet in `index.html` `<head>` guarded by `VITE_META_PIXEL_ID`
+- New `src/components/PixelTracker.tsx` listens to React Router `useLocation()` and fires `fbq('track','PageView')` on every navigation
+- Helper `trackPixelEvent(name, params)` for future custom events (no CAPI route)
+- Pixel ID stored as `VITE_META_PIXEL_ID` env var (publishable, safe in client)
+
+Acceptance: Lighthouse SEO ≥ 90; sitemap contains every slug; Meta Pixel Helper extension shows PageView on every route change.
+
+---
+
+## Technical details
+
+**Migration order:** Phase 1 SQL (one migration: extension + columns + triggers + indexes + backfill). User must approve migration before code changes referencing new columns are deployed. The Supabase types file regenerates automatically.
+
+**Edge Function deployment:** automatic on push. Uses anon key from client; no service role needed. CORS headers + OPTIONS handler included.
+
+**Hook contract:** `usePropFirmsSearch` mirrors the shape of existing `usePropFirms` so other pages keep working. The old `usePropFirms` stays for the homepage.
+
+**URL params format:** comma-joined arrays (`?platforms=MT4,MT5&min_rating=4`); ranges as `fee=100-500`. Decoded once in the page.
+
+**Files to add:**
+- `supabase/functions/search-firms/index.ts` + `index_test.ts`
+- `src/hooks/usePropFirmsSearch.ts`
+- `src/utils/resilientFetch.ts`
+- `src/components/search/FilterPanel.tsx`
+- `src/components/search/SearchResults.tsx`
+- `src/components/SEO.tsx`
+- `src/components/PixelTracker.tsx`
+- `scripts/generate-sitemap.mjs`
+
+**Files to modify:**
+- `src/pages/AllPropFirms.tsx` (use new hook + panel)
+- `src/components/admin/*` (form fields for new columns)
+- `src/types/supabase.ts` (extend `PropFirm`)
+- `src/App.tsx` (HelmetProvider, PixelTracker)
+- `index.html` (Pixel base snippet)
+- `package.json` (deps + prebuild script)
+- `public/robots.txt` (add sitemap line)
+
+**Risks / mitigations:**
+- New columns null on existing rows → backfill in migration; UI filters treat null as "unspecified" (don't exclude)
+- `tsv` trigger conflicts with existing rows → `UPDATE` after column add to populate
+- Sitemap script needs network at build → uses public anon key; fails soft (logs warning, ships old sitemap)
+- Pixel ID missing → tracker no-ops silently
