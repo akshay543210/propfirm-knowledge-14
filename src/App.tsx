@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PayoutSupportBanner from "@/components/PayoutSupportBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import TradingLoader from "@/components/TradingLoader";
+import PixelTracker from "@/components/PixelTracker";
 
 // Lazy load components for better performance
 const Index = React.lazy(() => import("./pages/Index"));
@@ -47,51 +49,54 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<TradingLoader />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/propfirms" element={<AllPropFirms />} />
-              <Route path="/compare" element={<Comparison />} />
-              <Route path="/cheap-firms" element={<CheapFirms />} />
-              <Route path="/drama-tracker" element={<DramaTracker />} />
-              <Route path="/drama-tracker/submit" element={<DramaSubmit />} />
-              <Route path="/top-firms" element={<TopFirms />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/reviews/:slug" element={<ReviewDetail />} />
-              <Route path="/table-review" element={<TableReview />} />
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <PixelTracker />
+            <Suspense fallback={<TradingLoader />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/propfirms" element={<AllPropFirms />} />
+                <Route path="/compare" element={<Comparison />} />
+                <Route path="/cheap-firms" element={<CheapFirms />} />
+                <Route path="/drama-tracker" element={<DramaTracker />} />
+                <Route path="/drama-tracker/submit" element={<DramaSubmit />} />
+                <Route path="/top-firms" element={<TopFirms />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/reviews/:slug" element={<ReviewDetail />} />
+                <Route path="/table-review" element={<TableReview />} />
 
-              {/* Public auth routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/verify" element={<EmailConfirmation />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+                {/* Public auth routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/verify" element={<EmailConfirmation />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-              {/* Admin auth */}
-              <Route path="/admin-login" element={<AdminLogin />} />
+                {/* Admin auth */}
+                <Route path="/admin-login" element={<AdminLogin />} />
 
-              {/* Protected admin routes */}
-              <Route element={<AdminRoute />}>
-                <Route path="/admin-dashboard-2024" element={<AdminDashboard />} />
-              </Route>
+                {/* Protected admin routes */}
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin-dashboard-2024" element={<AdminDashboard />} />
+                </Route>
 
-              {/* Slug-based firm routes (must be after all static routes) */}
-              <Route path="/:slug" element={<PropFirmDetail />} />
-              <Route path="/:slug/reviews" element={<FirmReviewDetail />} />
-              <Route path="/:slug/write-review" element={<WriteReview />} />
+                {/* Slug-based firm routes (must be after all static routes) */}
+                <Route path="/:slug" element={<PropFirmDetail />} />
+                <Route path="/:slug/reviews" element={<FirmReviewDetail />} />
+                <Route path="/:slug/write-review" element={<WriteReview />} />
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+                {/* Catch-all */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </ErrorBoundary>
 );
 

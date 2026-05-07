@@ -282,15 +282,22 @@ export type Database = {
       }
       prop_firms: {
         Row: {
+          account_max: number | null
+          account_min: number | null
           affiliate_url: string | null
+          asset_classes: string[] | null
           brand: string | null
           category_id: string | null
           cons: string[] | null
+          countries: string[] | null
           coupon_code: string | null
           created_at: string | null
           description: string | null
           evaluation_model: string | null
+          feature_tags: string[] | null
           features: string[] | null
+          fee_max: number | null
+          fee_min: number | null
           funding_amount: string
           id: string
           logo_url: string | null
@@ -300,9 +307,13 @@ export type Database = {
           original_price: number
           payout_rate: number
           platform: string | null
+          platforms: string[] | null
           price: number
           profit_split: number
+          profit_split_max: number | null
+          profit_split_min: number | null
           pros: string[] | null
+          rating_avg: number | null
           regulation: string | null
           review_score: number | null
           show_on_homepage: boolean | null
@@ -317,19 +328,29 @@ export type Database = {
           table_profit_split: number | null
           table_trust_rating: number | null
           trust_rating: number | null
+          tsv: unknown
           updated_at: string | null
           user_review_count: number | null
+          verified: boolean
+          year_established: number | null
         }
         Insert: {
+          account_max?: number | null
+          account_min?: number | null
           affiliate_url?: string | null
+          asset_classes?: string[] | null
           brand?: string | null
           category_id?: string | null
           cons?: string[] | null
+          countries?: string[] | null
           coupon_code?: string | null
           created_at?: string | null
           description?: string | null
           evaluation_model?: string | null
+          feature_tags?: string[] | null
           features?: string[] | null
+          fee_max?: number | null
+          fee_min?: number | null
           funding_amount: string
           id?: string
           logo_url?: string | null
@@ -339,9 +360,13 @@ export type Database = {
           original_price: number
           payout_rate: number
           platform?: string | null
+          platforms?: string[] | null
           price: number
           profit_split: number
+          profit_split_max?: number | null
+          profit_split_min?: number | null
           pros?: string[] | null
+          rating_avg?: number | null
           regulation?: string | null
           review_score?: number | null
           show_on_homepage?: boolean | null
@@ -356,19 +381,29 @@ export type Database = {
           table_profit_split?: number | null
           table_trust_rating?: number | null
           trust_rating?: number | null
+          tsv?: unknown
           updated_at?: string | null
           user_review_count?: number | null
+          verified?: boolean
+          year_established?: number | null
         }
         Update: {
+          account_max?: number | null
+          account_min?: number | null
           affiliate_url?: string | null
+          asset_classes?: string[] | null
           brand?: string | null
           category_id?: string | null
           cons?: string[] | null
+          countries?: string[] | null
           coupon_code?: string | null
           created_at?: string | null
           description?: string | null
           evaluation_model?: string | null
+          feature_tags?: string[] | null
           features?: string[] | null
+          fee_max?: number | null
+          fee_min?: number | null
           funding_amount?: string
           id?: string
           logo_url?: string | null
@@ -378,9 +413,13 @@ export type Database = {
           original_price?: number
           payout_rate?: number
           platform?: string | null
+          platforms?: string[] | null
           price?: number
           profit_split?: number
+          profit_split_max?: number | null
+          profit_split_min?: number | null
           pros?: string[] | null
+          rating_avg?: number | null
           regulation?: string | null
           review_score?: number | null
           show_on_homepage?: boolean | null
@@ -395,8 +434,11 @@ export type Database = {
           table_profit_split?: number | null
           table_trust_rating?: number | null
           trust_rating?: number | null
+          tsv?: unknown
           updated_at?: string | null
           user_review_count?: number | null
+          verified?: boolean
+          year_established?: number | null
         }
         Relationships: [
           {
@@ -591,6 +633,9 @@ export type Database = {
         }[]
       }
       is_admin: { Args: never; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

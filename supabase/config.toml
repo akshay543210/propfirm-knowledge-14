@@ -1,1 +1,4 @@
 project_id = "jkiblofuayvdrrxbbhuu"
+
+[functions.search-firms]
+verify_jwt = false
