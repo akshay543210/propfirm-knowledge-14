@@ -40,6 +40,20 @@ export interface PropFirm {
   table_evaluation_rules: string | null;
   table_fee: number | null;
   table_coupon_code: string | null;
+  // Advanced search & filter fields
+  platforms?: string[] | null;
+  asset_classes?: string[] | null;
+  feature_tags?: string[] | null;
+  countries?: string[] | null;
+  fee_min?: number | null;
+  fee_max?: number | null;
+  account_min?: number | null;
+  account_max?: number | null;
+  profit_split_min?: number | null;
+  profit_split_max?: number | null;
+  year_established?: number | null;
+  verified?: boolean;
+  rating_avg?: number | null;
 }
 
 export interface Review {
