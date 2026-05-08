@@ -13,7 +13,24 @@ import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
 import HomepageToggleField from "./admin/HomepageToggleField";
 import MarketTypeField from "./admin/MarketTypeField";
+import AdvancedFieldsSection from "./admin/AdvancedFieldsSection";
 import { MarketType } from "@/contexts/MarketContext";
+
+const ADVANCED_DEFAULTS = {
+  platforms: '',
+  asset_classes: '',
+  feature_tags: '',
+  countries: '',
+  fee_min: null as number | null,
+  fee_max: null as number | null,
+  account_min: null as number | null,
+  account_max: null as number | null,
+  profit_split_min: null as number | null,
+  profit_split_max: null as number | null,
+  year_established: null as number | null,
+  rating_avg: null as number | null,
+  verified: false,
+};
 
 interface AdminFormPanelProps {
   onAdd: (firm: Partial<PropFirm>) => Promise<any>;
@@ -62,6 +79,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     table_evaluation_rules: null as string | null,
     table_fee: null as number | null,
     table_coupon_code: null as string | null,
+    ...ADVANCED_DEFAULTS,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -102,6 +120,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       table_evaluation_rules: null,
       table_fee: null,
       table_coupon_code: null,
+      ...ADVANCED_DEFAULTS,
     });
     setEditingFirm(null);
     setErrors({});
@@ -123,11 +142,16 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     }
 
     try {
-      const firmData = {
+      const toArr = (v: string) => v.split(',').map(f => f.trim()).filter(Boolean);
+      const firmData: Partial<PropFirm> = {
         ...formData,
-        features: formData.features.split(',').map(f => f.trim()).filter(f => f),
-        pros: formData.pros.split(',').map(f => f.trim()).filter(f => f),
-        cons: formData.cons.split(',').map(f => f.trim()).filter(f => f),
+        features: toArr(formData.features),
+        pros: toArr(formData.pros),
+        cons: toArr(formData.cons),
+        platforms: toArr(formData.platforms),
+        asset_classes: toArr(formData.asset_classes),
+        feature_tags: toArr(formData.feature_tags),
+        countries: toArr(formData.countries),
         slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         category_id: formData.category_id,
         starting_fee: formData.starting_fee > 0 ? formData.starting_fee : 0,
@@ -194,6 +218,19 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       table_evaluation_rules: firm.table_evaluation_rules || null,
       table_fee: firm.table_fee || null,
       table_coupon_code: firm.table_coupon_code || null,
+      platforms: firm.platforms?.join(', ') || '',
+      asset_classes: firm.asset_classes?.join(', ') || '',
+      feature_tags: firm.feature_tags?.join(', ') || '',
+      countries: firm.countries?.join(', ') || '',
+      fee_min: firm.fee_min ?? null,
+      fee_max: firm.fee_max ?? null,
+      account_min: firm.account_min ?? null,
+      account_max: firm.account_max ?? null,
+      profit_split_min: firm.profit_split_min ?? null,
+      profit_split_max: firm.profit_split_max ?? null,
+      year_established: firm.year_established ?? null,
+      rating_avg: firm.rating_avg ?? null,
+      verified: firm.verified ?? false,
     });
     setEditingFirm(firm);
     setErrors({});
@@ -269,6 +306,12 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
           />
 
           <MarketTypeField
+            formData={formData}
+            setFormData={setFormData}
+            loading={loading}
+          />
+
+          <AdvancedFieldsSection
             formData={formData}
             setFormData={setFormData}
             loading={loading}
