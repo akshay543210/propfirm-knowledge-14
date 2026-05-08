@@ -112,25 +112,41 @@ export const useAdminOperations = () => {
   const updateFirm = async (id: string, updates: Partial<PropFirm>) => {
     setLoading(true);
     try {
-      
-      // Ensure arrays are properly formatted
+      // Strip server-managed/computed fields that should never be sent
+      const { id: _id, tsv, created_at, ...safeUpdates } = updates as any;
+
       const formattedUpdates: any = {
-        ...updates,
-        features: Array.isArray(updates.features) ? updates.features : (updates.features ? (updates.features as string).split(',').map(f => f.trim()).filter(f => f) : []),
-        pros: Array.isArray(updates.pros) ? updates.pros : (updates.pros ? (updates.pros as string).split(',').map(f => f.trim()).filter(f => f) : []),
-        cons: Array.isArray(updates.cons) ? updates.cons : (updates.cons ? (updates.cons as string).split(',').map(f => f.trim()).filter(f => f) : []),
-        slug: updates.slug || (updates.name ? updates.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : undefined),
+        ...safeUpdates,
+        features: Array.isArray(safeUpdates.features) ? safeUpdates.features : (safeUpdates.features ? (safeUpdates.features as string).split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
+        pros: Array.isArray(safeUpdates.pros) ? safeUpdates.pros : (safeUpdates.pros ? (safeUpdates.pros as string).split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
+        cons: Array.isArray(safeUpdates.cons) ? safeUpdates.cons : (safeUpdates.cons ? (safeUpdates.cons as string).split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
+        slug: safeUpdates.slug || (safeUpdates.name ? safeUpdates.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : undefined),
         updated_at: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase
-        .from('prop_firms')
-        .update(formattedUpdates)
-        .eq('id', id)
-        .select()
-        .single();
+      // 15s timeout so the UI never gets stuck on "Updating..."
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      let data: any, error: any;
+      try {
+        const res = await supabase
+          .from('prop_firms')
+          .update(formattedUpdates)
+          .eq('id', id)
+          .abortSignal(controller.signal)
+          .select()
+          .single();
+        data = res.data;
+        error = res.error;
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (error) {
+        if (error.name === 'AbortError' || /aborted/i.test(error.message || '')) {
+          throw new Error('Update timed out after 15 seconds. Please try again.');
+        }
         throw error;
       }
 
