@@ -311,6 +311,12 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
             loading={loading}
           />
 
+          <AdvancedFieldsSection
+            formData={formData}
+            setFormData={setFormData}
+            loading={loading}
+          />
+
           <div className="flex gap-4 pt-4">
             <Button 
               type="submit" 
