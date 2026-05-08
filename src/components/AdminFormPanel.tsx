@@ -13,7 +13,24 @@ import TradingFields from "./admin/TradingFields";
 import ContentFields from "./admin/ContentFields";
 import HomepageToggleField from "./admin/HomepageToggleField";
 import MarketTypeField from "./admin/MarketTypeField";
+import AdvancedFieldsSection from "./admin/AdvancedFieldsSection";
 import { MarketType } from "@/contexts/MarketContext";
+
+const ADVANCED_DEFAULTS = {
+  platforms: '',
+  asset_classes: '',
+  feature_tags: '',
+  countries: '',
+  fee_min: null as number | null,
+  fee_max: null as number | null,
+  account_min: null as number | null,
+  account_max: null as number | null,
+  profit_split_min: null as number | null,
+  profit_split_max: null as number | null,
+  year_established: null as number | null,
+  rating_avg: null as number | null,
+  verified: false,
+};
 
 interface AdminFormPanelProps {
   onAdd: (firm: Partial<PropFirm>) => Promise<any>;
