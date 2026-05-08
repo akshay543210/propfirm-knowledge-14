@@ -120,6 +120,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       table_evaluation_rules: null,
       table_fee: null,
       table_coupon_code: null,
+      ...ADVANCED_DEFAULTS,
     });
     setEditingFirm(null);
     setErrors({});
