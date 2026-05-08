@@ -79,6 +79,7 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     table_evaluation_rules: null as string | null,
     table_fee: null as number | null,
     table_coupon_code: null as string | null,
+    ...ADVANCED_DEFAULTS,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
