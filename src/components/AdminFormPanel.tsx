@@ -218,6 +218,19 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
       table_evaluation_rules: firm.table_evaluation_rules || null,
       table_fee: firm.table_fee || null,
       table_coupon_code: firm.table_coupon_code || null,
+      platforms: firm.platforms?.join(', ') || '',
+      asset_classes: firm.asset_classes?.join(', ') || '',
+      feature_tags: firm.feature_tags?.join(', ') || '',
+      countries: firm.countries?.join(', ') || '',
+      fee_min: firm.fee_min ?? null,
+      fee_max: firm.fee_max ?? null,
+      account_min: firm.account_min ?? null,
+      account_max: firm.account_max ?? null,
+      profit_split_min: firm.profit_split_min ?? null,
+      profit_split_max: firm.profit_split_max ?? null,
+      year_established: firm.year_established ?? null,
+      rating_avg: firm.rating_avg ?? null,
+      verified: firm.verified ?? false,
     });
     setEditingFirm(firm);
     setErrors({});
