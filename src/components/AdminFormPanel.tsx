@@ -142,11 +142,16 @@ const AdminFormPanel = ({ onAdd, onUpdate, editingFirm, setEditingFirm, loading 
     }
 
     try {
-      const firmData = {
+      const toArr = (v: string) => v.split(',').map(f => f.trim()).filter(Boolean);
+      const firmData: Partial<PropFirm> = {
         ...formData,
-        features: formData.features.split(',').map(f => f.trim()).filter(f => f),
-        pros: formData.pros.split(',').map(f => f.trim()).filter(f => f),
-        cons: formData.cons.split(',').map(f => f.trim()).filter(f => f),
+        features: toArr(formData.features),
+        pros: toArr(formData.pros),
+        cons: toArr(formData.cons),
+        platforms: toArr(formData.platforms),
+        asset_classes: toArr(formData.asset_classes),
+        feature_tags: toArr(formData.feature_tags),
+        countries: toArr(formData.countries),
         slug: formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         category_id: formData.category_id,
         starting_fee: formData.starting_fee > 0 ? formData.starting_fee : 0,
