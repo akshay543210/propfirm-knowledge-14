@@ -1,6 +1,13 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { corsHeaders } from 'jsr:@supabase/supabase-js@2/cors';
 import { z } from 'npm:zod@3.23.8';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type, x-retry-count, cache-control, pragma, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Max-Age': '86400',
+};
 
 const BodySchema = z.object({
   search: z.string().trim().max(200).optional(),
