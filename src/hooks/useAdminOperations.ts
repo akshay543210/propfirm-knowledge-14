@@ -112,17 +112,46 @@ export const useAdminOperations = () => {
   const updateFirm = async (id: string, updates: Partial<PropFirm>) => {
     setLoading(true);
     try {
-      // Strip server-managed/computed fields that should never be sent
-      const { id: _id, tsv, created_at, ...safeUpdates } = updates as any;
+      // Strip server-managed/computed/relation fields that should never be sent
+      const {
+        id: _id,
+        tsv,
+        created_at,
+        rating_avg, // computed elsewhere; updating manually is fine but skip if undefined
+        ...rest
+      } = updates as any;
+
+      // Helper: ensure value is a clean array (handles arrays, comma strings, null)
+      const toArr = (v: any): string[] => {
+        if (Array.isArray(v)) return v.map((x) => String(x).trim()).filter(Boolean);
+        if (typeof v === 'string') return v.split(',').map((f) => f.trim()).filter(Boolean);
+        return [];
+      };
 
       const formattedUpdates: any = {
-        ...safeUpdates,
-        features: Array.isArray(safeUpdates.features) ? safeUpdates.features : (safeUpdates.features ? (safeUpdates.features as string).split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
-        pros: Array.isArray(safeUpdates.pros) ? safeUpdates.pros : (safeUpdates.pros ? (safeUpdates.pros as string).split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
-        cons: Array.isArray(safeUpdates.cons) ? safeUpdates.cons : (safeUpdates.cons ? (safeUpdates.cons as string).split(',').map((f: string) => f.trim()).filter((f: string) => f) : []),
-        slug: safeUpdates.slug || (safeUpdates.name ? safeUpdates.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : undefined),
+        ...rest,
+        features: toArr(rest.features),
+        pros: toArr(rest.pros),
+        cons: toArr(rest.cons),
+        platforms: toArr(rest.platforms),
+        asset_classes: toArr(rest.asset_classes),
+        feature_tags: toArr(rest.feature_tags),
+        countries: toArr(rest.countries),
+        slug: rest.slug || (rest.name ? rest.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : undefined),
         updated_at: new Date().toISOString(),
       };
+
+      // Only include rating_avg if explicitly provided (number)
+      if (typeof rating_avg === 'number') {
+        formattedUpdates.rating_avg = rating_avg;
+      }
+
+      // Drop undefined keys so PostgREST doesn't reject them
+      Object.keys(formattedUpdates).forEach((k) => {
+        if (formattedUpdates[k] === undefined) delete formattedUpdates[k];
+      });
+
+      console.log('[updateFirm] payload keys:', Object.keys(formattedUpdates));
 
       // 15s timeout so the UI never gets stuck on "Updating..."
       const controller = new AbortController();
@@ -144,11 +173,19 @@ export const useAdminOperations = () => {
       }
 
       if (error) {
+        console.error('[updateFirm] supabase error:', error);
         if (error.name === 'AbortError' || /aborted/i.test(error.message || '')) {
           throw new Error('Update timed out after 15 seconds. Please try again.');
         }
         throw error;
       }
+
+      // Bust prop_firms cache so the list reflects the new values immediately
+      try {
+        Object.keys(sessionStorage).forEach((k) => {
+          if (k.startsWith('propfirm-cache-')) sessionStorage.removeItem(k);
+        });
+      } catch {}
 
       toast({
         title: "Success",
