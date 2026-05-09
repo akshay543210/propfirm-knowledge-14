@@ -5,14 +5,12 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jkiblofuayvdrrxbbhuu.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpraWJsb2Z1YXl2ZHJyeGJiaHV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTExODE0MjAsImV4cCI6MjA2Njc1NzQyMH0.p18BeXmlbh_5RPF54KF0yahyJ0fCC17GOOHk4bE2wLg";
 
-// Cache-busting fetch wrapper — forces no-store on every Supabase request
+// Cache-busting fetch wrapper — uses cache: 'no-store' only.
+// Do NOT add Cache-Control/Pragma headers: doing so forces a CORS preflight
+// that edge functions don't allow, breaking supabase.functions.invoke().
 const noCacheFetch: typeof fetch = (input, init) => {
-  const headers = new Headers(init?.headers);
-  headers.set('Cache-Control', 'no-cache, no-store, max-age=0');
-  headers.set('Pragma', 'no-cache');
   return fetch(input, {
     ...init,
-    headers,
     cache: 'no-store' as RequestCache,
   });
 };
